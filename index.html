@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Bot | The Next Generation Discord AI</title>
+    <meta name="description" content="Powerful AI, Smart Moderation, Music, Automation, Analytics and Members Dashboard — All in one Discord Bot.">
+    
+    <!-- SEO & Social Meta Tags -->
+    <meta property="og:title" content="Nexus Bot | The Next Generation Discord AI">
+    <meta property="og:description" content="Powerful AI, Smart Moderation, Music, Automation, Analytics and Members Dashboard — All in one Discord Bot.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#7C3AED">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo" style="display: flex; align-items: center;">
+                <img src="images/nexus_logo.png" alt="Nexus Logo" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 10px; box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);">
+                <span class="logo-text">Nexus</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#commands">Commands</a></li>
+                <li><a href="#stats">Stats</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="/dashboard" class="btn btn-secondary nav-dashboard-btn">Members Dashboard</a>
+                <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary" target="_blank">Invite Nexus</a>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-bg-glow"></div>
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="badge fade-up">
+                        <span class="badge-dot"></span> V2.0 is now live
+                    </div>
+                    
+                    <h1 class="hero-title fade-up" style="animation-delay: 0.1s;">
+                        The AI That Runs Your <br><span class="text-gradient">Discord Server</span>
+                    </h1>
+                    
+                    <p class="hero-subtitle fade-up" style="animation-delay: 0.2s;">
+                        The ultimate Discord Server OS. Combining powerful conversational AI, elite anti-raid moderation, and a comprehensive Members Dashboard for your community.
+                    </p>
+                    
+                    <div class="hero-buttons fade-up" style="animation-delay: 0.3s;">
+                        <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary btn-lg" target="_blank">
+                            <i class="fab fa-discord"></i> Add to Discord
+                        </a>
+                        <a href="/dashboard" class="btn btn-secondary btn-lg">
+                            Members Dashboard <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="trusted-by fade-up" style="animation-delay: 0.4s;">
+                        <span>Built exclusively for your community</span>
+                    </div>
+                </div>
+
+                <!-- Floating Dashboard Preview (CSS based) -->
+                <div class="hero-dashboard fade-up" style="animation-delay: 0.5s;">
+                    <div class="dash-mockup">
+                        <div class="dash-header">
+                            <div class="mac-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <div class="dash-url">nexusbot.com/dashboard</div>
+                        </div>
+                        <div class="dash-body">
+                            <div class="dash-sidebar">
+                                <div class="dash-item active"></div>
+                                <div class="dash-item"></div>
+                                <div class="dash-item"></div>
+                                <div class="dash-item"></div>
+                            </div>
+                            <div class="dash-main">
+                                <div class="dash-row">
+                                    <div class="dash-card">
+                                        <div class="card-icon blue"></div>
+                                        <div class="card-line short"></div>
+                                        <div class="card-line"></div>
+                                    </div>
+                                    <div class="dash-card">
+                                        <div class="card-icon purple"></div>
+                                        <div class="card-line short"></div>
+                                        <div class="card-line"></div>
+                                    </div>
+                                </div>
+                                <div class="dash-row large">
+                                    <div class="dash-chart">
+                                        <div class="chart-bar" style="height: 40%"></div>
+                                        <div class="chart-bar" style="height: 70%"></div>
+                                        <div class="chart-bar" style="height: 50%"></div>
+                                        <div class="chart-bar" style="height: 90%"></div>
+                                        <div class="chart-bar" style="height: 30%"></div>
+                                        <div class="chart-bar" style="height: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Decorative floating elements -->
+                    <div class="float-widget w-1 discord-profile-widget">
+                        <div class="discord-profile-avatar">
+                            <img src="images/nexus_logo.png" alt="Avatar">
+                            <div class="discord-status-dot"></div>
+                        </div>
+                        <div class="discord-profile-info">
+                            <div class="discord-profile-name">
+                                NEXUS.GPT
+                                <span class="discord-bot-tag"><i class="fas fa-check" style="color:white; font-size: 0.5rem;"></i> BOT</span>
+                            </div>
+                            <div class="discord-profile-status" id="hero-bot-status">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="float-widget w-2 uptime-widget">
+                        <div class="uptime-header"><i class="fas fa-signal"></i> UPTIME</div>
+                        <div class="uptime-time" id="hero-uptime-stat">Loading...</div>
+                        <div class="uptime-footer">
+                            <div class="dot"></div>
+                            Server uptime
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats" id="stats">
+            <div class="container">
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+                    <!-- Server Stat -->
+                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(124, 58, 237, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(124, 58, 237, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(124, 58, 237, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(124, 58, 237, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(124, 58, 237, 0.1)';">
+                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0.05)); border: 1px solid rgba(124, 58, 237, 0.3); display: flex; align-items: center; justify-content: center; color: #a78bfa; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <h3 class="stat-number" id="server-count-stat" data-target="1" data-suffix="" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
+                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Active Servers</p>
+                        </div>
+                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
+                    </div>
+                    
+                    <!-- Users Stat -->
+                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(16, 185, 129, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(16, 185, 129, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(16, 185, 129, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(16, 185, 129, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(16, 185, 129, 0.1)';">
+                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <h3 class="stat-number" id="user-count-stat" data-target="100" data-suffix="+" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
+                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Total Users</p>
+                        </div>
+                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
+                    </div>
+
+                    <!-- Commands Stat -->
+                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(59, 130, 246, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(59, 130, 246, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(59, 130, 246, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(59, 130, 246, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(59, 130, 246, 0.1)';">
+                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05)); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center; color: #60a5fa; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <h3 class="stat-number" data-target="75" data-suffix="+" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
+                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Commands</p>
+                        </div>
+                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
+                    </div>
+
+                    <!-- Uptime Stat -->
+                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(245, 158, 11, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(245, 158, 11, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(245, 158, 11, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(245, 158, 11, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(245, 158, 11, 0.1)';">
+                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05)); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; color: #fbbf24; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <h3 class="stat-number" data-target="99.99" data-suffix="%" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
+                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Uptime</p>
+                        </div>
+                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features section-padding" id="features">
+            <div class="container">
+                <div class="section-header text-center reveal">
+                    <h2 class="section-title">Everything you need. <br><span class="text-gradient">Nothing you don't.</span></h2>
+                    <p class="section-subtitle">A comprehensive suite of tools designed to manage, grow, and entertain your Discord community.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                        <h3>AI & NLP</h3>
+                        <p>Advanced LLM-powered conversational AI, sentiment analysis, and automated vibe checks to keep chat engaging.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                        <h3>Moderation & Defense</h3>
+                        <p>Automated anti-raid protection, lockdown capabilities, auto-whitelisting, and powerful logging to keep your server safe 24/7.</p>
+                    </div>
+
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-film"></i></div>
+                        <h3>Media & Translation</h3>
+                        <p>Get detailed anime and movie lookups via interactive menus, and built-in text translation utilities.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-hammer"></i></div>
+                        <h3>Server Tools</h3>
+                        <p>Server architect blue-printing, advanced ticketing systems, and secure user verification gates.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3>Web Dashboard</h3>
+                        <p>A beautiful web interface for all members to view server leaderboards, economy stats, upcoming events, and their profiles.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-user-tag"></i></div>
+                        <h3>Role Management</h3>
+                        <p>Advanced automated role assignment, reaction roles, and complete setup management for massive communities.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-check-circle"></i></div>
+                        <h3>Verified System</h3>
+                        <p>Secure verification gates and captcha systems to keep your community safe from bots.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <div class="feature-icon"><i class="fas fa-door-open"></i></div>
+                        <h3>Welcome & Exit System</h3>
+                        <p>Customizable welcome banners and exit logs with rich embed formatting to greet new members.</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Commands Showcase Section -->
+        <section class="commands section-padding" id="commands">
+            <div class="container">
+                <div class="section-header text-center reveal">
+                    <h2 class="section-title">Powerful Commands</h2>
+                    <p class="section-subtitle">Over 150+ commands at your fingertips. Find what you need instantly.</p>
+                </div>
+
+                <div class="commands-showcase reveal">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="commandSearch" placeholder="Search commands... (e.g., ai, movie, setup)">
+                    </div>
+
+                    <div class="commands-list" id="commandsList">
+                        <div class="command-item" data-name="/ban">
+                            <div class="cmd-name">/ban</div>
+                            <div class="cmd-desc">Ban a user with comprehensive logging and audit trailing</div>
+                        </div>
+                        <div class="command-item" data-name="/setup_verify">
+                            <div class="cmd-name">/setup_verify</div>
+                            <div class="cmd-desc">Initialize a secure user verification gate for new members</div>
+                        </div>
+                        <div class="command-item" data-name="/clear">
+                            <div class="cmd-name">/clear</div>
+                            <div class="cmd-desc">Bulk delete messages quickly and cleanly</div>
+                        </div>
+                        <div class="command-item" data-name="/setup_server">
+                            <div class="cmd-name">/setup_server</div>
+                            <div class="cmd-desc">Automatically configure standard server channels, categories, and roles</div>
+                        </div>
+                        <div class="command-item" data-name="/ticket_setup">
+                            <div class="cmd-name">/ticket_setup</div>
+                            <div class="cmd-desc">Deploy a professional support ticketing system</div>
+                        </div>
+                        <div class="command-item" data-name="/movie">
+                            <div class="cmd-name">/movie</div>
+                            <div class="cmd-desc">Lookup detailed information and ratings about any movie</div>
+                        </div>
+                        <div class="command-item" data-name="/hq">
+                            <div class="cmd-name">/hq</div>
+                            <div class="cmd-desc">Manage the bot's central command and control operations</div>
+                        </div>
+                        <div class="command-item" data-name="/clearbots">
+                            <div class="cmd-name">/clearbots</div>
+                            <div class="cmd-desc">Clean up bot messages easily to keep your chat tidy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta section-padding">
+            <div class="container">
+                <div class="cta-box reveal">
+                    <div class="cta-bg-glow"></div>
+                    <h2>Ready to upgrade your Discord server?</h2>
+                    <p>Join thousands of other servers using Nexus Bot to automate, moderate, and entertain.</p>
+                    <div class="cta-buttons">
+                        <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary btn-lg" target="_blank">Invite Nexus Now</a>
+                        <a href="/dashboard" class="btn btn-secondary btn-lg">Members Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo" style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <img src="images/nexus_logo.png" alt="Nexus Logo" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 10px; box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);">
+                        <span class="logo-text">Nexus</span>
+                    </a>
+                    <p class="footer-desc">The next generation Discord AI bot designed for modern communities. Fast, secure, and reliable.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#commands">Commands</a></li>
+                        <li><a href="/dashboard">Dashboard</a></li>
+                        <li><a href="#">Premium</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#commands">Commands Guide</a></li>
+                        <li><a href="#">Support Server</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Refund Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Nexus Bot. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
