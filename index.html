@@ -610,9 +610,9 @@
                     </div>
                     <div class="dp-info">
                         <div class="dp-name">
-                            NEXUS.GPT <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
+                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
                         </div>
-                        <div class="dp-activity" id="dp-dynamic-text">NEWB.BUZZ</div>
+                        <div class="dp-activity" id="dp-dynamic-text">100+ SERVERS</div>
                     </div>
                 </div>
                 <div class="fade-up" style="animation-delay:0.1s">
@@ -1205,6 +1205,22 @@
         }
         fetchPublicStats();
         setInterval(fetchPublicStats, 15000);
+
+        // ── Real-time Discord Presence Update ──
+        const activities = ["100+ SERVERS", "75+ COMMANDS", "99.99% UPTIME"];
+        let activityIdx = 0;
+        const dpText = document.getElementById('dp-dynamic-text');
+        
+        if (dpText) {
+            setInterval(() => {
+                activityIdx = (activityIdx + 1) % activities.length;
+                dpText.style.opacity = '0';
+                setTimeout(() => {
+                    dpText.textContent = activities[activityIdx];
+                    dpText.style.opacity = '1';
+                }, 300);
+            }, 3500);
+        }
     </script>
 </body>
 </html>
