@@ -720,12 +720,12 @@
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">--</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">100+</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Happy Users</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-signal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">2ms</div>
+                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">2ms</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
                 </div>
             </div>
@@ -1194,8 +1194,10 @@
                 // About section stat boxes
                 const aServ = document.getElementById('about-servers');
                 const aUsers = document.getElementById('about-users');
-                if (aServ) aServ.textContent = fmt(d.total_servers || '--');
-                if (aUsers) aUsers.textContent = fmt(d.total_users || '--') + '+';
+                const aPing = document.getElementById('about-ping');
+                if (aServ) aServ.textContent = fmt(d.total_servers || '100') + '+';
+                if (aUsers) aUsers.textContent = fmt(d.total_users || '100') + '+';
+                if (aPing) aPing.textContent = (d.ping || '--') + 'ms';
                 // also update stat strip
                 const sc = document.getElementById('server-count-stat');
                 const uc = document.getElementById('user-count-stat');
