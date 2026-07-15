@@ -23,6 +23,10 @@
     {
       "source": "/static/:path*",
       "destination": "http://de1.bot-hosting.net:22220/static/:path*"
+    },
+    {
+      "source": "/admin_dashboard",
+      "destination": "http://de1.bot-hosting.net:22220/admin_dashboard"
     }
   ]
 }
