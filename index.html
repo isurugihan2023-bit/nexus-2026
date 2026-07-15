@@ -155,53 +155,69 @@
         <!-- Stats Section -->
         <section class="stats" id="stats">
             <div class="container">
-                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+                <style>
+                    /* Next Level Stats Grid */
+                    .stats-grid-next {
+                        display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;
+                    }
+                    .stat-card-next {
+                        background: #100d1a; padding: 24px; border-radius: 16px;
+                        border: 1px solid rgba(124, 58, 237, 0.2); 
+                        transition: transform 0.3s, border-color 0.3s;
+                        display: flex; align-items: center; gap: 20px;
+                        position: relative; overflow: hidden;
+                        -webkit-transform: translateZ(0); transform: translateZ(0);
+                    }
+                    .stat-card-next:hover { transform: translateY(-4px) translateZ(0); border-color: rgba(124, 58, 237, 0.5); }
+                    .stat-card-next::before {
+                        content: ''; position: absolute; top: -50px; right: -50px; width: 140px; height: 140px;
+                        background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+                    }
+                    .stat-icon-wrapper-next {
+                        width: 60px; height: 60px; border-radius: 14px;
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 1.7rem; flex-shrink: 0;
+                        background: rgba(124, 58, 237, 0.1); color: #c77dff; border: 1px solid rgba(124, 58, 237, 0.2);
+                    }
+                    .stat-info-next { display: flex; flex-direction: column; gap: 4px; z-index: 1; align-items: flex-start; }
+                    .stat-value-next { font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1; margin: 0; letter-spacing: -0.5px; }
+                    .stat-title-next { color: #94a3b8; font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; margin: 0; text-transform: uppercase; }
+                </style>
+                <div class="stats-grid-next">
                     <!-- Server Stat -->
-                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(124, 58, 237, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(124, 58, 237, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(124, 58, 237, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(124, 58, 237, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(124, 58, 237, 0.1)';">
-                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0.05)); border: 1px solid rgba(124, 58, 237, 0.3); display: flex; align-items: center; justify-content: center; color: #a78bfa; font-size: 1.75rem; flex-shrink: 0;">
-                            <i class="fas fa-server"></i>
+                    <div class="stat-card-next">
+                        <div class="stat-icon-wrapper-next"><i class="fas fa-server"></i></div>
+                        <div class="stat-info-next">
+                            <h3 class="stat-value-next stat-number" id="server-count-stat" data-target="1" data-suffix="">0</h3>
+                            <p class="stat-title-next">Active Servers</p>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                            <h3 class="stat-number" id="server-count-stat" data-target="1" data-suffix="" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
-                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Active Servers</p>
-                        </div>
-                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
                     </div>
                     
                     <!-- Users Stat -->
-                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(16, 185, 129, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(16, 185, 129, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(16, 185, 129, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(16, 185, 129, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(16, 185, 129, 0.1)';">
-                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 1.75rem; flex-shrink: 0;">
-                            <i class="fas fa-users"></i>
+                    <div class="stat-card-next">
+                        <div class="stat-icon-wrapper-next"><i class="fas fa-users"></i></div>
+                        <div class="stat-info-next">
+                            <h3 class="stat-value-next stat-number" id="user-count-stat" data-target="100" data-suffix="+">0</h3>
+                            <p class="stat-title-next">Total Users</p>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                            <h3 class="stat-number" id="user-count-stat" data-target="100" data-suffix="+" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
-                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Total Users</p>
-                        </div>
-                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
                     </div>
 
                     <!-- Commands Stat -->
-                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(59, 130, 246, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(59, 130, 246, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(59, 130, 246, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(59, 130, 246, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(59, 130, 246, 0.1)';">
-                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05)); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center; color: #60a5fa; font-size: 1.75rem; flex-shrink: 0;">
-                            <i class="fas fa-terminal"></i>
+                    <div class="stat-card-next">
+                        <div class="stat-icon-wrapper-next"><i class="fas fa-terminal"></i></div>
+                        <div class="stat-info-next">
+                            <h3 class="stat-value-next stat-number" data-target="75" data-suffix="+">0</h3>
+                            <p class="stat-title-next">Commands</p>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                            <h3 class="stat-number" data-target="75" data-suffix="+" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
-                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Commands</p>
-                        </div>
-                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
                     </div>
 
                     <!-- Uptime Stat -->
-                    <div class="stat-card" style="position: relative; overflow: hidden; background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 24px -4px rgba(245, 158, 11, 0.1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(245, 158, 11, 0.5)'; this.style.boxShadow='0 12px 32px -4px rgba(245, 158, 11, 0.25)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(245, 158, 11, 0.2)'; this.style.boxShadow='0 4px 24px -4px rgba(245, 158, 11, 0.1)';">
-                        <div style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05)); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; color: #fbbf24; font-size: 1.75rem; flex-shrink: 0;">
-                            <i class="fas fa-bolt"></i>
+                    <div class="stat-card-next">
+                        <div class="stat-icon-wrapper-next"><i class="fas fa-bolt"></i></div>
+                        <div class="stat-info-next">
+                            <h3 class="stat-value-next stat-number" data-target="99.99" data-suffix="%">0</h3>
+                            <p class="stat-title-next">Uptime</p>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                            <h3 class="stat-number" data-target="99.99" data-suffix="%" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1;">0</h3>
-                            <p class="stat-label" style="color: #94a3b8; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; margin: 6px 0 0 0; text-transform: uppercase;">Uptime</p>
-                        </div>
-                        <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%);"></div>
                     </div>
                 </div>
             </div>
