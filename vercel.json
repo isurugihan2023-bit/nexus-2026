@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/members",
+      "destination": "http://de1.bot-hosting.net:22220/members"
+    },
+    {
+      "source": "/admin_login",
+      "destination": "http://de1.bot-hosting.net:22220/admin_login"
+    },
+    {
       "source": "/dashboard",
       "destination": "http://de1.bot-hosting.net:22220/dashboard"
     },
