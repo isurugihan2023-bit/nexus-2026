@@ -58,12 +58,19 @@
 
         /* Gradient text - original beautiful gradient */
         .grad {
-            background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 40%, #7c3aed 100%);
+            background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 35%, #ffffff 50%, #a78bfa 65%, #7c3aed 100%);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             color: #a78bfa; /* Fallback */
-            text-shadow: 0 0 35px rgba(167, 139, 250, 0.65), 0 0 15px rgba(124, 58, 237, 0.4); /* Stronger glow */
+            text-shadow: 0 0 15px rgba(167, 139, 250, 0.4); /* Subtle glow */
+            animation: textShine 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes textShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* Section label pill */
@@ -199,7 +206,9 @@
         .hero-bg {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            background: 
+                radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.25) 0%, transparent 60%),
+                linear-gradient(to bottom, rgba(10, 10, 15, 0.6) 0%, rgba(10, 10, 15, 0.95) 100%);
             z-index: 0;
             pointer-events: none;
         }
@@ -224,17 +233,22 @@
             font-weight: 900;
             line-height: 1.05;
             letter-spacing: -0.04em;
-            margin-bottom: 16px;
+            margin: 0 auto 16px auto;
             max-width: 820px;
-            text-shadow: 0 0 25px rgba(255, 255, 255, 0.3), 0 0 50px rgba(167, 139, 250, 0.2);
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: max-content;
         }
 
         .hero-float {
-            animation: heroFadeGlow 4s ease-in-out infinite;
+            animation: heroFloat 5s ease-in-out infinite;
+            will-change: transform, opacity;
         }
-        @keyframes heroFadeGlow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.72; }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-8px); opacity: 0.85; }
         }
 
         .hero-sub {
@@ -626,7 +640,8 @@
                 <div class="fade-up" style="animation-delay:0.1s">
                     <div class="hero-float">
                         <h1 class="hero-heading">
-                            NEXUS<br><span class="grad">GUARDIAN</span>
+                            <span>NEXUS</span>
+                            <span class="grad">GUARDIAN</span>
                         </h1>
                     </div>
                 </div>
