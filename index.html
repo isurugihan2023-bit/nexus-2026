@@ -8,7 +8,7 @@
     <meta property="og:title" content="Nexus Bot | The Next Generation Discord AI">
     <meta property="og:description" content="Powerful AI, Smart Moderation, Automation, Analytics and Members Dashboard — All in one Discord Bot.">
     <meta property="og:type" content="website">
-    <meta name="theme-color" content="#7C3AED">
+    <meta name="theme-color" content="#6d28d9">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,8 +26,8 @@
             --bg:       #0a0a0f;
             --bg2:      #0f0d1a;
             --bg3:      #151225;
-            --border:   rgba(139,92,246,0.12);
-            --border2:  rgba(139,92,246,0.25);
+            --border:   rgba(124,58,237,0.12);
+            --border2:  rgba(124,58,237,0.25);
             --p400:     #a78bfa;
             --p500:     #8b5cf6;
             --p600:     #7c3aed;
@@ -52,7 +52,7 @@
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.35); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 3px; }
 
         .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 
@@ -63,6 +63,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             color: #a78bfa; /* Fallback */
+            text-shadow: 0 0 35px rgba(167, 139, 250, 0.65), 0 0 15px rgba(124, 58, 237, 0.4); /* Stronger glow */
         }
 
         /* Section label pill */
@@ -101,11 +102,11 @@
         .btn-ghost {
             background: rgba(15, 13, 26, 0.8);
             color: var(--text);
-            border: 1px solid rgba(139,92,246,0.25);
+            border: 1px solid rgba(124,58,237,0.25);
         }
         .btn-ghost:hover { 
-            background: rgba(139,92,246,0.1); 
-            border-color: rgba(139,92,246,0.5); 
+            background: rgba(124,58,237,0.1); 
+            border-color: rgba(124,58,237,0.5); 
         }
 
         /* ── NAVBAR ─────────────────────────────────────── */
@@ -147,7 +148,7 @@
         /* Tab sections — all hidden by default except home */
         .tab-pane { display: none !important; }
         .tab-pane.active { display: block !important; }
-        section.hero.tab-pane.active { display: flex !important; }
+        section.hero-section.tab-pane.active { display: flex !important; }
         /* Give non-hero active tabs space below navbar */
         .tab-pane.active:not(#home):not(#home-cta) { padding-top: 100px !important; }
 
@@ -166,56 +167,53 @@
 
         .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; }
 
-        /* ── HERO ─────────────────────────────────────── */
-        .hero {
-            position: relative; height: 100vh; min-height: 560px;
-            display: flex; align-items: center; justify-content: center;
-            padding: 80px 0 40px; overflow: hidden;
+        /* ── HERO SECTION ─────────────────────── */
+        .hero-section {
+            position: relative;
+            padding: 160px 0 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
         }
 
-        /* Moving dot grid — CPU safe using transform */
-        .hero::before {
-            content: '';
-            position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px;
-            background-image: radial-gradient(circle, rgba(139,92,246,0.12) 1.5px, transparent 1.5px);
-            background-size: 28px 28px;
+        .hero-img-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            object-fit: cover;
+            opacity: 0.15;
             pointer-events: none;
-            animation: gridSlide 15s linear infinite;
+            animation: slowPan 30s ease-in-out infinite alternate;
+            transform-origin: center;
+            will-change: transform;
         }
-        @keyframes gridSlide {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-28px, -28px); }
-        }
-
-        /* Floating Ambient Orbs (Hardware Safe) */
-        .ambient-orb {
-            position: absolute; border-radius: 50%;
-            background: radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 65%);
-            pointer-events: none; z-index: 0;
-        }
-        .orb-1 {
-            width: 800px; height: 800px; top: -200px; left: -200px;
-            animation: floatOrb 12s ease-in-out infinite alternate;
-        }
-        .orb-2 {
-            width: 700px; height: 700px; bottom: -150px; right: -150px;
-            animation: floatOrb 18s ease-in-out infinite alternate-reverse;
-        }
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(60px, 40px) scale(1.05); }
+        @keyframes slowPan {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(-1%, 1%); }
         }
 
-        .hero-glow {
-            position: absolute; top: -5%; left: 50%;
-            transform: translateX(-50%);
-            width: 1000px; height: 700px;
-            background: radial-gradient(ellipse at 50% 30%, rgba(109,40,217,0.18) 0%, transparent 65%);
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            z-index: 0;
             pointer-events: none;
         }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+
 
         .hero-inner {
-            position: relative; z-index: 1;
+            position: relative; z-index: 2;
             display: flex; flex-direction: column;
             align-items: center; text-align: center;
             gap: 0;
@@ -228,6 +226,7 @@
             letter-spacing: -0.04em;
             margin-bottom: 16px;
             max-width: 820px;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.3), 0 0 50px rgba(167, 139, 250, 0.2);
         }
 
         .hero-float {
@@ -241,9 +240,10 @@
         .hero-sub {
             font-size: clamp(0.95rem, 1.8vw, 1.1rem);
             color: var(--sub);
-            max-width: 560px;
+            max-width: 580px;
             line-height: 1.65;
-            margin-bottom: 28px;
+            margin: 0 auto 28px auto;
+            text-wrap: balance;
         }
 
         .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; }
@@ -493,18 +493,20 @@
             padding: 72px 0 36px;
         }
         .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 24px;
             margin-bottom: 56px;
         }
         .footer-brand-logo {
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
             font-weight: 800; font-size: 1.1rem;
             margin-bottom: 14px;
         }
         .footer-brand-logo img { width: 28px; height: 28px; border-radius: 7px; }
-        .footer-brand-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; max-width: 260px; }
+        .footer-brand-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; max-width: 320px; margin: 0 auto; }
 
         .footer-col h4 {
             font-size: 0.78rem; font-weight: 700;
@@ -598,22 +600,15 @@
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#stats">Stats</a></li>
                 </ul>
-                <div class="nav-cta">
-                    <a href="/members" class="nav-dash">Dashboard</a>
-                    <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="nav-invite" target="_blank">
-                        <i class="fab fa-discord"></i> Invite Nexus
-                    </a>
-                </div>
+
                 <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <!-- ── HERO ─────────────────────── -->
-    <section class="hero tab-pane active" id="home">
-        <div class="ambient-orb orb-1"></div>
-        <div class="ambient-orb orb-2"></div>
-        <div class="hero-glow"></div>
+    <section class="hero-section tab-pane active" id="home">
+        <img src="images/gojo-bg.png" alt="Hero Background" class="hero-img-bg" onerror="this.style.display='none'">
+        <div class="hero-bg"></div>
         <div class="container">
             <div class="hero-inner">
                 <div class="discord-presence fade-up" style="animation-delay:0s">
@@ -623,29 +618,22 @@
                     </div>
                     <div class="dp-info">
                         <div class="dp-name">
-                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
+                            NINJA NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
                         </div>
-                        <div class="dp-activity dp-dynamic-text">100+ SERVERS</div>
+                        <div class="dp-activity dp-dynamic-text">Watching Ninja Nexus</div>
                     </div>
                 </div>
                 <div class="fade-up" style="animation-delay:0.1s">
                     <div class="hero-float">
                         <h1 class="hero-heading">
-                            The AI That Runs Your<br><span class="grad">Discord Server</span>
+                            NEXUS<br><span class="grad">GUARDIAN</span>
                         </h1>
                     </div>
                 </div>
                 <p class="hero-sub fade-up" style="animation-delay:0.2s">
-                    The ultimate Discord Server OS. Combining powerful conversational AI, elite anti-raid moderation, and a comprehensive Members Dashboard for your community.
+                    The ultimate powerhouse built exclusively for the Ninja Nexus community. Experience next-generation conversational AI, elite anti-raid security, and seamless server automation.
                 </p>
-                <div class="hero-btns fade-up" style="animation-delay:0.3s">
-                    <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary" target="_blank">
-                        <i class="fab fa-discord"></i> Add to Discord
-                    </a>
-                    <a href="/members" class="btn btn-ghost">
-                        Dashboard <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i>
-                    </a>
-                </div>
+
                 <!-- Live stat chips -->
                 <div class="hero-chips fade-up" style="animation-delay:0.4s">
                     <div class="chip">
@@ -691,7 +679,7 @@
                 </div>
                 <h2 class="sec-title">About <span class="grad">NEXUS Bot</span></h2>
                 <p class="sec-sub">
-                    NEXUS, launched in 2026, was created for Discord communities who want a smarter, all-in-one server experience. It combines powerful AI, elite moderation, and a full web dashboard to elevate your community.
+                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience. It combines next-generation AI, elite anti-raid moderation, and comprehensive server management to elevate your community.
                 </p>
             </div>
 
@@ -723,7 +711,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px;">
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-server" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">100+</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">0</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Servers</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
@@ -733,7 +721,7 @@
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">100+</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">0</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Happy Users</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
@@ -751,7 +739,7 @@
             <div style="display: flex; justify-content: center; margin-bottom: 40px;">
                 <div class="discord-presence reveal">
                     <div class="dp-avatar">
-                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff'">
+                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=b91c1c&color=fff'">
                         <div class="dp-status"></div>
                     </div>
                     <div class="dp-info">
@@ -764,19 +752,19 @@
             </div>
             <div class="stats-strip-inner">
                 <div class="stat-item">
-                    <div class="stat-num stat-number" id="server-count-stat" data-target="100" data-suffix="+">0</div>
+                    <div class="stat-num stat-number" id="server-count-stat" data-target="0" data-suffix="">0</div>
                     <div class="stat-lbl">Active Servers</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-num stat-number" id="user-count-stat" data-target="100" data-suffix="+">0</div>
+                    <div class="stat-num stat-number" id="user-count-stat" data-target="0" data-suffix="">0</div>
                     <div class="stat-lbl">Total Users</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-num stat-number" data-target="75" data-suffix="+">0</div>
+                    <div class="stat-num stat-number" id="cmd-count-stat" data-target="0" data-suffix="">0</div>
                     <div class="stat-lbl">Commands</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-num stat-number" data-target="99.99" data-suffix="%">0</div>
+                    <div class="stat-num stat-number" id="uptime-stat" data-target="99.99" data-suffix="%">0</div>
                     <div class="stat-lbl">Uptime</div>
                 </div>
             </div>
@@ -809,16 +797,7 @@
                     <h3>Media & Translation</h3>
                     <p>Get detailed anime and movie lookups via interactive menus, and built-in text translation utilities.</p>
                 </div>
-                <div class="feat-card reveal">
-                    <div class="feat-icon"><i class="fas fa-hammer"></i></div>
-                    <h3>Server Tools</h3>
-                    <p>Server architect blue-printing, advanced ticketing systems, and secure user verification gates.</p>
-                </div>
-                <div class="feat-card reveal">
-                    <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>Web Dashboard</h3>
-                    <p>A beautiful web interface for all members to view server leaderboards, economy stats, upcoming events, and their profiles.</p>
-                </div>
+
                 <div class="feat-card reveal">
                     <div class="feat-icon"><i class="fas fa-user-tag"></i></div>
                     <h3>Role Management</h3>
@@ -1015,14 +994,9 @@
                     <div class="pill" style="justify-content:center; margin-bottom: 24px;">
                         <span class="pill-dot"></span> Get Started
                     </div>
-                    <h2 class="cta-title">Ready to upgrade your<br><span class="grad">Discord server?</span></h2>
-                    <p class="cta-sub">Join 100+ other servers using Nexus Bot to automate, moderate, and entertain.</p>
-                    <div class="cta-btns">
-                        <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary" target="_blank">
-                            <i class="fab fa-discord"></i> Invite Nexus Now
-                        </a>
-                        <a href="/members" class="btn btn-ghost">Dashboard <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></a>
-                    </div>
+                    <h2 class="cta-title">Ready to Experience<br><span class="grad">NEXUS GUARDIAN?</span></h2>
+                    <p class="cta-sub">Step into the future of Discord with NEXUS. Enjoy advanced AI features, impenetrable server security, and a beautifully crafted web dashboard.</p>
+
                 </div>
             </div>
         </div>
@@ -1039,32 +1013,7 @@
                     </div>
                     <p class="footer-brand-desc">The next generation Discord AI bot designed for modern communities. Fast, secure, and reliable.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Product</h4>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#commands">Commands</a></li>
-                        <li><a href="/members">Dashboard</a></li>
-                        <li><a href="#">Premium</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="#commands">Commands Guide</a></li>
-                        <li><a href="#">Support Server</a></li>
-                        <li><a href="#">API</a></li>
-                        <li><a href="#">GitHub</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Refund Policy</a></li>
-                    </ul>
-                </div>
+
             </div>
             <div class="footer-bottom">
                 <span class="footer-copy">© 2026 Nexus Bot. All rights reserved.</span>
@@ -1218,12 +1167,12 @@
                 const d = await r.json();
                 const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
                 
-                // Spoof minimum stats to 100+
-                const displayServers = Math.max(100, d.total_servers || 0);
-                const displayUsers = Math.max(100, d.total_users || 0);
+                // Real stats
+                const displayServers = d.total_servers || 0;
+                const displayUsers = d.total_users || 0;
                 
-                document.getElementById('hero-servers').textContent = fmt(displayServers) + '+';
-                document.getElementById('hero-members').textContent = fmt(displayUsers) + '+';
+                document.getElementById('hero-servers').textContent = fmt(displayServers);
+                document.getElementById('hero-members').textContent = fmt(displayUsers);
                 if (d.uptime_seconds !== undefined) {
                     window.heroUptimeSec = d.uptime_seconds;
                 } else {
@@ -1234,18 +1183,20 @@
                 const aServ = document.getElementById('about-servers');
                 const aUsers = document.getElementById('about-users');
                 const aPing = document.getElementById('about-ping');
-                if (aServ) aServ.textContent = fmt(displayServers) + '+';
-                if (aUsers) aUsers.textContent = fmt(displayUsers) + '+';
+                if (aServ) aServ.textContent = fmt(displayServers);
+                if (aUsers) aUsers.textContent = fmt(displayUsers);
                 if (aPing) aPing.textContent = (d.ping || '--') + 'ms';
                 // also update stat strip
                 const sc = document.getElementById('server-count-stat');
                 const uc = document.getElementById('user-count-stat');
-                if (sc) { sc.dataset.target = displayServers; sc.dataset.suffix = '+'; }
-                if (uc) { uc.dataset.target = displayUsers; uc.dataset.suffix = '+'; }
+                const cc = document.getElementById('cmd-count-stat');
+                if (sc) { sc.dataset.target = displayServers; sc.dataset.suffix = ''; }
+                if (uc) { uc.dataset.target = displayUsers; uc.dataset.suffix = ''; }
+                if (cc && d.total_commands !== undefined) { cc.dataset.target = d.total_commands; cc.dataset.suffix = ''; }
                 
                 // Update Discord presence activity array with real stats
                 if (typeof activities !== 'undefined') {
-                    activities[0] = `${fmt(displayServers)}+ SERVERS`;
+                    activities[1] = `${fmt(displayServers)} SERVERS`;
                 }
             } catch(e) {}
         }
@@ -1270,7 +1221,7 @@
         }, 1000);
 
         // ── Real-time Discord Presence Update ──
-        const activities = ["100+ SERVERS", "75+ COMMANDS", "99.99% UPTIME"];
+        const activities = ["Watching Ninja Nexus", "75+ COMMANDS", "99.99% UPTIME"];
         let activityIdx = 0;
         const dpTexts = document.querySelectorAll('.dp-dynamic-text');
         
@@ -1289,3 +1240,4 @@
     </script>
 </body>
 </html>
+
