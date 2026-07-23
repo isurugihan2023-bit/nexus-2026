@@ -40,14 +40,12 @@
 
         /* Gradient text - original beautiful gradient (Fully Optimized) */
         .grad {
-            background: linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #7e22ce 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: #c084fc; /* Fallback */
-            text-shadow: 0 0 12px rgba(168, 85, 247, 0.4); /* Nice purple glow, not white */
-            animation: textShineHW 4s ease-in-out infinite alternate;
-            will-change: filter;
+            background: none;
+            -webkit-text-fill-color: #7c3aed;
+            color: #7c3aed;
+            text-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+
+
         }
         @keyframes textShineHW {
             0% { filter: hue-rotate(-15deg) brightness(0.9); }
@@ -64,7 +62,7 @@
             color: var(--p400); text-transform: uppercase;
             margin-bottom: 24px;
         }
-        .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; animation: pulse 2s infinite; will-change: transform, opacity; }
+        .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
 
         /* ── Buttons ─────────────────────────────────────── */
@@ -74,7 +72,7 @@
             font-weight: 700; font-size: 1rem; cursor: pointer;
             border: 1px solid transparent;
             transition: transform 250ms cubic-bezier(0.2, 0, 0, 1), box-shadow 250ms, background-color 250ms, border-color 250ms;
-            will-change: transform;
+
         }
         .btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(124,58,237,0.3); }
         .btn:active { transform: translateY(0); }
@@ -105,7 +103,7 @@
             z-index: 999; padding: 18px 0;
             background: rgba(10,10,15,0.82);
             border-bottom: 1px solid transparent;
-            transition: all 250ms ease;
+            transition: transform 250ms, background-color 250ms;
         }
         .nav.scrolled { padding: 12px 0; background: rgba(10,10,15,0.95); border-bottom-color: var(--border); }
         .nav-inner { display: flex; align-items: center; justify-content: space-between; }
@@ -183,11 +181,11 @@
             pointer-events: none;
             animation: slowPan 30s ease-in-out infinite alternate;
             transform-origin: center;
-            will-change: transform;
+
         }
         @keyframes slowPan {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(-1%, 1%); }
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
 
         .hero-bg {
@@ -210,11 +208,11 @@
             z-index: 1; /* Between background (0) and text (2) */
             pointer-events: none;
             animation: darkShadows 18s ease-in-out infinite alternate;
-            will-change: transform, opacity;
+
         }
         @keyframes darkShadows {
-            0% { transform: scale(1) rotate(0deg); opacity: 0.6; }
-            100% { transform: scale(1.1) rotate(20deg); opacity: 0.95; }
+            0% { opacity: 0.6; }
+            100% { opacity: 0.95; }
         }
 
         .hero-content {
@@ -246,7 +244,7 @@
 
         .hero-float {
             animation: heroFloat 5s ease-in-out infinite;
-            will-change: transform, opacity;
+
         }
         @keyframes heroFloat {
             0%, 100% { transform: translateY(0); opacity: 1; }
@@ -304,7 +302,7 @@
             border: 1px solid var(--border);
             font-size: 0.88rem; font-weight: 600;
             transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1.2), border-color 200ms;
-            will-change: transform;
+
         }
         .chip:hover {
             border-color: var(--p500);
@@ -363,7 +361,7 @@
             padding: 32px 28px;
             position: relative; overflow: hidden;
             transition: transform 300ms cubic-bezier(0.2, 0, 0, 1), background-color 300ms, border-color 300ms;
-            will-change: transform;
+
         }
         .feat-card::after {
             content: '';
@@ -412,11 +410,23 @@
         .cmd-filters {
             display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 40px;
         }
-        .cmd-filter {
+        .nav-cta {
+            padding: 8px 18px;
+            background: rgba(124,58,237,0.15);
+            border: 1px solid var(--border2);
+            color: var(--p400);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            transition: transform 300ms cubic-bezier(0.2, 0, 0, 1), background-color 300ms, border-color 300ms;
+
+        }.cmd-filter {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
             color: var(--muted); padding: 8px 18px; border-radius: 100px;
             font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            transition: all 200ms;
+            transition: transform 200ms, border-color 200ms, background-color 200ms;
         }
         .cmd-filter:hover { background: rgba(255,255,255,0.1); color: var(--text); }
         .cmd-filter.active { background: var(--p600); color: #fff; border-color: var(--p500); }
@@ -590,7 +600,7 @@
             padding: 6px 14px; border-radius: 100px;
             color: var(--p400); font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
         }
-        .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; animation: pulse 2s infinite; will-change: transform, opacity; }
+        .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
 
 
