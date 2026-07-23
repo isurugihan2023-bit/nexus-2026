@@ -386,8 +386,13 @@
         }
         
         .feat-card:hover { 
-            background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.12); 
+            background: rgba(124, 58, 237, 0.04); 
+            border-color: #7c3aed; 
             transform: translateY(-5px);
+        }
+        .feat-card:hover .feat-icon {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: rgba(124, 58, 237, 0.4);
         }
         .feat-card:hover::after { opacity: 1; }
 
@@ -609,4 +614,18 @@
             .cmd-header, .cmd-list { padding-left: 22px; padding-right: 22px; }
             .footer-grid { grid-template-columns: 1fr; }
             .footer-bottom { flex-direction: column; gap: 12px; }
+        }
+
+        /* Extreme Optimized Professional Grid Background */
+        .cyber-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 1; /* Just above the image/dark shadows */
+            pointer-events: none;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
         }
