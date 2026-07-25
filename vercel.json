@@ -2,39 +2,39 @@
   "rewrites": [
     {
       "source": "/members",
-      "destination": "http://de1.bot-hosting.net:22220/members"
+      "destination": "http://160.191.77.60:5460/members"
     },
     {
       "source": "/admin_login",
-      "destination": "http://de1.bot-hosting.net:22220/admin_login"
+      "destination": "http://160.191.77.60:5460/admin_login"
     },
     {
       "source": "/dashboard",
-      "destination": "http://de1.bot-hosting.net:22220/dashboard"
+      "destination": "http://160.191.77.60:5460/dashboard"
     },
     {
       "source": "/api/:path*",
-      "destination": "http://de1.bot-hosting.net:22220/api/:path*"
+      "destination": "http://160.191.77.60:5460/api/:path*"
     },
     {
       "source": "/admin/:path*",
-      "destination": "http://de1.bot-hosting.net:22220/admin/:path*"
+      "destination": "http://160.191.77.60:5460/admin/:path*"
     },
     {
       "source": "/admin",
-      "destination": "http://de1.bot-hosting.net:22220/admin"
+      "destination": "http://160.191.77.60:5460/admin"
     },
     {
       "source": "/servers",
-      "destination": "http://de1.bot-hosting.net:22220/servers"
+      "destination": "http://160.191.77.60:5460/servers"
     },
     {
       "source": "/static/:path*",
-      "destination": "http://de1.bot-hosting.net:22220/static/:path*"
+      "destination": "http://160.191.77.60:5460/static/:path*"
     },
     {
       "source": "/admin_dashboard",
-      "destination": "http://de1.bot-hosting.net:22220/admin_dashboard"
+      "destination": "http://160.191.77.60:5460/admin_dashboard"
     }
   ]
 }
