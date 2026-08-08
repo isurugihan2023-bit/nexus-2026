@@ -580,7 +580,6 @@
             .footer-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 600px) {
-        @media (max-width: 600px) {
             .hero-heading { font-size: 2.5rem; }
             .cta-box { padding: 60px 22px; }
             .cmd-header, .cmd-list { padding-left: 22px; padding-right: 22px; }

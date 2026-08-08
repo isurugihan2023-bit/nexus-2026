@@ -133,8 +133,13 @@
         /* ── Live stats from API ── */
         async function fetchPublicStats() {
             try {
-                const r = await fetch('/api/public_stats?t=' + Date.now());
+                // Using a secure proxy to bypass Brave Shields and CORS blocks!
+                const targetApi = encodeURIComponent('http://de1.bot-hosting.net:22220/api/public_stats?t=' + Date.now());
+                const proxyUrl = `https://api.allorigins.win/raw?url=${targetApi}`;
+                
+                const r = await fetch(proxyUrl);
                 if (!r.ok) return;
+                
                 const d = await r.json();
                 const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
                 
