@@ -133,8 +133,8 @@
         // ── 4. FETCH LIVE STATS & GAMES ───────────────────────────────────
         async function fetchPublicStats() {
             try {
-                // Connect directly to the Bot API (No Vercel proxy needed for DuckDNS)
-                const r = await fetch('http://de1.bot-hosting.net:22220/api/public_stats?t=' + Date.now());
+                // Using Vercel rewrite to avoid Mixed Content errors on HTTPS
+                const r = await fetch('/api/public_stats?t=' + Date.now());
                 if (!r.ok) return;
                 
                 const d = await r.json();
