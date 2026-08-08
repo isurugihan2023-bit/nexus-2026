@@ -191,8 +191,9 @@
                 let timeStr = '';
                 if (d > 0) timeStr += `${d}d `;
                 if (h > 0 || d > 0) timeStr += `${h}h `;
-                if (m > 0 || h > 0 || d > 0) timeStr += `${m}m `;
-                timeStr += `${s}s`;
+                if (m > 0 || h > 0 || d > 0) timeStr += `${m}m`;
+                
+                if (timeStr === '') timeStr = '< 1m';
                 const uptimeEl = document.getElementById('hero-uptime');
                 if (uptimeEl) uptimeEl.textContent = timeStr.trim();
             }
