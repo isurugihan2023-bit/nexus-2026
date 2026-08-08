@@ -139,7 +139,7 @@
                 const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
                 
                 // Real stats
-                const displayServers = d.total_servers || 0;
+                const displayServers = 1; // Forced to 1 per user request
                 const displayUsers = d.total_users || 0;
                 
                 document.getElementById('hero-servers').textContent = fmt(displayServers);
@@ -165,9 +165,14 @@
                 if (uc) { uc.dataset.target = displayUsers; uc.dataset.suffix = ''; }
                 if (cc && d.total_commands !== undefined) { cc.dataset.target = d.total_commands; cc.dataset.suffix = ''; }
                 
+                const serverLabelEl = document.getElementById('hero-servers-label');
+                if (serverLabelEl) {
+                    serverLabelEl.textContent = displayServers === 1 ? 'SERVER' : 'SERVERS';
+                }
+                
                 // Update Discord presence activity array with real stats
                 if (typeof activities !== 'undefined') {
-                    activities[1] = `${fmt(displayServers)} SERVERS`;
+                    activities[1] = `${fmt(displayServers)} ${displayServers === 1 ? 'SERVER' : 'SERVERS'}`;
                 }
             } catch(e) {}
         }
@@ -179,12 +184,14 @@
         setInterval(() => {
             if (window.heroUptimeSec > 0) {
                 window.heroUptimeSec++;
-                const h = Math.floor(window.heroUptimeSec / 3600);
+                const d = Math.floor(window.heroUptimeSec / 86400);
+                const h = Math.floor((window.heroUptimeSec % 86400) / 3600);
                 const m = Math.floor((window.heroUptimeSec % 3600) / 60);
                 const s = window.heroUptimeSec % 60;
                 let timeStr = '';
-                if (h > 0) timeStr += `${h}h `;
-                if (m > 0 || h > 0) timeStr += `${m}m `;
+                if (d > 0) timeStr += `${d}d `;
+                if (h > 0 || d > 0) timeStr += `${h}h `;
+                if (m > 0 || h > 0 || d > 0) timeStr += `${m}m `;
                 timeStr += `${s}s`;
                 const uptimeEl = document.getElementById('hero-uptime');
                 if (uptimeEl) uptimeEl.textContent = timeStr.trim();
@@ -207,4 +214,146 @@
                     });
                 }, 300);
             }, 3500);
+        }
+
+        // ── Background Music Toggle & Audio Visualizer ──
+        const musicToggle = document.getElementById('music-toggle');
+        const bgMusic = document.getElementById('bg-music');
+        const musicIcon = document.getElementById('music-icon');
+        const heroBgImg = document.querySelector('.hero-img-bg');
+        const particles1 = document.querySelector('.cyber-particles');
+        const particles2 = document.querySelector('.cyber-particles-2');
+        const heroSub = document.querySelector('.hero-sub');
+        
+        let audioCtx;
+        let analyser;
+        let dataArray;
+        let source;
+        let isVisualizerRunning = false;
+
+        function initAudio() {
+            if (audioCtx) return;
+            // Safari uses webkitAudioContext
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(bgMusic);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+        }
+
+        function animateVisualizer() {
+            if (!isVisualizerRunning) return;
+            requestAnimationFrame(animateVisualizer);
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Calculate bass average (lower frequencies: roughly indices 0 to 10 out of 128)
+            let bassSum = 0;
+            for(let i = 0; i < 10; i++) {
+                bassSum += dataArray[i];
+            }
+            const bassAvg = bassSum / 10;
+            
+            // Map bass (0-255) to a scale value (1.0 to 1.08)
+            const scale = 1.0 + (bassAvg / 255) * 0.08;
+            
+            // Map bass to a subtle brightness bump (1.0 to 1.3)
+            const brightness = 1.0 + (bassAvg / 255) * 0.3;
+
+            // Map bass to particle opacity (0.2 to 1.0)
+            const particleOpacity = 0.2 + (bassAvg / 255) * 0.8;
+            
+            // Map bass to text glow blur radius and opacity for .hero-sub
+            // Glow color is a sleek purple: rgba(167, 139, 250, alpha)
+            const glowAlpha = (bassAvg / 255) * 0.8; 
+            const glowBlur = (bassAvg / 255) * 15;
+
+            if (heroBgImg) {
+                heroBgImg.style.transition = 'transform 0.05s ease-out, filter 0.05s ease-out';
+                heroBgImg.style.transform = `scale(${scale})`;
+                heroBgImg.style.filter = `brightness(${brightness})`;
+            }
+
+            if (particles1 && particles2) {
+                particles1.style.opacity = particleOpacity;
+                particles2.style.opacity = particleOpacity;
+            }
+
+            if (heroSub) {
+                heroSub.style.transition = 'text-shadow 0.05s ease-out';
+                if (glowAlpha > 0.1) {
+                    heroSub.style.textShadow = `0 0 ${glowBlur}px rgba(167, 139, 250, ${glowAlpha})`;
+                } else {
+                    heroSub.style.textShadow = 'none';
+                }
+            }
+        }
+
+        if (musicToggle && bgMusic) {
+            // Set volume to 30% so it's chill background music
+            bgMusic.volume = 0.3;
+
+            const togglePlay = () => {
+                if (bgMusic.paused) {
+                    initAudio();
+                    // Resume context if browser suspended it
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                    bgMusic.play().then(() => {
+                        musicIcon.classList.remove('fa-volume-mute');
+                        musicIcon.classList.add('fa-music');
+                        musicToggle.classList.add('playing');
+                        isVisualizerRunning = true;
+                        animateVisualizer();
+                    }).catch(err => {
+                        console.error('Audio playback failed:', err);
+                    });
+                } else {
+                    bgMusic.pause();
+                    musicIcon.classList.remove('fa-music');
+                    musicIcon.classList.add('fa-volume-mute');
+                    musicToggle.classList.remove('playing');
+                    isVisualizerRunning = false;
+                    
+                    // Reset styling gently
+                    if (heroBgImg) {
+                        heroBgImg.style.transition = 'transform 0.5s ease, filter 0.5s ease';
+                        heroBgImg.style.transform = `scale(1.0)`;
+                        heroBgImg.style.filter = `brightness(1.0)`;
+                    }
+                    if (particles1 && particles2) {
+                        particles1.style.opacity = 0.3;
+                        particles2.style.opacity = 0.3;
+                    }
+                    if (heroSub) {
+                        heroSub.style.textShadow = 'none';
+                    }
+                }
+            };
+
+            musicToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                togglePlay();
+            });
+
+            // Attempt autoplay on load
+            setTimeout(() => {
+                if (bgMusic.paused) {
+                    togglePlay();
+                }
+            }, 500);
+
+            // Fallback: If browser blocks autoplay, start music on the very first click anywhere on the page
+            const startOnInteraction = () => {
+                if (bgMusic.paused) {
+                    togglePlay();
+                }
+                document.removeEventListener('click', startOnInteraction);
+            };
+            document.addEventListener('click', startOnInteraction);
         }

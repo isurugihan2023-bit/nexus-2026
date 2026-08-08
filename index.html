@@ -46,6 +46,10 @@
     </nav>
 
     <section class="hero-section tab-pane active" id="home">
+        <!-- Floating Cyber Dust behind text -->
+        <div class="cyber-particles"></div>
+        <div class="cyber-particles-2"></div>
+        
         <div class="container">
             <div class="hero-inner">
                 <div class="discord-presence fade-up" style="animation-delay:0s">
@@ -63,13 +67,13 @@
                 <div class="fade-up" style="animation-delay:0.1s">
                     <div class="hero-float">
                         <h1 class="hero-heading">
-                            <span>NEXUS</span>
-                            <span class="grad">GUARDIAN</span>
+                            <span>NINJA NEXUS</span>
+                            <span class="grad">DISCORD SERVER</span>
                         </h1>
                     </div>
                 </div>
                 <p class="hero-sub fade-up" style="animation-delay:0.2s">
-                    The ultimate powerhouse built exclusively for the Ninja Nexus community. Experience next-generation conversational AI, elite anti-raid security, and seamless server automation.
+                    The ultimate anime and gaming community. Join Ninja Nexus to make friends, hang out, and have some fun.
                 </p>
 
                 <!-- Live stat chips -->
@@ -78,7 +82,7 @@
                         <i class="fas fa-server"></i>
                         <div>
                             <div class="chip-val" id="hero-servers">--</div>
-                            <div class="chip-label">Servers</div>
+                            <div class="chip-label" id="hero-servers-label">Servers</div>
                         </div>
                     </div>
                     <div class="chip">
@@ -102,6 +106,13 @@
                             <div class="chip-label">Ping</div>
                         </div>
                     </div>
+                </div>
+
+                <!-- CTA Button -->
+                <div class="hero-actions fade-up" style="animation-delay:0.5s; margin-top: 36px;">
+                    <a href="https://discord.gg/nFwWAEfC" target="_blank" class="btn" style="font-size: 1rem; padding: 12px 28px; border-radius: 10px; display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.5px; background: #7c3aed; color: #fff; box-shadow: 0 0 15px rgba(124, 58, 237, 0.5); border: 1px solid rgba(124, 58, 237, 0.4); text-transform: uppercase;">
+                        <i class="fab fa-discord" style="font-size: 1.15rem;"></i> JOIN THE SERVER
+                    </a>
                 </div>
             </div>
         </div>
@@ -149,8 +160,8 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px;">
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-server" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">0</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Servers</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">1</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">ACTIVE SERVER</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-terminal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
@@ -159,8 +170,8 @@
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">0</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Happy Users</div>
+                    <div class="stat-number" id="user-count-stat" data-target="0" data-suffix="">0</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">MEMBERS</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-signal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
@@ -262,7 +273,7 @@
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
                     <span class="pill-dot"></span> Commands
                 </div>
-                <h2 class="sec-title">Powerful Commands</h2>
+                <h2 class="sec-title">Server Commands</h2>
                 <p class="sec-sub">Over 150+ commands at your fingertips. Find what you need instantly.</p>
             </div>
             <!-- Filters -->
@@ -432,8 +443,8 @@
                     <div class="pill" style="justify-content:center; margin-bottom: 24px;">
                         <span class="pill-dot"></span> Get Started
                     </div>
-                    <h2 class="cta-title">Ready to Experience<br><span class="grad">NEXUS GUARDIAN?</span></h2>
-                    <p class="cta-sub">Step into the future of Discord with NEXUS. Enjoy advanced AI features, impenetrable server security, and a beautifully crafted web dashboard.</p>
+                    <h2 class="cta-title">Ready to Experience<br><span class="grad">NINJA NEXUS?</span></h2>
+                    <p class="cta-sub">Ready to join the action? Become a part of the Ninja Nexus family today. Connect with players around the globe, level up your ranks, and jump into our daily events and giveaways.</p>
 
                 </div>
             </div>
@@ -463,6 +474,13 @@
             </div>
         </div>
     </footer>
+    <!-- ── MUSIC PLAYER ─────────────────────── -->
+    <div id="music-toggle" class="music-toggle" aria-label="Toggle Background Music">
+        <i class="fas fa-volume-mute" id="music-icon"></i>
+    </div>
+    <audio id="bg-music" loop crossorigin="anonymous">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
 
     <script src="js/main.js" defer></script>
 </body>

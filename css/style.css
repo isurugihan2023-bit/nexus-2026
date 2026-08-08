@@ -516,7 +516,7 @@
         }
         .cta-inner { position: relative; z-index: 2; }
         .cta-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 18px; }
-        .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
+        .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 650px; margin: 0 auto 44px; line-height: 1.7; }
         .cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 
         /* ── FOOTER ─────────────────────────────────────── */
@@ -629,3 +629,98 @@
             mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
             -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
         }
+
+        /* ── MUSIC TOGGLE ─────────────────────────────────────── */
+        .music-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.95rem;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .music-toggle:hover {
+            background: rgba(124, 58, 237, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
+        }
+
+        .music-toggle.playing i {
+            animation: pulse-music 1.5s infinite;
+        }
+
+        @keyframes pulse-music {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .music-toggle {
+                bottom: 20px;
+                right: 20px;
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ── PURPLE CYBER DUST ANIMATION ──────────────────────────── */
+        .cyber-particles, .cyber-particles-2 {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 1; /* Behind text, above background */
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0.3;
+            transition: opacity 0.05s ease-out;
+        }
+
+        .cyber-particles::before, .cyber-particles-2::before {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: transparent;
+            /* Box-shadow generates 50 small purple glowing dots scattered randomly */
+            box-shadow: 
+                20vw 10vh #a78bfa, 40vw 30vh #c4b5fd, 60vw 20vh #8b5cf6, 80vw 50vh #a78bfa, 90vw 80vh #c4b5fd,
+                10vw 40vh #8b5cf6, 30vw 70vh #a78bfa, 50vw 90vh #c4b5fd, 70vw 10vh #8b5cf6, 85vw 35vh #a78bfa,
+                25vw 60vh #c4b5fd, 45vw 15vh #8b5cf6, 65vw 85vh #a78bfa, 95vw 25vh #c4b5fd, 15vw 95vh #8b5cf6,
+                5vw 5vh #a78bfa, 35vw 45vh #c4b5fd, 55vw 55vh #8b5cf6, 75vw 65vh #a78bfa, 12vw 75vh #c4b5fd;
+            animation: particleDrift 40s linear infinite;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 4px #8b5cf6);
+        }
+
+        .cyber-particles-2::before {
+            width: 2px;
+            height: 2px;
+            /* A second layer of dots moving slightly faster */
+            box-shadow: 
+                15vw 15vh #7c3aed, 35vw 25vh #a78bfa, 55vw 35vh #8b5cf6, 75vw 45vh #7c3aed, 85vw 65vh #a78bfa,
+                5vw 85vh #8b5cf6, 25vw 95vh #7c3aed, 45vw 85vh #a78bfa, 65vw 75vh #8b5cf6, 95vw 55vh #7c3aed,
+                10vw 30vh #a78bfa, 30vw 10vh #8b5cf6, 50vw 5vh #7c3aed, 70vw 20vh #a78bfa, 90vw 40vh #8b5cf6;
+            animation: particleDrift 25s linear infinite;
+            filter: drop-shadow(0 0 2px #7c3aed);
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100vh); }
+        }
+
