@@ -130,14 +130,11 @@
             });
         });
 
-        /* ── Live stats from API ── */
+        // ── 4. FETCH LIVE STATS & GAMES ───────────────────────────────────
         async function fetchPublicStats() {
             try {
-                // Using a secure proxy to bypass Brave Shields and CORS blocks!
-                const targetApi = encodeURIComponent('http://de1.bot-hosting.net:22220/api/public_stats?t=' + Date.now());
-                const proxyUrl = `https://api.allorigins.win/raw?url=${targetApi}`;
-                
-                const r = await fetch(proxyUrl);
+                // Connect directly to the Bot API (No Vercel proxy needed for DuckDNS)
+                const r = await fetch('http://de1.bot-hosting.net:22220/api/public_stats?t=' + Date.now());
                 if (!r.ok) return;
                 
                 const d = await r.json();
