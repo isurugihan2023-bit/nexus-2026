@@ -311,14 +311,13 @@
             const particleOpacity = 0.2 + (bassAvg / 255) * 0.8;
             
             // Map bass to text glow blur radius and opacity for .hero-sub
-            // Glow color is a sleek purple: rgba(167, 139, 250, alpha)
-            const glowAlpha = (bassAvg / 255) * 0.8; 
-            const glowBlur = (bassAvg / 255) * 15;
+            // Extreme Optimization: textShadow and filter: brightness() removed. Only composite properties (transform, opacity) are used.
+            const textScale = 1.0 + (bassAvg / 255) * 0.05;
 
             if (heroBgImg) {
-                heroBgImg.style.transition = 'transform 0.05s ease-out, filter 0.05s ease-out';
+                heroBgImg.style.transition = 'transform 0.05s ease-out, opacity 0.05s ease-out';
                 heroBgImg.style.transform = `scale(${scale})`;
-                heroBgImg.style.filter = `brightness(${brightness})`;
+                heroBgImg.style.opacity = 0.5 + (bassAvg / 255) * 0.3; // Replaces filter: brightness()
             }
 
             if (particles1 && particles2) {
@@ -327,12 +326,10 @@
             }
 
             if (heroSub) {
-                heroSub.style.transition = 'text-shadow 0.05s ease-out';
-                if (glowAlpha > 0.1) {
-                    heroSub.style.textShadow = `0 0 ${glowBlur}px rgba(167, 139, 250, ${glowAlpha})`;
-                } else {
-                    heroSub.style.textShadow = 'none';
-                }
+                heroSub.style.transition = 'transform 0.05s ease-out, opacity 0.05s ease-out';
+                heroSub.style.transform = `scale(${textScale})`;
+                // Subtle opacity bump instead of text shadow
+                heroSub.style.opacity = 0.8 + (bassAvg / 255) * 0.2;
             }
         }
 

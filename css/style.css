@@ -580,36 +580,8 @@
             .footer-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 600px) {
-        .discord-presence {
-            display: inline-flex; align-items: center; gap: 12px;
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            padding: 8px 16px 8px 8px; border-radius: 50px;
-            margin-bottom: 30px;
-        }
-        .dp-avatar { position: relative; width: 36px; height: 36px; }
-        .dp-avatar img { width: 100%; height: 100%; border-radius: 50%; }
-        .dp-status {
-            position: absolute; bottom: 0; right: 0; width: 10px; height: 10px;
-            background: #43b581; border: 2px solid var(--bg1); border-radius: 50%;
-        }
-        .dp-name { font-size: 0.85rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
-        .dp-bot-badge {
-            background: var(--p600); color: #fff; font-size: 0.6rem;
-            padding: 1px 5px; border-radius: 4px; font-weight: 700;
-        }
-        .dp-activity { font-size: 0.8rem; color: var(--muted); transition: opacity 300ms; }
-
-        .pill {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
-            padding: 6px 14px; border-radius: 100px;
-            color: var(--p400); font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
-        }
-        .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
-
-
-        .hero-heading { font-size: 2.5rem; }
+        @media (max-width: 600px) {
+            .hero-heading { font-size: 2.5rem; }
             .cta-box { padding: 60px 22px; }
             .cmd-header, .cmd-list { padding-left: 22px; padding-right: 22px; }
             .footer-grid { grid-template-columns: 1fr; }
@@ -624,10 +596,8 @@
                 linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
             background-size: 40px 40px;
-            z-index: 1; /* Just above the image/dark shadows */
+            z-index: 1;
             pointer-events: none;
-            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
         }
 
         /* ── MUSIC TOGGLE ─────────────────────────────────────── */
@@ -638,9 +608,7 @@
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: rgba(124, 58, 237, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 13, 26, 0.95);
             border: 1px solid rgba(124, 58, 237, 0.5);
             display: flex;
             align-items: center;
@@ -649,14 +617,12 @@
             font-size: 0.95rem;
             cursor: pointer;
             z-index: 999;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
         }
 
         .music-toggle:hover {
             background: rgba(124, 58, 237, 0.4);
             transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
         }
 
         .music-toggle.playing i {
@@ -683,45 +649,25 @@
         .cyber-particles, .cyber-particles-2 {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 1; /* Behind text, above background */
+            z-index: 1;
             pointer-events: none;
-            overflow: hidden;
-            opacity: 0.3;
-            transition: opacity 0.05s ease-out;
-        }
-
-        .cyber-particles::before, .cyber-particles-2::before {
-            content: '';
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: transparent;
-            /* Box-shadow generates 50 small purple glowing dots scattered randomly */
-            box-shadow: 
-                20vw 10vh #a78bfa, 40vw 30vh #c4b5fd, 60vw 20vh #8b5cf6, 80vw 50vh #a78bfa, 90vw 80vh #c4b5fd,
-                10vw 40vh #8b5cf6, 30vw 70vh #a78bfa, 50vw 90vh #c4b5fd, 70vw 10vh #8b5cf6, 85vw 35vh #a78bfa,
-                25vw 60vh #c4b5fd, 45vw 15vh #8b5cf6, 65vw 85vh #a78bfa, 95vw 25vh #c4b5fd, 15vw 95vh #8b5cf6,
-                5vw 5vh #a78bfa, 35vw 45vh #c4b5fd, 55vw 55vh #8b5cf6, 75vw 65vh #a78bfa, 12vw 75vh #c4b5fd;
+            opacity: 0.15;
+            background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.4) 1px, transparent 1px),
+                              radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.3) 1px, transparent 1px),
+                              radial-gradient(circle at 40% 80%, rgba(167, 139, 250, 0.3) 1px, transparent 1px);
+            background-size: 100px 100px, 150px 150px, 200px 200px;
             animation: particleDrift 40s linear infinite;
-            border-radius: 50%;
-            filter: drop-shadow(0 0 4px #8b5cf6);
         }
 
-        .cyber-particles-2::before {
-            width: 2px;
-            height: 2px;
-            /* A second layer of dots moving slightly faster */
-            box-shadow: 
-                15vw 15vh #7c3aed, 35vw 25vh #a78bfa, 55vw 35vh #8b5cf6, 75vw 45vh #7c3aed, 85vw 65vh #a78bfa,
-                5vw 85vh #8b5cf6, 25vw 95vh #7c3aed, 45vw 85vh #a78bfa, 65vw 75vh #8b5cf6, 95vw 55vh #7c3aed,
-                10vw 30vh #a78bfa, 30vw 10vh #8b5cf6, 50vw 5vh #7c3aed, 70vw 20vh #a78bfa, 90vw 40vh #8b5cf6;
+        .cyber-particles-2 {
+            opacity: 0.1;
+            background-size: 120px 120px, 180px 180px, 250px 250px;
             animation: particleDrift 25s linear infinite;
-            filter: drop-shadow(0 0 2px #7c3aed);
         }
 
         @keyframes particleDrift {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100vh); }
+            0% { background-position: 0px 0px, 0px 0px, 0px 0px; }
+            100% { background-position: 100px -100px, -150px -150px, 200px -200px; }
         }
 
         /* ── GAMES GRID ─────────────────────────────────── */
@@ -757,7 +703,7 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         .game-name {
             font-size: 0.9rem;
@@ -767,20 +713,4 @@
             overflow: hidden;
             text-overflow: ellipsis;
             padding: 0 4px;
-        }
-        .game-check {
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            background: #5865F2;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            border: 2px solid var(--bg2);
         }
