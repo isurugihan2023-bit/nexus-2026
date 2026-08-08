@@ -133,8 +133,8 @@
         // ── 4. FETCH LIVE STATS & GAMES ───────────────────────────────────
         async function fetchPublicStats() {
             try {
-                // Using Vercel rewrite with a stealthy name to bypass Brave Shields Adblocker
-                const r = await fetch('/api/bot_data?t=' + Date.now());
+                // Connect directly to the Bot using the stealth route (Bypasses Vercel and Brave Shields)
+                const r = await fetch('http://de1.bot-hosting.net:22220/api/bot_data?t=' + Date.now());
                 if (!r.ok) return;
                 
                 const d = await r.json();
