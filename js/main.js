@@ -2,7 +2,7 @@
         const nav = document.getElementById('navbar');
         // ── Tab System ─────────────────────────────────────
         // All sections that are tabs
-        const ALL_TABS = ['home', 'home-cta', 'about', 'features', 'commands', 'stats'];
+        const ALL_TABS = ['home', 'home-cta', 'about', 'features', 'commands', 'stats', 'games'];
         // Home tabs = sections shown when on the hero page (NO cta)
         const HOME_TABS = ['home'];
 
@@ -174,8 +174,50 @@
                 if (typeof activities !== 'undefined') {
                     activities[1] = `${fmt(displayServers)} ${displayServers === 1 ? 'SERVER' : 'SERVERS'}`;
                 }
+                
+                // Render Live Games
+                if (d.top_played_games && Array.isArray(d.top_played_games)) {
+                    renderLiveGames(d.top_played_games);
+                }
             } catch(e) {}
         }
+        
+        const GAME_IMAGE_OVERRIDES = {
+            "Forza Horizon 5": "https://steamcdn-a.akamaihd.net/steam/apps/1551360/library_600x900_2x.jpg",
+            "EA Sports FC 24": "https://steamcdn-a.akamaihd.net/steam/apps/2195250/library_600x900_2x.jpg",
+            "EA SPORTS FC™ 24": "https://steamcdn-a.akamaihd.net/steam/apps/2195250/library_600x900_2x.jpg",
+            "Wuthering Waves": "https://cdn1.epicgames.com/offer/7521798363714856aee6dfa3ff4d284a/EGS_WutheringWaves_KuroGames_S2_1200x1600-bdfcb7d5d2cc8a0a9ed6d35dcfe6b31c?h=480&quality=medium&resize=1&w=360",
+            "League of Legends": "https://static-cdn.jtvnw.net/ttv-boxart/21779-285x380.jpg",
+            "PUBG: BATTLEGROUNDS": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
+            "Grand Theft Auto V": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+            "Counter-Strike 2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
+            "Red Dead Redemption 2": "https://steamcdn-a.akamaihd.net/steam/apps/1174180/library_600x900_2x.jpg"
+        };
+
+        function getGameImageUrl(gameName) {
+            if (GAME_IMAGE_OVERRIDES[gameName]) {
+                return GAME_IMAGE_OVERRIDES[gameName];
+            }
+            // Fallback to Twitch Box Art (uses exact name matching, works incredibly well for 99% of games)
+            return `https://static-cdn.jtvnw.net/ttv-boxart/${encodeURIComponent(gameName)}-285x380.jpg`;
+        }
+        
+        function renderLiveGames(gamesList) {
+            const grid = document.getElementById('live-games-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            gamesList.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <img src="${getGameImageUrl(game.name)}" alt="${game.name}" onerror="this.src='https://static-cdn.jtvnw.net/ttv-boxart/499973-285x380.jpg';">
+                    <div class="game-name">${game.name} <span style="font-size: 0.8rem; opacity: 0.7; margin-left: 5px;">(${game.count})</span></div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
         fetchPublicStats();
         setInterval(fetchPublicStats, 15000);
 
