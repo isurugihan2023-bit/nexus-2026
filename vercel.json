@@ -1,40 +1,44 @@
 {
   "rewrites": [
     {
+      "source": "/api/bot_data",
+      "destination": "http://157.90.181.183:23063/api/public_stats"
+    },
+    {
       "source": "/members",
-      "destination": "http://de1.bot-hosting.net:22220/members"
+      "destination": "http://157.90.181.183:23063/members"
     },
     {
       "source": "/admin_login",
-      "destination": "http://de1.bot-hosting.net:22220/admin_login"
+      "destination": "http://157.90.181.183:23063/admin_login"
     },
     {
       "source": "/dashboard",
-      "destination": "http://de1.bot-hosting.net:22220/dashboard"
+      "destination": "http://157.90.181.183:23063/dashboard"
     },
     {
       "source": "/api/:path*",
-      "destination": "http://de1.bot-hosting.net:22220/api/:path*"
+      "destination": "http://157.90.181.183:23063/api/:path*"
     },
     {
       "source": "/admin/:path*",
-      "destination": "http://de1.bot-hosting.net:22220/admin/:path*"
+      "destination": "http://157.90.181.183:23063/admin/:path*"
     },
     {
       "source": "/admin",
-      "destination": "http://de1.bot-hosting.net:22220/admin"
+      "destination": "http://157.90.181.183:23063/admin"
     },
     {
       "source": "/servers",
-      "destination": "http://de1.bot-hosting.net:22220/servers"
+      "destination": "http://157.90.181.183:23063/servers"
     },
     {
       "source": "/static/:path*",
-      "destination": "http://de1.bot-hosting.net:22220/static/:path*"
+      "destination": "http://157.90.181.183:23063/static/:path*"
     },
     {
       "source": "/admin_dashboard",
-      "destination": "http://de1.bot-hosting.net:22220/admin_dashboard"
+      "destination": "http://157.90.181.183:23063/admin_dashboard"
     }
   ]
 }
