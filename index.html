@@ -19,7 +19,7 @@
 </head>
 <body>
     <!-- 🎴 GLOBAL BACKGROUNDS 🎴 -->
-    <img src="images/gojo-bg.jpg" alt="Hero Background" class="hero-img-bg">
+    <div class="hero-img-bg"></div>
     <div class="hero-bg"></div>
     <div class="hero-animated-overlay"></div>
     <div class="cyber-grid"></div>
@@ -39,6 +39,7 @@
                     <li><a href="#games">Games</a></li>
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#stats">Stats</a></li>
+                    <div class="nav-indicator"></div>
                 </ul>
 
                 <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
@@ -53,7 +54,7 @@
         
         <div class="container">
             <div class="hero-inner">
-                <div class="discord-presence fade-up" style="animation-delay:0s">
+                <div class="discord-presence fade-up" style="animation-delay: 0ms">
                     <div class="dp-avatar">
                         <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff'">
                         <div class="dp-status"></div>
@@ -65,42 +66,46 @@
                         <div class="dp-activity dp-dynamic-text">Watching Ninja Nexus</div>
                     </div>
                 </div>
-                <div class="fade-up" style="animation-delay:0.1s">
-                    <div class="hero-float">
-                        <h1 class="hero-heading">
-                            <span>NINJA NEXUS</span>
-                            <span class="grad">DISCORD SERVER</span>
-                        </h1>
-                    </div>
+                
+                <div class="hero-float">
+                    <h1 class="hero-heading">
+                        <span class="glitch-text fade-up" data-text="NINJA NEXUS" style="animation-delay: 100ms;">NINJA NEXUS</span>
+                        <span class="typewriter-wrapper">
+                            <span class="grad typewriter-placeholder">DISCORD SERVER</span>
+                            <span class="grad typewriter-text">DISCORD SERVER</span>
+                            <span class="typewriter-cursor"></span>
+                        </span>
+                    </h1>
                 </div>
-                <p class="hero-sub fade-up" style="animation-delay:0.2s">
+                
+                <p class="hero-sub fade-up" style="animation-delay: 280ms;">
                     The ultimate anime and gaming community. Join Ninja Nexus to make friends, hang out, and have some fun.
                 </p>
 
                 <!-- Live stat chips -->
-                <div class="hero-chips fade-up" style="animation-delay:0.4s">
-                    <div class="chip">
+                <div class="hero-chips">
+                    <div class="chip fade-up" style="animation-delay: 380ms;">
                         <i class="fas fa-server"></i>
                         <div>
                             <div class="chip-val" id="hero-servers">--</div>
                             <div class="chip-label" id="hero-servers-label">Servers</div>
                         </div>
                     </div>
-                    <div class="chip">
+                    <div class="chip fade-up" style="animation-delay: 450ms;">
                         <i class="fas fa-users"></i>
                         <div>
                             <div class="chip-val" id="hero-members">--</div>
                             <div class="chip-label">Members</div>
                         </div>
                     </div>
-                    <div class="chip">
+                    <div class="chip fade-up" style="animation-delay: 520ms;">
                         <i class="fas fa-bolt"></i>
                         <div>
                             <div class="chip-val" id="hero-uptime">--</div>
                             <div class="chip-label">Uptime</div>
                         </div>
                     </div>
-                    <div class="chip">
+                    <div class="chip fade-up" style="animation-delay: 590ms;">
                         <i class="fas fa-signal"></i>
                         <div>
                             <div class="chip-val" id="hero-ping">--</div>
@@ -110,8 +115,8 @@
                 </div>
 
                 <!-- CTA Button -->
-                <div class="hero-actions fade-up" style="animation-delay:0.5s; margin-top: 36px;">
-                    <a href="https://discord.gg/nFwWAEfC" target="_blank" class="btn" style="font-size: 1rem; padding: 12px 28px; border-radius: 10px; display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.5px; background: #7c3aed; color: #fff; box-shadow: 0 0 15px rgba(124, 58, 237, 0.5); border: 1px solid rgba(124, 58, 237, 0.4); text-transform: uppercase;">
+                <div class="hero-actions fade-up" style="animation-delay: 600ms; margin-top: 36px;">
+                    <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-cta">
                         <i class="fab fa-discord" style="font-size: 1.15rem;"></i> JOIN THE SERVER
                     </a>
                 </div>
@@ -123,7 +128,7 @@
     <section id="about" class="tab-pane" style="padding: 110px 0;">
         <div class="container">
             <!-- Header -->
-            <div class="sec-head reveal">
+            <div class="sec-head io-reveal">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
                     <span class="pill-dot"></span> About
                 </div>
@@ -135,22 +140,22 @@
 
             <!-- Highlight cards -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-clock"></i></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">99.9% Uptime</h3>
                     <p>Reliable service you can count on, day and night.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Secure & Safe</h3>
                     <p>Full Discord OAuth2 integration and advanced data protection.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-bolt"></i></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Low Latency</h3>
                     <p>Instant AI responses with minimal processing delay.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-tachometer-alt"></i></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Fast Response</h3>
                     <p>Commands execute within milliseconds across all servers.</p>
@@ -159,22 +164,22 @@
 
             <!-- Big stat boxes -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px;">
-                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                <div class="feat-card io-reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-server" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
                     <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">1</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">ACTIVE SERVER</div>
                 </div>
-                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                <div class="feat-card io-reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-terminal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
                     <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">75+</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Commands</div>
                 </div>
-                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                <div class="feat-card io-reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
                     <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">0</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">MEMBERS</div>
                 </div>
-                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                <div class="feat-card io-reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-signal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
                     <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">2ms</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
@@ -187,7 +192,7 @@
     <section class="stats-strip tab-pane" id="stats">
         <div class="container">
             <div style="display: flex; justify-content: center; margin-bottom: 40px;">
-                <div class="discord-presence reveal">
+                <div class="discord-presence io-reveal">
                     <div class="dp-avatar">
                         <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=b91c1c&color=fff'">
                         <div class="dp-status"></div>
@@ -224,7 +229,7 @@
     <!-- ── FEATURES ─────────────────────── -->
     <section class="features-section tab-pane" id="features">
         <div class="container">
-            <div class="sec-head reveal">
+            <div class="sec-head io-reveal">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
                     <span class="pill-dot"></span> Features
                 </div>
@@ -232,33 +237,33 @@
                 <p class="sec-sub">A comprehensive suite of tools designed to manage, grow, and entertain your Discord community.</p>
             </div>
             <div class="feat-grid">
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-brain"></i></div>
                     <h3>AI & NLP</h3>
                     <p>Advanced LLM-powered conversational AI, sentiment analysis, and automated vibe checks to keep chat engaging.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
                     <h3>Moderation & Defense</h3>
                     <p>Automated anti-raid protection, lockdown capabilities, auto-whitelisting, and powerful logging to keep your server safe 24/7.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-film"></i></div>
                     <h3>Media & Translation</h3>
                     <p>Get detailed anime and movie lookups via interactive menus, and built-in text translation utilities.</p>
                 </div>
 
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-user-tag"></i></div>
                     <h3>Role Management</h3>
                     <p>Advanced automated role assignment, reaction roles, and complete setup management for massive communities.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-check-circle"></i></div>
                     <h3>Verified System</h3>
                     <p>Secure verification gates and captcha systems to keep your community safe from bots.</p>
                 </div>
-                <div class="feat-card reveal">
+                <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-door-open"></i></div>
                     <h3>Welcome & Exit System</h3>
                     <p>Customizable welcome banners and exit logs with rich embed formatting to greet new members.</p>
@@ -270,7 +275,7 @@
     <!-- ── GAMES SECTION ─────────────────────── -->
     <section id="games" class="tab-pane" style="padding: 110px 0; border-top: 1px solid var(--border);">
         <div class="container">
-            <div class="sec-head reveal">
+            <div class="sec-head io-reveal">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
                     <span class="pill-dot"></span> Community
                 </div>
@@ -278,7 +283,7 @@
                 <p class="sec-sub">Join our members in the most popular multiplayer titles.</p>
             </div>
             
-            <div class="games-grid reveal" id="live-games-grid" style="animation-delay: 0.1s;">
+            <div class="games-grid io-reveal" id="live-games-grid" style="animation-delay: 0.1s;">
                 <!-- Games will be injected dynamically via JS based on Live Activity -->
             </div>
         </div>
@@ -287,7 +292,7 @@
     <!-- ── COMMANDS ─────────────────────── -->
     <section class="commands-section tab-pane" id="commands">
         <div class="container">
-            <div class="sec-head reveal">
+            <div class="sec-head io-reveal">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
                     <span class="pill-dot"></span> Commands
                 </div>
@@ -295,7 +300,7 @@
                 <p class="sec-sub">Over 150+ commands at your fingertips. Find what you need instantly.</p>
             </div>
             <!-- Filters -->
-            <div class="cmd-filters reveal">
+            <div class="cmd-filters io-reveal">
                 <button class="cmd-filter active" data-filter="all">All</button>
                 <button class="cmd-filter" data-filter="ai">Advanced AI</button>
                 <button class="cmd-filter" data-filter="ent">Anime & Movies</button>
@@ -307,7 +312,7 @@
             </div>
 
             <!-- Categories -->
-            <div class="commands-container reveal">
+            <div class="commands-container io-reveal">
                 
                 <!-- Advanced AI -->
                 <div class="cmd-category" data-cat="ai">
@@ -455,7 +460,7 @@
     <!-- ── CTA ─────────────────────── -->
     <section class="cta-section tab-pane" id="home-cta">
         <div class="container">
-            <div class="cta-box reveal">
+            <div class="cta-box io-reveal">
                 <div class="cta-glow"></div>
                 <div class="cta-inner">
                     <div class="pill" style="justify-content:center; margin-bottom: 24px;">
@@ -487,7 +492,7 @@
                 <span class="footer-copy">© 2026 Nexus Bot. All rights reserved.</span>
                 <div class="footer-socials">
                     <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                    <a href="https://discord.gg/fZNDG5sfhf" target="_blank" aria-label="Discord"><i class="fab fa-discord"></i></a>
                     <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
                 </div>
             </div>
@@ -504,4 +509,3 @@
     <script src="js/main.js" defer></script>
 </body>
 </html>
-
