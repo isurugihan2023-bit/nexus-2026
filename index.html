@@ -29,7 +29,7 @@
         <div class="container">
             <div class="nav-inner">
                 <a href="#home" class="nav-logo">
-                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 34px; height: 34px; border-radius: 9px; object-fit: cover;" onerror="this.style.display='none'">
+                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 38px; height: 38px; border-radius: 9px; object-fit: cover;" onerror="this.style.display='none'">
                     <span>Nexus</span>
                     <span class="nav-logo-dot"></span>
                 </a>
@@ -47,7 +47,6 @@
         </div>
     </nav>
 
-    <!-- ── HERO SECTION ───────────────── -->
     <section class="hero-section tab-pane active" id="home">
         <!-- Floating Cyber Dust behind text -->
         <div class="cyber-particles"></div>
@@ -130,30 +129,87 @@
                 </div>
                 <h2 class="sec-title">About <span class="grad">NEXUS Bot</span></h2>
                 <p class="sec-sub">
-                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience.
+                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience. It combines next-generation AI, elite anti-raid moderation, and comprehensive server management to elevate your community.
                 </p>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
                 <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-clock"></i></div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 8px;">24/7 Ultra Uptime</h3>
-                    <p style="font-size: 0.85rem; color: var(--sub);">Hosted on high-speed dedicated nodes for zero lag.</p>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">99.9% Uptime</h3>
+                    <p>Reliable service you can count on, day and night.</p>
                 </div>
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-brain"></i></div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 8px;">Multi-LLM AI Core</h3>
-                    <p style="font-size: 0.85rem; color: var(--sub);">Powered by Gemini, Groq, and Cerebras with auto-fallback.</p>
+                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Secure & Safe</h3>
+                    <p>Full Discord OAuth2 integration and advanced data protection.</p>
                 </div>
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-shield-virus"></i></div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 8px;">Anti-Raid Security</h3>
-                    <p style="font-size: 0.85rem; color: var(--sub);">Real-time malicious link blocking and intelligent verification.</p>
+                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Lightning Fast</h3>
+                    <p>Sub-millisecond database queries with local caching.</p>
                 </div>
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-gamepad"></i></div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 8px;">Game Integration</h3>
-                    <p style="font-size: 0.85rem; color: var(--sub);">Real-time tracking of community game activity & leaderboards.</p>
+                    <div class="feat-icon"><i class="fas fa-gem"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Premium Quality</h3>
+                    <p>Crafted with modern tech stack and beautiful dark aesthetic.</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+                <div>
+                    <div id="about-servers" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">1</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Server</div>
+                </div>
+                <div>
+                    <div id="about-users" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">50</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Members</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">75+</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Slash Commands</div>
+                </div>
+                <div>
+                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">106ms</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── STATS STRIP ─────────────────────── -->
+    <section class="stats-strip tab-pane" id="stats">
+        <div class="container">
+            <div style="display: flex; justify-content: center; margin-bottom: 40px;">
+                <div class="discord-presence io-reveal">
+                    <div class="dp-avatar">
+                        <img src="images/nexus_logo.png" alt="Nexus" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=N&background=b91c1c&color=fff&size=42'">
+                        <div class="dp-status"></div>
+                    </div>
+                    <div class="dp-info">
+                        <div class="dp-name">
+                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
+                        </div>
+                        <div class="dp-activity dp-dynamic-text">100+ SERVERS</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-strip-inner">
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
+                    <div class="stat-lbl">Active Servers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
+                    <div class="stat-lbl">Total Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="cmd-count-stat" data-target="130" data-suffix="">130</div>
+                    <div class="stat-lbl">Commands Executed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">99.9%</div>
+                    <div class="stat-lbl">Reliability</div>
                 </div>
             </div>
         </div>
@@ -187,34 +243,34 @@
 
             <div class="feat-grid">
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-robot"></i></div>
-                    <h3 class="feat-title">Smart AI Assistant</h3>
-                    <p class="feat-desc">High-speed conversational intelligence with multi-provider routing and real-time context memory.</p>
+                    <div class="feat-icon"><i class="fas fa-brain"></i></div>
+                    <h3 class="feat-title">Advanced AI Engine</h3>
+                    <p class="feat-desc">Powered by multi-tier fallback architecture (Gemini + Groq + Cerebras). Supports contextual chat, image generation, and intelligent thread summaries.</p>
                 </div>
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
-                    <h3 class="feat-title">Automated Moderation</h3>
-                    <p class="feat-desc">Advanced anti-spam, auto-mute, raid detection, and customizable automated defense systems.</p>
+                    <div class="feat-icon"><i class="fas fa-shield-virus"></i></div>
+                    <h3 class="feat-title">Anti-Raid Security</h3>
+                    <p class="feat-desc">Real-time spam detection, suspicious link blocking, mass-mention suppression, and intelligent member verification.</p>
                 </div>
                 <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-gamepad"></i></div>
-                    <h3 class="feat-title">Valorant & Game Stats</h3>
-                    <p class="feat-desc">Fetch live rank, match history, and competitive analytics directly inside your channels.</p>
+                    <h3 class="feat-title">Game Tracking</h3>
+                    <p class="feat-desc">Live community activity monitoring, Valorant career stats, match history tracking, and active player highlights.</p>
                 </div>
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-chart-pie"></i></div>
-                    <h3 class="feat-title">Real-Time Web Dashboard</h3>
-                    <p class="feat-desc">Monitor hardware stats, active members, voice channels, and server activity in real-time.</p>
+                    <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3 class="feat-title">Live Analytics</h3>
+                    <p class="feat-desc">Real-time server health monitoring, voice channel tracking, command execution logs, and detailed member leaderboards.</p>
                 </div>
                 <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-trophy"></i></div>
-                    <h3 class="feat-title">Engagement & XP System</h3>
-                    <p class="feat-desc">Level up your members with rich XP progression, custom role unlocks, and dynamic leaderboards.</p>
+                    <h3 class="feat-title">Leveling & XP</h3>
+                    <p class="feat-desc">Dynamic member progression system with customizable XP rates, level-up rewards, and competitive leaderboards.</p>
                 </div>
                 <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
-                    <h3 class="feat-title">Custom Commands</h3>
-                    <p class="feat-desc">Create server-specific macros, automated triggers, and welcome announcements seamlessly.</p>
+                    <div class="feat-icon"><i class="fas fa-robot"></i></div>
+                    <h3 class="feat-title">Automations</h3>
+                    <p class="feat-desc">Scheduled announcements, welcome cards, custom auto-roles, and seamless webhook notifications.</p>
                 </div>
             </div>
         </div>
@@ -284,30 +340,6 @@
                     <div class="cmd-card"><div class="cmd-name">/avatar [user]</div><div class="cmd-desc">View and download high-resolution member avatar.</div></div>
                     <div class="cmd-card"><div class="cmd-name">/serverinfo</div><div class="cmd-desc">View guild creation, owner, channels, and boost level.</div></div>
                     <div class="cmd-card"><div class="cmd-name">/poll [question]</div><div class="cmd-desc">Create interactive community vote widgets.</div></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ── STATS STRIP ─────────────────────── -->
-    <section class="stats-strip tab-pane" id="stats">
-        <div class="container">
-            <div class="stats-strip-inner">
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
-                    <div class="stat-lbl">Active Servers</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
-                    <div class="stat-lbl">Total Members</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="cmd-count-stat" data-target="130" data-suffix="">130</div>
-                    <div class="stat-lbl">Commands Executed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num">99.9%</div>
-                    <div class="stat-lbl">Reliability</div>
                 </div>
             </div>
         </div>
