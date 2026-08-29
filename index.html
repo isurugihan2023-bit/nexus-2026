@@ -3,75 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NINJA NEXUS | Discord Community</title>
-    
-    <!-- Meta tags for Discord / Google SEO -->
-    <meta name="description" content="Ninja Nexus is the ultimate gaming and anime Discord community. Join us to chat, play games, and level up!">
-    <meta property="og:title" content="NINJA NEXUS | Discord Server">
-    <meta property="og:description" content="The ultimate anime & gaming community. Join our Discord server!">
-    <meta property="og:theme-color" content="#7c3aed">
-    
-    <!-- Fonts & Icons -->
+    <title>Nexus Bot | The Next Generation Discord AI</title>
+    <meta name="description" content="Powerful AI, Smart Moderation, Automation, Analytics and Members Dashboard — All in one Discord Bot.">
+    <meta property="og:title" content="Nexus Bot | The Next Generation Discord AI">
+    <meta property="og:description" content="Powerful AI, Smart Moderation, Automation, Analytics and Members Dashboard — All in one Discord Bot.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#6d28d9">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Stylesheet -->
+
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="home-tab-active">
+<body>
+    <!-- 🎴 GLOBAL BACKGROUNDS 🎴 -->
+    <div class="hero-img-bg"></div>
+    <div class="hero-bg"></div>
+    <div class="hero-animated-overlay"></div>
+    <div class="cyber-grid"></div>
 
-    <!-- Ambient background glow -->
-    <div class="ambient amb-1"></div>
-    <div class="ambient amb-2"></div>
-    <div class="ambient amb-3"></div>
-
-    <!-- ── NAVBAR ──────────────────────────────────────── -->
-    <nav id="navbar">
+    <!-- ── NAVBAR ─────────────────────── -->
+    <nav class="nav" id="navbar">
         <div class="container">
             <div class="nav-inner">
                 <a href="#home" class="nav-logo">
-                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 38px; height: 38px; border-radius: 9px; object-fit: cover;" onerror="this.style.display='none'">
-                    <div>
-                        <div class="nav-logo-text">NINJA NEXUS</div>
-                        <div class="nav-logo-sub">COMMUNITY</div>
-                    </div>
+                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 34px; height: 34px; border-radius: 9px; object-fit: cover;" onerror="this.style.display='none'">
+                    <span>Nexus</span>
+                    <span class="nav-logo-dot"></span>
                 </a>
-
                 <ul class="nav-links">
-                    <li><a href="#home" class="active">Home</a></li>
                     <li><a href="#about">About</a></li>
-                    <li><a href="#games">Games</a></li>
                     <li><a href="#features">Features</a></li>
+                    <li><a href="#games">Games</a></li>
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#stats">Stats</a></li>
                     <div class="nav-indicator"></div>
                 </ul>
 
-                <div class="nav-actions">
-                    <a href="/admin_login" class="nav-login-btn">
-                        <i class="fas fa-shield-alt" style="margin-right: 5px;"></i> Admin
-                    </a>
-                    <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
-                </div>
+                <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <!-- ── HERO SECTION ────────────────────────────────── -->
+    <!-- ── HERO SECTION ───────────────── -->
     <section class="hero-section tab-pane active" id="home">
-        <!-- Background Wallpaper with Visualizer Composite -->
-        <img src="images/bg-anime.jpg" alt="Anime Background" class="hero-img-bg" onerror="this.style.display='none'">
-        <div class="hero-overlay"></div>
-
-        <!-- Floating Cyber Dust -->
+        <!-- Floating Cyber Dust behind text -->
         <div class="cyber-particles"></div>
         <div class="cyber-particles-2"></div>
         
         <div class="container">
-            <div class="hero-content">
-                <!-- Discord Presence Pill -->
+            <div class="hero-inner">
                 <div class="discord-presence fade-up" style="animation-delay: 0ms">
                     <div class="dp-avatar">
                         <img src="images/nexus_logo.png" alt="Nexus" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff&size=42'">
@@ -141,18 +124,16 @@
     <!-- ── ABOUT SECTION ─────────────────────── -->
     <section id="about" class="tab-pane" style="padding: 110px 0;">
         <div class="container">
-            <!-- Header -->
             <div class="sec-head io-reveal">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
                     <span class="pill-dot"></span> About
                 </div>
                 <h2 class="sec-title">About <span class="grad">NEXUS Bot</span></h2>
                 <p class="sec-sub">
-                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience. It combines next-generation AI, elite anti-raid moderation, and comprehensive server management to elevate your community.
+                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience.
                 </p>
             </div>
 
-            <!-- Highlight cards -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
                 <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-clock"></i></div>
@@ -175,64 +156,6 @@
                     <p style="font-size: 0.85rem; color: var(--sub);">Real-time tracking of community game activity & leaderboards.</p>
                 </div>
             </div>
-
-            <!-- Stats Mini Strip -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
-                <div>
-                    <div id="about-servers" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">1</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Server</div>
-                </div>
-                <div>
-                    <div id="about-users" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">50</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Members</div>
-                </div>
-                <div>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">75+</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Slash Commands</div>
-                </div>
-                <div>
-                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">106ms</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ── STATS STRIP ─────────────────────── -->
-    <section class="stats-strip tab-pane" id="stats">
-        <div class="container">
-            <div style="display: flex; justify-content: center; margin-bottom: 40px;">
-                <div class="discord-presence io-reveal">
-                    <div class="dp-avatar">
-                        <img src="images/nexus_logo.png" alt="Nexus" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=N&background=b91c1c&color=fff&size=42'">
-                        <div class="dp-status"></div>
-                    </div>
-                    <div class="dp-info">
-                        <div class="dp-name">
-                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
-                        </div>
-                        <div class="dp-activity dp-dynamic-text">Watching Ninja Nexus</div>
-                    </div>
-                </div>
-            </div>
-            <div class="stats-strip-inner">
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
-                    <div class="stat-lbl">Active Servers</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
-                    <div class="stat-lbl">Total Members</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="cmd-count-stat" data-target="130" data-suffix="">130</div>
-                    <div class="stat-lbl">Commands Executed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num">99.9%</div>
-                    <div class="stat-lbl">Reliability</div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -247,9 +170,7 @@
                 <p class="sec-sub">Popular games actively played by members of Ninja Nexus.</p>
             </div>
             
-            <div class="games-grid" id="live-games-grid">
-                <!-- Dynamically Populated by main.js -->
-            </div>
+            <div class="games-grid" id="live-games-grid"></div>
         </div>
     </section>
 
@@ -292,7 +213,7 @@
                 </div>
                 <div class="feat-card io-reveal">
                     <div class="feat-icon"><i class="fas fa-bolt"></i></div>
-                    <h3 class="feat-title">Custom Commands & Automations</h3>
+                    <h3 class="feat-title">Custom Commands</h3>
                     <p class="feat-desc">Create server-specific macros, automated triggers, and welcome announcements seamlessly.</p>
                 </div>
             </div>
@@ -310,7 +231,6 @@
                 <p class="sec-sub">Explore available slash commands across moderation, AI, utility, and gaming.</p>
             </div>
 
-            <!-- Command Filters -->
             <div class="cmd-filters io-reveal">
                 <button class="cmd-filter active" data-filter="all">All Commands</button>
                 <button class="cmd-filter" data-filter="general">General</button>
@@ -320,7 +240,6 @@
                 <button class="cmd-filter" data-filter="utility">Utility</button>
             </div>
 
-            <!-- Command Categories -->
             <div class="cmd-category" data-cat="general" style="margin-bottom: 30px;">
                 <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--p400); margin-bottom: 16px;"><i class="fas fa-star" style="margin-right: 8px;"></i> General</h3>
                 <div class="cmd-grid">
@@ -370,6 +289,30 @@
         </div>
     </section>
 
+    <!-- ── STATS STRIP ─────────────────────── -->
+    <section class="stats-strip tab-pane" id="stats">
+        <div class="container">
+            <div class="stats-strip-inner">
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
+                    <div class="stat-lbl">Active Servers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
+                    <div class="stat-lbl">Total Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="cmd-count-stat" data-target="130" data-suffix="">130</div>
+                    <div class="stat-lbl">Commands Executed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">99.9%</div>
+                    <div class="stat-lbl">Reliability</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ── CTA BANNER ─────────────────────────── -->
     <section id="home-cta" class="tab-pane active" style="padding-bottom: 100px;">
         <div class="container">
@@ -401,7 +344,6 @@
 
                 <div class="foot-links">
                     <a href="https://discord.gg/fZNDG5sfhf" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
-                    <a href="/admin_login" title="Admin Portal"><i class="fas fa-shield-alt"></i></a>
                 </div>
             </div>
         </div>
