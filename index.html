@@ -332,3 +332,906 @@
         .feat-card::before {
             content: '';
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.05) 50%, transparent 80%);
+            transform: translateX(-100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .feat-card:hover::before {
+            animation: cardShine 0.75s ease-in-out forwards;
+        }
+        @keyframes cardShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .feat-card:hover { 
+            background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.12); 
+            transform: translateY(-5px);
+        }
+        .feat-card:hover::after { opacity: 1; }
+
+        .feat-icon {
+            width: 50px; height: 50px;
+            background: rgba(124,58,237,0.1);
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; color: var(--p400);
+            margin-bottom: 22px;
+        }
+
+        .feat-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+        .feat-card p { font-size: 0.9rem; color: var(--sub); line-height: 1.65; }
+
+        /* ── COMMANDS ─────────────────────────────────────── */
+        .commands-section { padding: 80px 0 120px; }
+        
+        .cmd-filters {
+            display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 40px;
+        }
+        .cmd-filter {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            color: var(--muted); padding: 8px 18px; border-radius: 100px;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: all 200ms;
+        }
+        .cmd-filter:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .cmd-filter.active { background: var(--p600); color: #fff; border-color: var(--p500); }
+
+        .cmd-category {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px; margin-bottom: 24px;
+            transition: opacity 300ms, transform 300ms;
+        }
+        .cmd-cat-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 24px; }
+        .cmd-cat-icon {
+            width: 44px; height: 44px; background: rgba(124,58,237,0.1);
+            border: 1px solid rgba(124,58,237,0.2); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--p400); font-size: 1.1rem; flex-shrink: 0;
+        }
+        .cmd-cat-title { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .cmd-cat-sub { font-size: 0.85rem; color: var(--muted); }
+
+        .cmd-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+        }
+        .cmd-card {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px;
+            transition: background 200ms, border-color 200ms;
+        }
+        .cmd-card:hover { background: rgba(124,58,237,0.05); border-color: var(--border2); }
+        .cmd-card-name {
+            display: inline-block;
+            font-family: var(--mono); color: #fff;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 0.85rem; font-weight: 700; margin-bottom: 10px;
+        }
+        .cmd-card-desc { font-size: 0.8rem; color: var(--sub); line-height: 1.5; }
+
+        /* ── CTA ─────────────────────────────────────── */
+        .cta-section { padding: 80px 0 120px; }
+
+        .cta-box {
+            position: relative;
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: 26px;
+            padding: 100px 48px;
+            text-align: center; overflow: hidden;
+        }
+
+        /* ── STATS TAB 'ONE SCREEN' FIX ── */
+        body.stats-tab-active { display: flex; flex-direction: column; min-height: 100vh; }
+        body.stats-tab-active #stats {
+            flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
+            padding-top: 120px; padding-bottom: 20px; border-bottom: none;
+        }
+        body.stats-tab-active #home-cta {
+            padding-top: 20px; padding-bottom: 60px;
+        }
+        body.stats-tab-active #home-cta .cta-box {
+            padding: 60px 30px;
+        }
+        .cta-box::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--p500), var(--p400), transparent);
+        }
+        /* dot grid inside cta */
+        .cta-box::after {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(circle, rgba(139,92,246,0.06) 1.5px, transparent 1.5px);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+        .cta-glow {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 300px;
+            background: radial-gradient(ellipse at center, rgba(124,58,237,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .cta-inner { position: relative; z-index: 2; }
+        .cta-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 18px; }
+        .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
+        .cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+        /* ── FOOTER ─────────────────────── */
+        .footer {
+            border-top: 1px solid var(--border);
+            background: var(--bg2);
+            padding: 72px 0 36px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 56px;
+        }
+        .footer-brand-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 1.1rem;
+            margin-bottom: 14px;
+        }
+        .footer-brand-logo img { width: 28px; height: 28px; border-radius: 7px; }
+        .footer-brand-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; max-width: 260px; }
+
+        .footer-col h4 {
+            font-size: 0.78rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--text); margin-bottom: 20px;
+        }
+        .footer-col ul { display: flex; flex-direction: column; gap: 13px; }
+        .footer-col a { font-size: 0.88rem; color: var(--muted); transition: color 150ms; }
+        .footer-col a:hover { color: var(--p400); }
+
+        .footer-bottom {
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .footer-copy { font-size: 0.82rem; color: var(--muted); }
+        .footer-socials { display: flex; gap: 18px; }
+        .footer-socials a { color: var(--muted); font-size: 1rem; transition: color 150ms; }
+        .footer-socials a:hover { color: var(--p400); }
+
+        /* ── ANIMATIONS ─────────────────────────────────────── */
+        .fade-up {
+            opacity: 0; transform: translateY(24px);
+            animation: fuAnim 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fuAnim { to { opacity: 1; transform: translateY(0); } }
+
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── RESPONSIVE ─────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .nav-links, .nav-cta { display: none; }
+            .hamburger { display: block; }
+            .stats-strip-inner { grid-template-columns: repeat(2,1fr); }
+            .stat-item { padding: 16px 0; border-right: none; border-bottom: 1px solid var(--border); }
+            .stat-item:nth-child(3), .stat-item:last-child { border-bottom: none; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .discord-presence {
+                display: inline-flex; align-items: center; gap: 12px;
+                background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+                padding: 8px 16px 8px 8px; border-radius: 50px;
+                margin-bottom: 30px;
+            }
+            .dp-avatar { position: relative; width: 36px; height: 36px; }
+            .dp-avatar img { width: 100%; height: 100%; border-radius: 50%; }
+            .dp-status {
+                position: absolute; bottom: 0; right: 0; width: 10px; height: 10px;
+                background: #43b581; border: 2px solid var(--bg1); border-radius: 50%;
+            }
+            .dp-name { font-size: 0.85rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
+            .dp-bot-badge {
+                background: var(--p600); color: #fff; font-size: 0.6rem;
+                padding: 1px 5px; border-radius: 4px; font-weight: 700;
+            }
+            .dp-activity { font-size: 0.8rem; color: var(--muted); transition: opacity 300ms; }
+
+            .pill {
+                display: inline-flex; align-items: center; gap: 8px;
+                background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
+                padding: 6px 14px; border-radius: 100px;
+                color: var(--p400); font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+            }
+            .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; animation: pulse 2s infinite; }
+            @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
+
+            .hero-heading { font-size: 2.5rem; }
+            .cta-box { padding: 60px 22px; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAVBAR ─────────────────────── -->
+    <nav class="nav" id="navbar">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="#home" class="nav-logo">
+                    <img src="images/nexus_logo.png" alt="Nexus" onerror="this.style.display='none'">
+                    <span>Nexus</span>
+                    <span class="nav-logo-dot"></span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#commands">Commands</a></li>
+                    <li><a href="#stats">Stats</a></li>
+                </ul>
+                <div class="nav-cta">
+                    <a href="https://discord.gg/fZNDG5sfhf" class="nav-invite" target="_blank">
+                        <i class="fab fa-discord"></i> Join Server
+                    </a>
+                </div>
+                <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── HERO ─────────────────────── -->
+    <section class="hero tab-pane active" id="home">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="hero-glow"></div>
+        <div class="container">
+            <div class="hero-inner">
+                <div class="discord-presence fade-up" style="animation-delay:0s">
+                    <div class="dp-avatar">
+                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff'">
+                        <div class="dp-status"></div>
+                    </div>
+                    <div class="dp-info">
+                        <div class="dp-name">
+                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
+                        </div>
+                        <div class="dp-activity dp-dynamic-text">1 SERVER</div>
+                    </div>
+                </div>
+                <div class="fade-up" style="animation-delay:0.1s">
+                    <div class="hero-float">
+                        <h1 class="hero-heading">
+                            NINJA NEXUS<br><span class="grad">DISCORD SERVER</span>
+                        </h1>
+                    </div>
+                </div>
+                <p class="hero-sub fade-up" style="animation-delay:0.2s">
+                    The ultimate anime and gaming community. Join Ninja Nexus to make friends, hang out, and have fun.
+                </p>
+                <div class="hero-btns fade-up" style="animation-delay:0.3s">
+                    <a href="https://discord.gg/fZNDG5sfhf" class="btn btn-primary" target="_blank">
+                        <i class="fab fa-discord"></i> Join The Server
+                    </a>
+                </div>
+                <!-- Live stat chips -->
+                <div class="hero-chips fade-up" style="animation-delay:0.4s">
+                    <div class="chip">
+                        <i class="fas fa-server"></i>
+                        <div>
+                            <div class="chip-val" id="hero-servers">1</div>
+                            <div class="chip-label" id="hero-servers-label">Server</div>
+                        </div>
+                    </div>
+                    <div class="chip">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <div class="chip-val" id="hero-members">50</div>
+                            <div class="chip-label">Members</div>
+                        </div>
+                    </div>
+                    <div class="chip">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <div class="chip-val" id="hero-uptime">52m</div>
+                            <div class="chip-label">Uptime</div>
+                        </div>
+                    </div>
+                    <div class="chip">
+                        <i class="fas fa-signal"></i>
+                        <div>
+                            <div class="chip-val" id="hero-ping">106 ms</div>
+                            <div class="chip-label">Ping</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── ABOUT SECTION ─────────────────────── -->
+    <section id="about" class="tab-pane" style="padding: 110px 0;">
+        <div class="container">
+            <!-- Header -->
+            <div class="sec-head reveal">
+                <div class="pill" style="justify-content:center; margin-bottom: 20px;">
+                    <span class="pill-dot"></span> About
+                </div>
+                <h2 class="sec-title">About <span class="grad">NEXUS Bot</span></h2>
+                <p class="sec-sub">
+                    NEXUS was created exclusively for the Ninja Nexus community. It combines powerful AI, elite moderation, and a full suite of community tools.
+                </p>
+            </div>
+
+            <!-- Highlight cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-clock"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">99.9% Uptime</h3>
+                    <p>Reliable service you can count on, day and night.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Secure & Safe</h3>
+                    <p>Full Discord OAuth2 integration and advanced data protection.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Low Latency</h3>
+                    <p>Instant AI responses with minimal processing delay.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Fast Response</h3>
+                    <p>Commands execute within milliseconds across all servers.</p>
+                </div>
+            </div>
+
+            <!-- Big stat boxes -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px;">
+                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                    <i class="fas fa-server" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">1</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Server</div>
+                </div>
+                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                    <i class="fas fa-terminal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">75+</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Commands</div>
+                </div>
+                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                    <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">50</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Happy Members</div>
+                </div>
+                <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
+                    <i class="fas fa-signal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
+                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">106ms</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── STATS STRIP ─────────────────────── -->
+    <section class="stats-strip tab-pane" id="stats">
+        <div class="container">
+            <div style="display: flex; justify-content: center; margin-bottom: 40px;">
+                <div class="discord-presence reveal">
+                    <div class="dp-avatar">
+                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff'">
+                        <div class="dp-status"></div>
+                    </div>
+                    <div class="dp-info">
+                        <div class="dp-name">
+                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
+                        </div>
+                        <div class="dp-activity dp-dynamic-text">1 SERVER</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-strip-inner">
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
+                    <div class="stat-lbl">Active Server</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
+                    <div class="stat-lbl">Total Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" data-target="75" data-suffix="+">75+</div>
+                    <div class="stat-lbl">Commands</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num stat-number" data-target="99.99" data-suffix="%">99.99%</div>
+                    <div class="stat-lbl">Uptime</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FEATURES ─────────────────────── -->
+    <section class="features-section tab-pane" id="features">
+        <div class="container">
+            <div class="sec-head reveal">
+                <div class="pill" style="justify-content:center; margin-bottom: 20px;">
+                    <span class="pill-dot"></span> Features
+                </div>
+                <h2 class="sec-title">Everything you need.<br><span class="grad">Nothing you don't.</span></h2>
+                <p class="sec-sub">A comprehensive suite of tools designed to manage, grow, and entertain your Discord community.</p>
+            </div>
+            <div class="feat-grid">
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-brain"></i></div>
+                    <h3>AI & NLP</h3>
+                    <p>Advanced LLM-powered conversational AI, sentiment analysis, and automated vibe checks to keep chat engaging.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3>Moderation & Defense</h3>
+                    <p>Automated anti-raid protection, lockdown capabilities, auto-whitelisting, and powerful logging to keep your server safe 24/7.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-film"></i></div>
+                    <h3>Media & Translation</h3>
+                    <p>Get detailed anime and movie lookups via interactive menus, and built-in text translation utilities.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-hammer"></i></div>
+                    <h3>Server Tools</h3>
+                    <p>Server architect blue-printing, advanced ticketing systems, and secure user verification gates.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>Server Analytics</h3>
+                    <p>Live stats and member tracking to monitor server activity and engagement.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-user-tag"></i></div>
+                    <h3>Role Management</h3>
+                    <p>Advanced automated role assignment, reaction roles, and complete setup management for massive communities.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-check-circle"></i></div>
+                    <h3>Verified System</h3>
+                    <p>Secure verification gates and captcha systems to keep your community safe from bots.</p>
+                </div>
+                <div class="feat-card reveal">
+                    <div class="feat-icon"><i class="fas fa-door-open"></i></div>
+                    <h3>Welcome & Exit System</h3>
+                    <p>Customizable welcome banners and exit logs with rich embed formatting to greet new members.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── COMMANDS ─────────────────────── -->
+    <section class="commands-section tab-pane" id="commands">
+        <div class="container">
+            <div class="sec-head reveal">
+                <div class="pill" style="justify-content:center; margin-bottom: 20px;">
+                    <span class="pill-dot"></span> Commands
+                </div>
+                <h2 class="sec-title">Powerful Commands</h2>
+                <p class="sec-sub">Over 150+ commands at your fingertips. Find what you need instantly.</p>
+            </div>
+            <!-- Filters -->
+            <div class="cmd-filters reveal">
+                <button class="cmd-filter active" data-filter="all">All</button>
+                <button class="cmd-filter" data-filter="ai">Advanced AI</button>
+                <button class="cmd-filter" data-filter="ent">Anime & Movies</button>
+                <button class="cmd-filter" data-filter="study">Study</button>
+                <button class="cmd-filter" data-filter="eco">Economy</button>
+                <button class="cmd-filter" data-filter="music">Music</button>
+                <button class="cmd-filter" data-filter="util">Utility & Fun</button>
+                <button class="cmd-filter" data-filter="sports">Sports</button>
+            </div>
+
+            <!-- Categories -->
+            <div class="commands-container reveal">
+                
+                <!-- Advanced AI -->
+                <div class="cmd-category" data-cat="ai">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-brain"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Advanced AI Features</div>
+                            <div class="cmd-cat-sub">Powerful AI tools to enhance your server experience.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!ai</div><div class="cmd-card-desc">Shows the AI Assistance Help Menu.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!tldr &lt;number&gt;</div><div class="cmd-card-desc">AI reads the last X messages in chat and gives you a summary of what you missed!</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!roast @user</div><div class="cmd-card-desc">AI generates a hilarious gaming-style roast of the user.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!rizz @user</div><div class="cmd-card-desc">AI generates a smooth/funny pickup line.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!translate &lt;text&gt;</div><div class="cmd-card-desc">Translates any language into natural-sounding English.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!explain &lt;topic&gt;</div><div class="cmd-card-desc">Explains complex topics, code, or math step-by-step.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!idea &lt;topic&gt;</div><div class="cmd-card-desc">Brainstorms highly creative ideas for videos, stories, or games.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!name &lt;theme&gt;</div><div class="cmd-card-desc">Generates badass gaming tags or clan names.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!debate &lt;topic&gt;</div><div class="cmd-card-desc">Start an argument! The AI will fiercely argue the opposite side of your topic.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!imagine &lt;prompt&gt;</div><div class="cmd-card-desc">Generates AI images directly in Discord!</div></div>
+                    </div>
+                </div>
+
+                <!-- Anime & Movies -->
+                <div class="cmd-category" data-cat="ent">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-film"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Anime & Movies</div>
+                            <div class="cmd-cat-sub">Entertainment lookups and AI recommendations.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!movie &lt;title&gt;</div><div class="cmd-card-desc">Gets full IMDb details and ratings for any movie.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!mood</div><div class="cmd-card-desc">Start an interactive AI wizard to find a movie based on your current mood.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!favmovie &lt;title&gt;</div><div class="cmd-card-desc">Save a movie to your personal favorites.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!myfavs</div><div class="cmd-card-desc">View your list of favorite movies.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!unfav &lt;title&gt;</div><div class="cmd-card-desc">Remove a movie from your favorites.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!movierec</div><div class="cmd-card-desc">AI analyzes your saved movies and recommends 3 similar ones.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!anime &lt;title&gt;</div><div class="cmd-card-desc">Gets full MyAnimeList details and ratings for any anime.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!animemood</div><div class="cmd-card-desc">Start an interactive AI wizard to find anime based on your mood.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!favanime &lt;title&gt;</div><div class="cmd-card-desc">Save an anime to your personal favorites.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!myfavanimes</div><div class="cmd-card-desc">View your list of favorite anime.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!animerec</div><div class="cmd-card-desc">AI analyzes your saved anime and recommends 3 similar ones.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!nexusbrain</div><div class="cmd-card-desc">The Ultimate AI Recommender. Analyzes BOTH your anime and movies to deduce your taste profile and give hybrid recommendations.</div></div>
+                    </div>
+                </div>
+
+                <!-- Study & Productivity -->
+                <div class="cmd-category" data-cat="study">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-book"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Study & Productivity</div>
+                            <div class="cmd-cat-sub">Tools to keep you focused and productive.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!study &lt;hours&gt;</div><div class="cmd-card-desc">Starts a focused study timer.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!studytop</div><div class="cmd-card-desc">Shows the leaderboard of users who study the most.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!todo &lt;add/list/done&gt;</div><div class="cmd-card-desc">Manage your personal to-do list.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!quote</div><div class="cmd-card-desc">Gives you a highly motivational study quote.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!define &lt;word&gt;</div><div class="cmd-card-desc">Dictionary definition of any word.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!wiki &lt;topic&gt;</div><div class="cmd-card-desc">Quick Wikipedia summary of a topic.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!remind &lt;time&gt; &lt;msg&gt;</div><div class="cmd-card-desc">Sets a personal reminder (e.g., !remind 30m Take a break).</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!calc &lt;math&gt;</div><div class="cmd-card-desc">Solves mathematical equations.</div></div>
+                    </div>
+                </div>
+
+                <!-- Economy & Server Shop -->
+                <div class="cmd-category" data-cat="eco">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-coins"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Economy & Server Shop</div>
+                            <div class="cmd-cat-sub">Earn coins, gamble, and buy roles.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!daily</div><div class="cmd-card-desc">Claim your daily free Nexus Coins.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!balance / !bal</div><div class="cmd-card-desc">Check how many coins you have.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!gamble &lt;amount&gt;</div><div class="cmd-card-desc">Risk coins for a chance to double them.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!rob @user</div><div class="cmd-card-desc">Try to steal coins from someone else.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!shop</div><div class="cmd-card-desc">View the Server Role Shop.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!buy &lt;item_number&gt;</div><div class="cmd-card-desc">Buy an item from the shop using your coins.</div></div>
+                    </div>
+                </div>
+                
+                <!-- Music System -->
+                <div class="cmd-category" data-cat="music">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-music"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Music System</div>
+                            <div class="cmd-cat-sub">High quality integrated music playback.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!play &lt;song&gt;</div><div class="cmd-card-desc">Searches YouTube/Spotify and plays music in your Voice Channel.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!clearmusic</div><div class="cmd-card-desc">Clears all messy bot command messages from the music channel to keep it clean.</div></div>
+                    </div>
+                </div>
+
+                <!-- Sports -->
+                <div class="cmd-category" data-cat="sports">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-trophy"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Sports</div>
+                            <div class="cmd-cat-sub">Live scores and schedules.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!f1</div><div class="cmd-card-desc">Shows the current F1 racing schedule and upcoming Grands Prix.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!fifa</div><div class="cmd-card-desc">Shows the latest Football/FIFA match results and upcoming matches.</div></div>
+                    </div>
+                </div>
+
+                <!-- Server Utility & Fun -->
+                <div class="cmd-category" data-cat="util">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-gamepad"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Server Utility & Fun</div>
+                            <div class="cmd-cat-sub">General tools, leveling, and entertainment.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!serverstats / !stats</div><div class="cmd-card-desc">Shows real-time dynamic statistics about the server.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!rank @user</div><div class="cmd-card-desc">Shows a user's XP and Level card.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!time @user</div><div class="cmd-card-desc">Shows how many hours a user has spent in Voice Channels.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!confess &lt;msg&gt;</div><div class="cmd-card-desc">Posts an anonymous message to the confession channel.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!meme</div><div class="cmd-card-desc">Fetches a random hilarious meme from Reddit.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!joke</div><div class="cmd-card-desc">Tells a random dad joke or programming joke.</div></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA ─────────────────────── -->
+    <section class="cta-section tab-pane" id="home-cta">
+        <div class="container">
+            <div class="cta-box reveal">
+                <div class="cta-glow"></div>
+                <div class="cta-inner">
+                    <div class="pill" style="justify-content:center; margin-bottom: 24px;">
+                        <span class="pill-dot"></span> Get Started
+                    </div>
+                    <h2 class="cta-title">Ready to join<br><span class="grad">Ninja Nexus?</span></h2>
+                    <p class="cta-sub">Join our gaming and anime community to chat, game, and have fun.</p>
+                    <div class="cta-btns">
+                        <a href="https://discord.gg/fZNDG5sfhf" class="btn btn-primary" target="_blank">
+                            <i class="fab fa-discord"></i> Join The Server
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ─────────────────────── -->
+    <footer class="footer" id="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand-logo">
+                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.style.display='none'">
+                        <span>Ninja Nexus</span>
+                    </div>
+                    <p class="footer-brand-desc">The ultimate anime and gaming community discord server. Fast, friendly, and fun.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#commands">Commands</a></li>
+                        <li><a href="#stats">Stats</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#commands">Commands Guide</a></li>
+                        <li><a href="https://discord.gg/fZNDG5sfhf">Discord Server</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://discord.gg/fZNDG5sfhf">Join Discord</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span class="footer-copy">© 2026 Ninja Nexus. All rights reserved.</span>
+                <div class="footer-socials">
+                    <a href="https://discord.gg/fZNDG5sfhf" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* ── Navbar scroll ── */
+        const nav = document.getElementById('navbar');
+        // ── Tab System ─────────────────────────────────────
+        const ALL_TABS = ['home', 'home-cta', 'about', 'features', 'commands', 'stats'];
+        const HOME_TABS = ['home'];
+
+        function showTab(targetId) {
+            document.body.className = targetId + '-tab-active';
+            
+            ALL_TABS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+
+            const footer = document.getElementById('site-footer');
+
+            if (targetId === 'home') {
+                HOME_TABS.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('active');
+                });
+                if (footer) footer.style.display = '';
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+            } else if (targetId === 'stats') {
+                const statsEl = document.getElementById('stats');
+                const ctaEl = document.getElementById('home-cta');
+                if (statsEl) statsEl.classList.add('active');
+                if (ctaEl) ctaEl.classList.add('active');
+                if (footer) footer.style.display = 'none';
+            } else {
+                const el = document.getElementById(targetId);
+                if (el) el.classList.add('active');
+                if (footer) footer.style.display = 'none';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Nav link clicks
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (!href || !href.startsWith('#')) return;
+                e.preventDefault();
+                const targetId = href.substring(1);
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                showTab(targetId);
+            });
+        });
+
+        // Logo click = go home
+        const navLogo = document.querySelector('.nav-logo');
+        if (navLogo) {
+            navLogo.addEventListener('click', (e) => {
+                e.preventDefault();
+                showTab('home');
+            });
+        }
+
+        // Add scrolled class to nav
+        window.addEventListener('scroll', () => {
+            if (nav) nav.classList.toggle('scrolled', window.scrollY > 40);
+        }, { passive: true });
+
+        /* ── Reveal on scroll (Staggered) ── */
+        const observer = new IntersectionObserver((entries) => {
+            let delay = 0;
+            entries.forEach(e => { 
+                if (e.isIntersecting) { 
+                    setTimeout(() => e.target.classList.add('visible'), delay);
+                    delay += 120;
+                    observer.unobserve(e.target);
+                } 
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        /* ── Command filters ── */
+        const filterBtns = document.querySelectorAll('.cmd-filter');
+        const categories = document.querySelectorAll('.cmd-category');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                categories.forEach(cat => {
+                    if (filter === 'all' || cat.dataset.cat === filter) {
+                        cat.style.display = 'block';
+                        setTimeout(() => cat.style.opacity = '1', 10);
+                    } else {
+                        cat.style.opacity = '0';
+                        setTimeout(() => cat.style.display = 'none', 300);
+                    }
+                });
+            });
+        });
+
+        /* ── Live stats from API ── */
+        async function fetchPublicStats() {
+            try {
+                let d = null;
+                try {
+                    const r = await fetch('/api/bot_data?t=' + Date.now());
+                    if (r.ok) d = await r.json();
+                } catch(e) {}
+
+                if (!d) {
+                    try {
+                        const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
+                        if (r2.ok) d = await r2.json();
+                    } catch(e) {}
+                }
+
+                if (!d) return;
+                const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
+                
+                // ALWAYS 1 SERVER
+                const displayServers = 1;
+                // REAL-TIME MEMBER COUNT
+                const displayUsers = d.total_users || 50;
+                
+                const hs = document.getElementById('hero-servers');
+                const hm = document.getElementById('hero-members');
+                const hp = document.getElementById('hero-ping');
+                if (hs) hs.textContent = '1';
+                if (hm) hm.textContent = fmt(displayUsers);
+                if (hp) hp.textContent = (d.ping || 106) + ' ms';
+
+                if (d.uptime_seconds !== undefined) {
+                    window.heroUptimeSec = d.uptime_seconds;
+                } else if (d.uptime) {
+                    const hu = document.getElementById('hero-uptime');
+                    if (hu) hu.textContent = d.uptime;
+                }
+
+                const aServ = document.getElementById('about-servers');
+                const aUsers = document.getElementById('about-users');
+                const aPing = document.getElementById('about-ping');
+                if (aServ) aServ.textContent = '1';
+                if (aUsers) aUsers.textContent = fmt(displayUsers);
+                if (aPing) aPing.textContent = (d.ping || 106) + 'ms';
+
+                const sc = document.getElementById('server-count-stat');
+                const uc = document.getElementById('user-count-stat');
+                if (sc) { sc.textContent = '1'; }
+                if (uc) { uc.textContent = fmt(displayUsers); }
+                
+                if (typeof activities !== 'undefined') {
+                    activities[0] = '1 SERVER';
+                    activities[1] = `${fmt(displayUsers)} MEMBERS`;
+                }
+            } catch(e) {}
+        }
+        fetchPublicStats();
+        setInterval(fetchPublicStats, 10000);
+
+        // ── Real-time Uptime Counter ──
+        window.heroUptimeSec = 3131;
+        setInterval(() => {
+            if (window.heroUptimeSec > 0) {
+                window.heroUptimeSec++;
+                const h = Math.floor(window.heroUptimeSec / 3600);
+                const m = Math.floor((window.heroUptimeSec % 3600) / 60);
+                const s = window.heroUptimeSec % 60;
+                let timeStr = '';
+                if (h > 0) timeStr += `${h}h `;
+                if (m > 0 || h > 0) timeStr += `${m}m `;
+                timeStr += `${s}s`;
+                const uptimeEl = document.getElementById('hero-uptime');
+                if (uptimeEl) uptimeEl.textContent = timeStr.trim();
+            }
+        }, 1000);
+
+        // ── Real-time Discord Presence Update ──
+        const activities = ["1 SERVER", "50 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
+        let activityIdx = 0;
+        const dpTexts = document.querySelectorAll('.dp-dynamic-text');
+        
+        if (dpTexts.length > 0) {
+            setInterval(() => {
+                activityIdx = (activityIdx + 1) % activities.length;
+                dpTexts.forEach(el => el.style.opacity = '0');
+                setTimeout(() => {
+                    dpTexts.forEach(el => {
+                        el.textContent = activities[activityIdx];
+                        el.style.opacity = '1';
+                    });
+                }, 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
