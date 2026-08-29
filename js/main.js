@@ -100,7 +100,7 @@ filterBtns.forEach(btn => {
 });
 
 // ── 4. FETCH LIVE STATS & GAMES ───────────────────────────────────
-window.heroUptimeSec = 3131; // Initial default ~52m
+window.heroUptimeSec = 3131;
 
 function updateStatText(id, text) {
     const el = document.getElementById(id);
@@ -174,52 +174,48 @@ async function fetchPublicStats() {
 }
 
 const GAME_IMAGE_OVERRIDES = {
-    "Valorant": "https://cdn1.epicgames.com/offer/cbd5b3d355044b3e9508ece594d73507/EGS_VALORANT_RiotGames_S2_1200x1600-e7f0b5d9be69022634e56598c433364f?h=480&resize=1&w=360",
-    "VALORANT": "https://cdn1.epicgames.com/offer/cbd5b3d355044b3e9508ece594d73507/EGS_VALORANT_RiotGames_S2_1200x1600-e7f0b5d9be69022634e56598c433364f?h=480&resize=1&w=360",
-    "Minecraft": "https://cdn1.epicgames.com/offer/23114a806ec040909ff7b4b1a457492c/EGS_Minecraft_MojangStudios_S2_1200x1600-0e11894d306b3a3250b8ebae80447385?h=480&resize=1&w=360",
-    "Roblox": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80",
-    "ROBLOX": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80",
-    "Fortnite": "https://cdn1.epicgames.com/offer/fn/Blade_2560x1440_2560x1440-ae7b0849d44e591be2580a5fb7a3ff99?h=480&resize=1&w=360",
-    "Genshin Impact": "https://cdn1.epicgames.com/offer/879b0d8776ab46a59a129983baababf0/EGS_GenshinImpact_miHoYoLimited_S2_1200x1600-c12cdab43ca00742e995adfd50b0ba67?h=480&resize=1&w=360",
-    "Honkai: Star Rail": "https://cdn1.epicgames.com/offer/4592928509374c439eb46d0a790db86c/EGS_HonkaiStarRail_COGNOSPHEREPTE_S2_1200x1600-5bb95183db7298642a865f12e84c98f8?h=480&resize=1&w=360",
-    "Forza Horizon 5": "https://steamcdn-a.akamaihd.net/steam/apps/1551360/library_600x900_2x.jpg",
-    "EA Sports FC 24": "https://steamcdn-a.akamaihd.net/steam/apps/2195250/library_600x900_2x.jpg",
-    "EA SPORTS FC™ 24": "https://steamcdn-a.akamaihd.net/steam/apps/2195250/library_600x900_2x.jpg",
-    "EA SPORTS FC 25": "https://steamcdn-a.akamaihd.net/steam/apps/2669320/library_600x900_2x.jpg",
-    "Wuthering Waves": "https://cdn1.epicgames.com/offer/7521798363714856aee6dfa3ff4d284a/EGS_WutheringWaves_KuroGames_S2_1200x1600-bdfcb7d5d2cc8a0a9ed6d35dcfe6b31c?h=480&resize=1&w=360",
-    "League of Legends": "https://brand.riotgames.com/static/a9e87d7c0fa30e2a4a6321918b11e8d4/829b3/lol-logo.png",
-    "PUBG: BATTLEGROUNDS": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
-    "Grand Theft Auto V": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
-    "Grand Theft Auto V Legacy": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
-    "GTA V": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
-    "Counter-Strike 2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
-    "CS2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
-    "Red Dead Redemption 2": "https://steamcdn-a.akamaihd.net/steam/apps/1174180/library_600x900_2x.jpg",
-    "Apex Legends": "https://steamcdn-a.akamaihd.net/steam/apps/1172470/library_600x900_2x.jpg",
-    "Call of Duty": "https://steamcdn-a.akamaihd.net/steam/apps/1938090/library_600x900_2x.jpg",
-    "Dota 2": "https://steamcdn-a.akamaihd.net/steam/apps/570/library_600x900_2x.jpg",
-    "Overwatch 2": "https://steamcdn-a.akamaihd.net/steam/apps/2357570/library_600x900_2x.jpg",
-    "Rust": "https://steamcdn-a.akamaihd.net/steam/apps/252490/library_600x900_2x.jpg",
-    "Cyberpunk 2077": "https://steamcdn-a.akamaihd.net/steam/apps/1091500/library_600x900_2x.jpg",
-    "Black Myth: Wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg",
-    "Rocket League": "https://cdn1.epicgames.com/offer/9773aa1aa54f4f7b80e44bef04986cea/EGS_RocketLeague_PsyonixLLC_S2_1200x1600-ee719e782847a9efec47cfc1fec25b29?h=480&resize=1&w=360"
+    "valorant": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg",
+    "minecraft": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1x7d.jpg",
+    "roblox": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kch.jpg",
+    "fortnite": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2767.jpg",
+    "genshin": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2040.jpg",
+    "wuthering waves": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6m58.jpg",
+    "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
+    "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+    "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+    "counter-strike": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
+    "cs2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
+    "pubg": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
+    "battlegrounds": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
+    "forza": "https://steamcdn-a.akamaihd.net/steam/apps/1551360/library_600x900_2x.jpg",
+    "apex": "https://steamcdn-a.akamaihd.net/steam/apps/1172470/library_600x900_2x.jpg",
+    "red dead": "https://steamcdn-a.akamaihd.net/steam/apps/1174180/library_600x900_2x.jpg",
+    "rdr": "https://steamcdn-a.akamaihd.net/steam/apps/1174180/library_600x900_2x.jpg",
+    "ea sports fc": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8j9u.jpg",
+    "fifa": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8j9u.jpg",
+    "rocket league": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2097.jpg",
+    "cyberpunk": "https://steamcdn-a.akamaihd.net/steam/apps/1091500/library_600x900_2x.jpg",
+    "rust": "https://steamcdn-a.akamaihd.net/steam/apps/252490/library_600x900_2x.jpg",
+    "dota": "https://steamcdn-a.akamaihd.net/steam/apps/570/library_600x900_2x.jpg",
+    "wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg"
 };
 
 const DEFAULT_COMMUNITY_GAMES = [
-    { name: "Grand Theft Auto V", count: 2 },
-    { name: "VALORANT", count: 1 },
-    { name: "Minecraft", count: 1 },
-    { name: "Counter-Strike 2", count: 1 },
-    { name: "ROBLOX", count: 1 },
-    { name: "PUBG: BATTLEGROUNDS", count: 1 },
-    { name: "Wuthering Waves", count: 1 },
-    { name: "Forza Horizon 5", count: 1 }
+    { name: "Grand Theft Auto V", count: 2, is_live: true, players: [{ name: "N3WB", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }, { name: "isuru", avatar: "https://cdn.discordapp.com/embed/avatars/1.png" }] },
+    { name: "VALORANT", count: 1, is_live: true, players: [{ name: "kiri putha", avatar: "https://cdn.discordapp.com/embed/avatars/2.png" }] },
+    { name: "Minecraft", count: 1, is_live: true, players: [{ name: "Pegging Boy", avatar: "https://cdn.discordapp.com/embed/avatars/3.png" }] },
+    { name: "Counter-Strike 2", count: 1, is_live: true, players: [{ name: "Haaaaaalan", avatar: "https://cdn.discordapp.com/embed/avatars/4.png" }] },
+    { name: "ROBLOX", count: 1, is_live: false, players: [] },
+    { name: "PUBG: BATTLEGROUNDS", count: 1, is_live: false, players: [] },
+    { name: "Wuthering Waves", count: 1, is_live: false, players: [] },
+    { name: "Forza Horizon 5", count: 1, is_live: false, players: [] }
 ];
 
 function getGameImageUrl(gameName) {
-    if (!gameName) return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80';
+    if (!gameName) return 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';
+    const lower = gameName.toLowerCase();
     for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
-        if (gameName.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(gameName.toLowerCase())) {
+        if (lower.includes(key)) {
             return url;
         }
     }
@@ -235,9 +231,48 @@ function renderLiveGames(gamesList) {
     games.forEach(game => {
         const card = document.createElement('div');
         card.className = 'game-card';
+        const isLive = (game.is_live === true) || (game.players && game.players.length > 0);
+        
+        let liveBadgeHtml = '';
+        if (isLive) {
+            liveBadgeHtml = `
+                <div class="game-live-badge">
+                    <span class="game-live-dot"></span> LIVE
+                </div>
+            `;
+        }
+
+        let playersHtml = '';
+        if (game.players && game.players.length > 0) {
+            const avatarImgs = game.players.map(p => 
+                `<img src="${p.avatar}" alt="${p.name}" title="${p.name}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">`
+            ).join('');
+            
+            const firstPlayer = game.players[0].name;
+            const moreCount = game.players.length - 1;
+            const playerText = moreCount > 0 ? `${firstPlayer} +${moreCount}` : firstPlayer;
+            
+            playersHtml = `
+                <div class="game-players-strip">
+                    <div class="avatar-stack">${avatarImgs}</div>
+                    <span class="player-names-label" title="${game.players.map(p=>p.name).join(', ')}">${playerText}</span>
+                </div>
+            `;
+        } else {
+            playersHtml = `
+                <div class="game-players-strip">
+                    <span class="player-names-label" style="opacity: 0.65;">Community Favorite</span>
+                </div>
+            `;
+        }
+
         card.innerHTML = `
-            <img src="${getGameImageUrl(game.name)}" alt="${game.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80';">
-            <div class="game-name">${game.name} <span style="font-size: 0.8rem; opacity: 0.7; margin-left: 5px;">(${game.count || 1})</span></div>
+            <div class="game-card-img-wrap">
+                ${liveBadgeHtml}
+                <img src="${getGameImageUrl(game.name)}" alt="${game.name}" loading="lazy" onerror="this.src='https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';">
+            </div>
+            <div class="game-name">${game.name} <span style="font-size: 0.78rem; opacity: 0.7; font-weight: 500;">(${game.count || 1})</span></div>
+            ${playersHtml}
         `;
         grid.appendChild(card);
     });
