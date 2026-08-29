@@ -8,182 +8,402 @@
     <meta property="og:title" content="Nexus Bot | The Next Generation Discord AI">
     <meta property="og:description" content="Powerful AI, Smart Moderation, Automation, Analytics and Members Dashboard — All in one Discord Bot.">
     <meta property="og:type" content="website">
-    <meta name="theme-color" content="#6d28d9">
+    <meta name="theme-color" content="#7C3AED">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── Reset ─────────────────────────────────────── */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        section { scroll-margin-top: 90px; }
+
+        /* ── Tokens ─────────────────────────────────────── */
+        :root {
+            --bg:       #0a0a0f;
+            --bg2:      #0f0d1a;
+            --bg3:      #151225;
+            --border:   rgba(139,92,246,0.12);
+            --border2:  rgba(139,92,246,0.25);
+            --p400:     #a78bfa;
+            --p500:     #8b5cf6;
+            --p600:     #7c3aed;
+            --p700:     #6d28d9;
+            --muted:    #6b6880;
+            --sub:      #9391a8;
+            --text:     #f0eeff;
+            --font:     'Manrope', system-ui, sans-serif;
+            --mono:     'JetBrains Mono', monospace;
+        }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.12), transparent),
+                radial-gradient(ellipse 40% 30% at 80% 60%, rgba(109, 40, 217, 0.06), transparent);
+        }
+
+        a { color: inherit; text-decoration: none; }
+        ul { list-style: none; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.35); border-radius: 3px; }
+
+        .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+        /* Gradient text */
+        .grad {
+            background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 40%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: #a78bfa;
+            text-shadow: 0 0 25px rgba(167, 139, 250, 0.35);
+        }
+
+        /* Section label pill */
+        .pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border-radius: 100px;
+            background: rgba(124,58,237,0.08);
+            border: 1px solid rgba(124,58,237,0.2);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+            color: var(--p400); text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .pill-dot { width: 6px; height: 6px; background: var(--p400); border-radius: 50%; }
+
+        /* ── Buttons ─────────────────────────────────────── */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 14px 32px; border-radius: 16px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 250ms cubic-bezier(0.2, 0, 0, 1);
+        }
+        .btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(124,58,237,0.3); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .btn-ghost {
+            background: rgba(15, 13, 26, 0.8);
+            color: var(--text);
+            border: 1px solid rgba(139,92,246,0.25);
+        }
+        .btn-ghost:hover { 
+            background: rgba(139,92,246,0.1); 
+            border-color: rgba(139,92,246,0.5); 
+        }
+
+        /* ── NAVBAR ─────────────────────────────────────── */
+        .nav {
+            position: fixed; top: 0; left: 0; width: 100%;
+            z-index: 999; padding: 18px 0;
+            background: rgba(10,10,15,0.82);
+            border-bottom: 1px solid transparent;
+            transition: all 250ms ease;
+        }
+        .nav.scrolled { padding: 12px 0; background: rgba(10,10,15,0.95); border-bottom-color: var(--border); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em;
+        }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+        .nav-logo-dot {
+            width: 8px; height: 8px; background: var(--p400); border-radius: 50%;
+            margin-left: 2px; margin-bottom: 1px;
+        }
+
+        .nav-links { display: flex; gap: 32px; }
+        .nav-links a { color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 150ms; }
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-cta { display: flex; gap: 10px; align-items: center; }
+        .nav-dash {
+            padding: 8px 18px; border-radius: 9px;
+            border: 1px solid var(--border2); color: var(--p400);
+            font-size: 0.87rem; font-weight: 600;
+            transition: background 200ms, color 200ms;
+        }
+        .nav-dash:hover { background: rgba(124,58,237,0.1); color: var(--text); }
+
+        .nav-links a.active { color: var(--text); border-bottom: 2px solid var(--p500); padding-bottom: 4px; }
+
+        /* Tab sections — all hidden by default except home */
+        .tab-pane { display: none !important; }
+        .tab-pane.active { display: block !important; }
+        body.home-tab-active .hero { display: flex !important; }
+
+        /* ── HERO ─────────────────────────────────────── */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; padding: 140px 0 80px; text-align: center;
+            overflow: hidden;
+        }
+
+        /* Anime Manga Background overlay */
+        .hero-img-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url('images/bg-anime.jpg') no-repeat center center;
+            background-size: cover;
+            opacity: 0.18;
+            z-index: -3;
+            pointer-events: none;
+        }
+
+        .hero-inner { max-width: 780px; margin: 0 auto; position: relative; z-index: 2; }
+
+        .discord-presence {
+            display: inline-flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 8px 16px 8px 8px; border-radius: 50px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(8px);
+        }
+        .dp-avatar { position: relative; width: 36px; height: 36px; }
+        .dp-avatar img { width: 100%; height: 100%; border-radius: 50%; }
+        .dp-status {
+            position: absolute; bottom: 0; right: 0; width: 10px; height: 10px;
+            background: #43b581; border: 2px solid #0a0a0f; border-radius: 50%;
+        }
+        .dp-name { font-size: 0.85rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
+        .dp-bot-badge {
+            background: var(--p600); color: #fff; font-size: 0.6rem;
+            padding: 1px 5px; border-radius: 4px; font-weight: 700;
+        }
+        .dp-activity { font-size: 0.8rem; color: var(--muted); transition: opacity 300ms; }
+
+        .hero-heading {
+            font-size: clamp(2.4rem, 6vw, 4.2rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+        }
+        .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--sub);
+            line-height: 1.7;
+            max-width: 580px;
+            margin: 0 auto 40px;
+        }
+        .hero-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 50px; }
+
+        /* Floating stat chips */
+        .hero-chips {
+            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+        }
+        .chip {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 18px; border-radius: 12px;
+            background: rgba(15, 13, 26, 0.7);
+            border: 1px solid var(--border);
+            font-size: 0.85rem; font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+        .chip i { color: var(--p400); }
+        .chip-val { font-weight: 800; color: var(--text); }
+        .chip-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; }
+
+        /* ── STATS STRIP ─────────────────────────────────────── */
+        .stats-strip {
+            padding: 52px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .stats-strip-inner {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+        }
+        .stat-item {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 0 24px;
+            border-right: 1px solid var(--border);
+        }
+        .stat-item:last-child { border-right: none; }
+        .stat-num {
+            font-size: 2.6rem; font-weight: 900; letter-spacing: -0.04em;
+            line-height: 1; color: var(--text); margin-bottom: 6px;
+        }
+        .stat-lbl {
+            font-size: 0.78rem; font-weight: 600; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+
+        /* ── FEATURES ─────────────────────────────────────── */
+        .features-section { padding: 120px 0; }
+        .sec-head { text-align: center; margin-bottom: 70px; }
+        .sec-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800; letter-spacing: -0.03em;
+            line-height: 1.15; margin-bottom: 18px;
+        }
+        .sec-sub { font-size: 1.05rem; color: var(--sub); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+        .feat-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .feat-card {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 20px; padding: 36px 32px;
+            transition: transform 300ms cubic-bezier(0.2, 0, 0, 1), border-color 300ms;
+        }
+        .feat-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--p500);
+        }
+        .feat-icon {
+            width: 54px; height: 54px; border-radius: 14px;
+            background: rgba(124,58,237,0.12); border: 1px solid var(--border2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: var(--p400); margin-bottom: 24px;
+        }
+        .feat-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 12px; }
+        .feat-card p { font-size: 0.95rem; color: var(--sub); line-height: 1.7; }
+
+        /* ── COMMANDS ─────────────────────────────────────── */
+        .commands-section { padding: 120px 0; }
+        .cmd-filters {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; flex-wrap: wrap; margin-bottom: 48px;
+        }
+        .cmd-filter {
+            padding: 10px 22px; border-radius: 12px;
+            font-size: 0.88rem; font-weight: 600;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--sub); cursor: pointer;
+            transition: all 200ms;
+        }
+        .cmd-filter:hover, .cmd-filter.active {
+            background: rgba(124,58,237,0.15);
+            border-color: var(--p500); color: var(--text);
+        }
+        .commands-container { display: flex; flex-direction: column; gap: 32px; }
+        .cmd-category {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 18px; padding: 28px;
+        }
+        .cmd-cat-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+        .cmd-cat-icon {
+            width: 42px; height: 42px; border-radius: 10px;
+            background: rgba(124,58,237,0.12); color: var(--p400);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .cmd-cat-title { font-size: 1.15rem; font-weight: 700; }
+        .cmd-cat-sub { font-size: 0.85rem; color: var(--muted); }
+
+        .cmd-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+        }
+        .cmd-card {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px;
+            transition: background 200ms, border-color 200ms;
+        }
+        .cmd-card:hover { background: rgba(124,58,237,0.05); border-color: var(--border2); }
+        .cmd-card-name {
+            display: inline-block;
+            font-family: var(--mono); color: #fff;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 0.85rem; font-weight: 700; margin-bottom: 10px;
+        }
+        .cmd-card-desc { font-size: 0.8rem; color: var(--sub); line-height: 1.5; }
+
+        /* ── CTA ─────────────────────────────────────── */
+        .cta-section { padding: 80px 0 120px; }
+        .cta-box {
+            position: relative;
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: 26px;
+            padding: 100px 48px;
+            text-align: center; overflow: hidden;
+        }
+        .cta-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 18px; }
+        .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
+
+        /* ── FOOTER ─────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--border);
+            background: var(--bg2);
+            padding: 50px 0 30px;
+        }
+        .foot-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .foot-copy { font-size: 0.82rem; color: var(--muted); }
+        .foot-links { display: flex; gap: 20px; }
+        .foot-links a { color: var(--sub); font-size: 1.1rem; text-decoration: none; }
+        .foot-links a:hover { color: var(--p400); }
+
+        .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .nav-links, .nav-cta { display: none; }
+            .hamburger { display: block; }
+            .feat-grid { grid-template-columns: 1fr; }
+            .stats-strip-inner { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
 </head>
-<body>
-    <!-- 🎴 GLOBAL BACKGROUNDS 🎴 -->
+<body class="home-tab-active">
+
     <div class="hero-img-bg"></div>
-    <div class="hero-bg"></div>
-    <div class="hero-animated-overlay"></div>
-    <div class="cyber-grid"></div>
 
     <!-- ── NAVBAR ─────────────────────── -->
     <nav class="nav" id="navbar">
         <div class="container">
             <div class="nav-inner">
                 <a href="#home" class="nav-logo">
-                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 38px; height: 38px; border-radius: 9px; object-fit: cover;" onerror="this.style.display='none'">
+                    <img src="images/nexus_logo.png" alt="Nexus" onerror="this.style.display='none'">
                     <span>Nexus</span>
                     <span class="nav-logo-dot"></span>
                 </a>
                 <ul class="nav-links">
                     <li><a href="#about">About</a></li>
                     <li><a href="#features">Features</a></li>
-                    <li><a href="#games">Games</a></li>
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#stats">Stats</a></li>
-                    <div class="nav-indicator"></div>
                 </ul>
-
+                <div class="nav-cta">
+                    <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary" style="padding: 8px 18px; font-size: 0.85rem;" target="_blank">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                </div>
                 <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <section class="hero-section tab-pane active" id="home">
-        <!-- Floating Cyber Dust behind text -->
-        <div class="cyber-particles"></div>
-        <div class="cyber-particles-2"></div>
-        
+    <!-- ── HERO ─────────────────────── -->
+    <section class="hero tab-pane active" id="home">
         <div class="container">
             <div class="hero-inner">
-                <div class="discord-presence fade-up" style="animation-delay: 0ms">
+                <div class="discord-presence">
                     <div class="dp-avatar">
-                        <img src="images/nexus_logo.png" alt="Nexus" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff&size=42'">
-                        <div class="dp-status"></div>
-                    </div>
-                    <div class="dp-info">
-                        <div class="dp-name">
-                            NINJA NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
-                        </div>
-                        <div class="dp-activity dp-dynamic-text">Watching Ninja Nexus</div>
-                    </div>
-                </div>
-                
-                <div class="hero-float">
-                    <h1 class="hero-heading">
-                        <span class="glitch-text fade-up" data-text="NINJA NEXUS" style="animation-delay: 100ms;">NINJA NEXUS</span>
-                        <span class="grad">DISCORD SERVER</span>
-                    </h1>
-                </div>
-                
-                <p class="hero-sub fade-up" style="animation-delay: 280ms;">
-                    The ultimate anime and gaming community. Join Ninja Nexus to make friends, hang out, and have some fun.
-                </p>
-
-                <!-- Live stat chips -->
-                <div class="hero-chips">
-                    <div class="chip fade-up" style="animation-delay: 380ms;">
-                        <i class="fas fa-server"></i>
-                        <div>
-                            <div class="chip-val" id="hero-servers">1</div>
-                            <div class="chip-label" id="hero-servers-label">Servers</div>
-                        </div>
-                    </div>
-                    <div class="chip fade-up" style="animation-delay: 450ms;">
-                        <i class="fas fa-users"></i>
-                        <div>
-                            <div class="chip-val" id="hero-members">50</div>
-                            <div class="chip-label">Members</div>
-                        </div>
-                    </div>
-                    <div class="chip fade-up" style="animation-delay: 520ms;">
-                        <i class="fas fa-bolt"></i>
-                        <div>
-                            <div class="chip-val" id="hero-uptime">52m</div>
-                            <div class="chip-label">Uptime</div>
-                        </div>
-                    </div>
-                    <div class="chip fade-up" style="animation-delay: 590ms;">
-                        <i class="fas fa-signal"></i>
-                        <div>
-                            <div class="chip-val" id="hero-ping">106 ms</div>
-                            <div class="chip-label">Ping</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CTA Button -->
-                <div class="hero-actions fade-up" style="animation-delay: 600ms; margin-top: 36px;">
-                    <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-cta">
-                        <i class="fab fa-discord" style="font-size: 1.15rem;"></i> JOIN THE SERVER
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ── ABOUT SECTION ─────────────────────── -->
-    <section id="about" class="tab-pane" style="padding: 110px 0;">
-        <div class="container">
-            <div class="sec-head io-reveal">
-                <div class="pill" style="justify-content:center; margin-bottom: 20px;">
-                    <span class="pill-dot"></span> About
-                </div>
-                <h2 class="sec-title">About <span class="grad">NEXUS Bot</span></h2>
-                <p class="sec-sub">
-                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience. It combines next-generation AI, elite anti-raid moderation, and comprehensive server management to elevate your community.
-                </p>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-clock"></i></div>
-                    <h3 style="color: var(--p400); margin-bottom: 8px;">99.9% Uptime</h3>
-                    <p>Reliable service you can count on, day and night.</p>
-                </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
-                    <h3 style="color: var(--p400); margin-bottom: 8px;">Secure & Safe</h3>
-                    <p>Full Discord OAuth2 integration and advanced data protection.</p>
-                </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
-                    <h3 style="color: var(--p400); margin-bottom: 8px;">Lightning Fast</h3>
-                    <p>Sub-millisecond database queries with local caching.</p>
-                </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-gem"></i></div>
-                    <h3 style="color: var(--p400); margin-bottom: 8px;">Premium Quality</h3>
-                    <p>Crafted with modern tech stack and beautiful dark aesthetic.</p>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
-                <div>
-                    <div id="about-servers" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">1</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Server</div>
-                </div>
-                <div>
-                    <div id="about-users" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">50</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Members</div>
-                </div>
-                <div>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">75+</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Slash Commands</div>
-                </div>
-                <div>
-                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">106ms</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ── STATS STRIP ─────────────────────── -->
-    <section class="stats-strip tab-pane" id="stats">
-        <div class="container">
-            <div style="display: flex; justify-content: center; margin-bottom: 40px;">
-                <div class="discord-presence io-reveal">
-                    <div class="dp-avatar">
-                        <img src="images/nexus_logo.png" alt="Nexus" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=N&background=b91c1c&color=fff&size=42'">
+                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff'">
                         <div class="dp-status"></div>
                     </div>
                     <div class="dp-info">
@@ -193,184 +413,375 @@
                         <div class="dp-activity dp-dynamic-text">100+ SERVERS</div>
                     </div>
                 </div>
-            </div>
-            <div class="stats-strip-inner">
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
-                    <div class="stat-lbl">Active Servers</div>
+                
+                <h1 class="hero-heading">
+                    The AI That Runs Your<br><span class="grad">Discord Server</span>
+                </h1>
+                
+                <p class="hero-sub">
+                    The ultimate Discord Server OS. Combining powerful conversational AI, elite anti-raid moderation, and a comprehensive Members Dashboard for your community.
+                </p>
+
+                <div class="hero-btns">
+                    <a href="https://discord.com/oauth2/authorize?client_id=1517343080481554443&permissions=8&integration_type=0&scope=bot" class="btn btn-primary" target="_blank">
+                        <i class="fab fa-discord"></i> Add to Discord
+                    </a>
+                    <a href="/members" class="btn btn-ghost">
+                        Dashboard <i class="fas fa-arrow-right" style="font-size:0.8rem; margin-left: 4px;"></i>
+                    </a>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
-                    <div class="stat-lbl">Total Members</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num stat-number" id="cmd-count-stat" data-target="130" data-suffix="">130</div>
-                    <div class="stat-lbl">Commands Executed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num">99.9%</div>
-                    <div class="stat-lbl">Reliability</div>
+
+                <!-- Live stat chips -->
+                <div class="hero-chips">
+                    <div class="chip">
+                        <i class="fas fa-server"></i>
+                        <div>
+                            <div class="chip-val" id="hero-servers">100+</div>
+                            <div class="chip-label">Servers</div>
+                        </div>
+                    </div>
+                    <div class="chip">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <div class="chip-val" id="hero-members">100+</div>
+                            <div class="chip-label">Members</div>
+                        </div>
+                    </div>
+                    <div class="chip">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <div class="chip-val" id="hero-uptime">99.9%</div>
+                            <div class="chip-label">Uptime</div>
+                        </div>
+                    </div>
+                    <div class="chip">
+                        <i class="fas fa-signal"></i>
+                        <div>
+                            <div class="chip-val" id="hero-ping">2ms</div>
+                            <div class="chip-label">Ping</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ── GAMES SECTION ──────────────────────── -->
-    <section class="tab-pane" id="games" style="padding: 100px 0;">
+    <!-- ── ABOUT SECTION ─────────────────────── -->
+    <section id="about" class="tab-pane" style="padding: 110px 0;">
         <div class="container">
             <div class="sec-head">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
-                    <span class="pill-dot"></span> LIVE ACTIVITY
+                    <span class="pill-dot"></span> About
                 </div>
-                <h2 class="sec-title">Community <span class="grad">Games</span></h2>
-                <p class="sec-sub">Popular games actively played by members of Ninja Nexus.</p>
+                <h2 class="sec-title">About <span class="grad">NEXUS Bot</span></h2>
+                <p class="sec-sub">
+                    NEXUS Guardian was exclusively forged for the Ninja Nexus community to deliver a smarter, all-in-one Discord experience. It combines next-generation AI, elite anti-raid moderation, and comprehensive server management to elevate your community.
+                </p>
             </div>
-            
-            <div class="games-grid" id="live-games-grid"></div>
+
+            <!-- Highlight cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-clock"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">24/7 Ultra Uptime</h3>
+                    <p>Reliable service you can count on, day and night.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Secure & Safe</h3>
+                    <p>Full Discord OAuth2 integration and advanced data protection.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Low Latency</h3>
+                    <p>Instant AI responses with minimal processing delay.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <h3 style="color: var(--p400); margin-bottom: 8px;">Fast Response</h3>
+                    <p>Commands execute within milliseconds across all servers.</p>
+                </div>
+            </div>
+
+            <!-- Stat boxes -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center;">
+                <div class="feat-card" style="padding: 24px;">
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">1</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Servers</div>
+                </div>
+                <div class="feat-card" style="padding: 24px;">
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">75+</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Commands</div>
+                </div>
+                <div class="feat-card" style="padding: 24px;">
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">42</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Happy Users</div>
+                </div>
+                <div class="feat-card" style="padding: 24px;">
+                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">107ms</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- ── FEATURES SECTION ───────────────────── -->
+    <!-- ── FEATURES ─────────────────────── -->
     <section class="features-section tab-pane" id="features">
         <div class="container">
-            <div class="sec-head io-reveal">
+            <div class="sec-head">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
-                    <span class="pill-dot"></span> Capabilities
+                    <span class="pill-dot"></span> Features
                 </div>
-                <h2 class="sec-title">Engineered for <span class="grad">Perfection</span></h2>
-                <p class="sec-sub">Packed with state-of-the-art features designed to elevate your Discord community experience.</p>
+                <h2 class="sec-title">Everything you need.<br><span class="grad">Nothing you don't.</span></h2>
+                <p class="sec-sub">A comprehensive suite of tools designed to manage, grow, and entertain your Discord community.</p>
             </div>
-
             <div class="feat-grid">
-                <div class="feat-card io-reveal">
+                <div class="feat-card">
                     <div class="feat-icon"><i class="fas fa-brain"></i></div>
-                    <h3 class="feat-title">Advanced AI Engine</h3>
-                    <p class="feat-desc">Powered by multi-tier fallback architecture (Gemini + Groq + Cerebras). Supports contextual chat, image generation, and intelligent thread summaries.</p>
+                    <h3>AI & NLP</h3>
+                    <p>Advanced LLM-powered conversational AI, sentiment analysis, and automated vibe checks to keep chat engaging.</p>
                 </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-shield-virus"></i></div>
-                    <h3 class="feat-title">Anti-Raid Security</h3>
-                    <p class="feat-desc">Real-time spam detection, suspicious link blocking, mass-mention suppression, and intelligent member verification.</p>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3>Moderation & Defense</h3>
+                    <p>Automated anti-raid protection, lockdown capabilities, auto-whitelisting, and powerful logging to keep your server safe 24/7.</p>
                 </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-gamepad"></i></div>
-                    <h3 class="feat-title">Game Tracking</h3>
-                    <p class="feat-desc">Live community activity monitoring, Valorant career stats, match history tracking, and active player highlights.</p>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-film"></i></div>
+                    <h3>Media & Translation</h3>
+                    <p>Get detailed anime and movie lookups via interactive menus, and built-in text translation utilities.</p>
                 </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3 class="feat-title">Live Analytics</h3>
-                    <p class="feat-desc">Real-time server health monitoring, voice channel tracking, command execution logs, and detailed member leaderboards.</p>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-user-tag"></i></div>
+                    <h3>Role Management</h3>
+                    <p>Advanced automated role assignment, reaction roles, and complete setup management for massive communities.</p>
                 </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-trophy"></i></div>
-                    <h3 class="feat-title">Leveling & XP</h3>
-                    <p class="feat-desc">Dynamic member progression system with customizable XP rates, level-up rewards, and competitive leaderboards.</p>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-check-circle"></i></div>
+                    <h3>Verified System</h3>
+                    <p>Secure verification gates and captcha systems to keep your community safe from bots.</p>
                 </div>
-                <div class="feat-card io-reveal">
-                    <div class="feat-icon"><i class="fas fa-robot"></i></div>
-                    <h3 class="feat-title">Automations</h3>
-                    <p class="feat-desc">Scheduled announcements, welcome cards, custom auto-roles, and seamless webhook notifications.</p>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-door-open"></i></div>
+                    <h3>Welcome & Exit System</h3>
+                    <p>Customizable welcome banners and exit logs with rich embed formatting to greet new members.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ── COMMANDS SECTION ───────────────────── -->
-    <section class="commands-section tab-pane" id="commands" style="padding: 100px 0;">
+    <!-- ── COMMANDS ─────────────────────── -->
+    <section class="commands-section tab-pane" id="commands">
         <div class="container">
-            <div class="sec-head io-reveal">
+            <div class="sec-head">
                 <div class="pill" style="justify-content:center; margin-bottom: 20px;">
-                    <span class="pill-dot"></span> Slash Commands
+                    <span class="pill-dot"></span> Commands
                 </div>
-                <h2 class="sec-title">Command <span class="grad">Library</span></h2>
-                <p class="sec-sub">Explore available slash commands across moderation, AI, utility, and gaming.</p>
+                <h2 class="sec-title">Powerful Commands</h2>
+                <p class="sec-sub">Over 150+ commands at your fingertips. Find what you need instantly.</p>
             </div>
 
-            <div class="cmd-filters io-reveal">
-                <button class="cmd-filter active" data-filter="all">All Commands</button>
-                <button class="cmd-filter" data-filter="general">General</button>
-                <button class="cmd-filter" data-filter="ai">AI & Smart</button>
-                <button class="cmd-filter" data-filter="mod">Moderation</button>
-                <button class="cmd-filter" data-filter="gaming">Gaming</button>
-                <button class="cmd-filter" data-filter="utility">Utility</button>
+            <!-- Filters -->
+            <div class="cmd-filters">
+                <button class="cmd-filter active" data-filter="all">All</button>
+                <button class="cmd-filter" data-filter="ai">Advanced AI</button>
+                <button class="cmd-filter" data-filter="ent">Anime & Movies</button>
+                <button class="cmd-filter" data-filter="study">Study</button>
+                <button class="cmd-filter" data-filter="eco">Economy</button>
+                <button class="cmd-filter" data-filter="music">Music</button>
+                <button class="cmd-filter" data-filter="util">Utility & Fun</button>
+                <button class="cmd-filter" data-filter="sports">Sports</button>
             </div>
 
-            <div class="cmd-category" data-cat="general" style="margin-bottom: 30px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--p400); margin-bottom: 16px;"><i class="fas fa-star" style="margin-right: 8px;"></i> General</h3>
-                <div class="cmd-grid">
-                    <div class="cmd-card"><div class="cmd-name">/help</div><div class="cmd-desc">List all available commands and get module walkthroughs.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/ping</div><div class="cmd-desc">Check bot latency and gateway websocket heartbeat.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/info</div><div class="cmd-desc">Display server and bot statistics.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/userinfo</div><div class="cmd-desc">View detailed member profile and join dates.</div></div>
+            <!-- Categories -->
+            <div class="commands-container">
+                
+                <!-- Advanced AI -->
+                <div class="cmd-category" data-cat="ai">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-brain"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Advanced AI Features</div>
+                            <div class="cmd-cat-sub">Powerful AI tools to enhance your server experience.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!ai</div><div class="cmd-card-desc">Shows the AI Assistance Help Menu.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!tldr &lt;number&gt;</div><div class="cmd-card-desc">AI reads the last X messages in chat and gives you a summary of what you missed!</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!roast @user</div><div class="cmd-card-desc">AI generates a hilarious gaming-style roast of the user.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!rizz @user</div><div class="cmd-card-desc">AI generates a smooth/funny pickup line.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!translate &lt;text&gt;</div><div class="cmd-card-desc">Translates any language into natural-sounding English.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!explain &lt;topic&gt;</div><div class="cmd-card-desc">Explains complex topics, code, or math step-by-step.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!idea &lt;topic&gt;</div><div class="cmd-card-desc">Brainstorms highly creative ideas for videos, stories, or games.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!name &lt;theme&gt;</div><div class="cmd-card-desc">Generates badass gaming tags or clan names.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!debate &lt;topic&gt;</div><div class="cmd-card-desc">Start an argument! The AI will fiercely argue the opposite side of your topic.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!imagine &lt;prompt&gt;</div><div class="cmd-card-desc">Generates AI images directly in Discord!</div></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="cmd-category" data-cat="ai" style="margin-bottom: 30px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--p400); margin-bottom: 16px;"><i class="fas fa-brain" style="margin-right: 8px;"></i> AI Assistant</h3>
-                <div class="cmd-grid">
-                    <div class="cmd-card"><div class="cmd-name">/ask [query]</div><div class="cmd-desc">Ask the AI assistant any question with real-time web awareness.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/image [prompt]</div><div class="cmd-desc">Generate AI artwork directly in Discord.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/summarize</div><div class="cmd-desc">Summarize recent channel conversations using AI.</div></div>
+                <!-- Anime & Movies -->
+                <div class="cmd-category" data-cat="ent">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-film"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Anime & Movies</div>
+                            <div class="cmd-cat-sub">Entertainment lookups and AI recommendations.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!movie &lt;title&gt;</div><div class="cmd-card-desc">Gets full IMDb details and ratings for any movie.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!anime &lt;name&gt;</div><div class="cmd-card-desc">Search anime synopsis, score, and episode list.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!character &lt;name&gt;</div><div class="cmd-card-desc">Look up any anime character profile and image.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!quote &lt;anime&gt;</div><div class="cmd-card-desc">Get iconic quotes from anime characters.</div></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="cmd-category" data-cat="mod" style="margin-bottom: 30px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--p400); margin-bottom: 16px;"><i class="fas fa-shield-alt" style="margin-right: 8px;"></i> Moderation</h3>
-                <div class="cmd-grid">
-                    <div class="cmd-card"><div class="cmd-name">/kick [user]</div><div class="cmd-desc">Kick a disruptive member from the guild.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/ban [user]</div><div class="cmd-desc">Permanently ban a user with audit log tracking.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/timeout [user]</div><div class="cmd-desc">Temporarily isolate a member from voice and text channels.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/clear [amount]</div><div class="cmd-desc">Bulk delete spam messages in the active channel.</div></div>
+                <!-- Study & Productivity -->
+                <div class="cmd-category" data-cat="study">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Study & Productivity</div>
+                            <div class="cmd-cat-sub">Tools to keep you focused and productive.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!study timer</div><div class="cmd-card-desc">Starts a focused study timer with alerts.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!studytop</div><div class="cmd-card-desc">Shows the leaderboard of users with most study time.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!todo</div><div class="cmd-card-desc">Manage your personal to-do list in Discord.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!quote</div><div class="cmd-card-desc">Gives you a highly motivational study quote.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!remind &lt;time&gt; &lt;msg&gt;</div><div class="cmd-card-desc">Sets a personal reminder in Discord.</div></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="cmd-category" data-cat="gaming" style="margin-bottom: 30px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--p400); margin-bottom: 16px;"><i class="fas fa-gamepad" style="margin-right: 8px;"></i> Gaming</h3>
-                <div class="cmd-grid">
-                    <div class="cmd-card"><div class="cmd-name">/val-stats [tag]</div><div class="cmd-desc">Fetch live rank, MMR, and recent match performance.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/games</div><div class="cmd-desc">View currently played community games and active lobbies.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/roll</div><div class="cmd-desc">Roll dice for RPG mechanics and giveaways.</div></div>
+                <!-- Economy & Server Shop -->
+                <div class="cmd-category" data-cat="eco">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-coins"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Economy & Server Shop</div>
+                            <div class="cmd-cat-sub">Coins, items, leveling, and mini-games.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!balance</div><div class="cmd-card-desc">Check your server wallet and bank balance.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!daily</div><div class="cmd-card-desc">Claim your daily coin reward.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!shop</div><div class="cmd-card-desc">Browse custom roles and badges available for purchase.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!gamble &lt;amount&gt;</div><div class="cmd-card-desc">Test your luck in the casino coin flip.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!rob @user</div><div class="cmd-card-desc">Try to steal coins from another member.</div></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="cmd-category" data-cat="utility" style="margin-bottom: 30px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--p400); margin-bottom: 16px;"><i class="fas fa-tools" style="margin-right: 8px;"></i> Utility</h3>
-                <div class="cmd-grid">
-                    <div class="cmd-card"><div class="cmd-name">/avatar [user]</div><div class="cmd-desc">View and download high-resolution member avatar.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/serverinfo</div><div class="cmd-desc">View guild creation, owner, channels, and boost level.</div></div>
-                    <div class="cmd-card"><div class="cmd-name">/poll [question]</div><div class="cmd-desc">Create interactive community vote widgets.</div></div>
+                <!-- Music System -->
+                <div class="cmd-category" data-cat="music">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-music"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Music System</div>
+                            <div class="cmd-cat-sub">High-fidelity voice audio streaming.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!play &lt;song&gt;</div><div class="cmd-card-desc">Plays any song or playlist in your voice channel.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!clearmusic</div><div class="cmd-card-desc">Clears all messy bot command messages from the music channel to keep it clean.</div></div>
+                    </div>
                 </div>
+
+                <!-- Sports -->
+                <div class="cmd-category" data-cat="sports">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-trophy"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Sports</div>
+                            <div class="cmd-cat-sub">Live scores and schedules.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!f1</div><div class="cmd-card-desc">Shows the current F1 racing schedule and upcoming Grands Prix.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!fifa</div><div class="cmd-card-desc">Shows the latest Football/FIFA match results and upcoming matches.</div></div>
+                    </div>
+                </div>
+
+                <!-- Server Utility & Fun -->
+                <div class="cmd-category" data-cat="util">
+                    <div class="cmd-cat-header">
+                        <div class="cmd-cat-icon"><i class="fas fa-gamepad"></i></div>
+                        <div>
+                            <div class="cmd-cat-title">Server Utility & Fun</div>
+                            <div class="cmd-cat-sub">General tools, leveling, and entertainment.</div>
+                        </div>
+                    </div>
+                    <div class="cmd-grid">
+                        <div class="cmd-card"><div class="cmd-card-name">!serverstats / !stats</div><div class="cmd-card-desc">Shows real-time dynamic statistics about the server.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!rank @user</div><div class="cmd-card-desc">Shows a user's XP and Level card.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!time @user</div><div class="cmd-card-desc">Shows how many hours a user has spent in Voice Channels.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!confess &lt;msg&gt;</div><div class="cmd-card-desc">Posts an anonymous message to the confession channel.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!meme</div><div class="cmd-card-desc">Fetches a random hilarious meme from Reddit.</div></div>
+                        <div class="cmd-card"><div class="cmd-card-name">!joke</div><div class="cmd-card-desc">Tells a random dad joke or programming joke.</div></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- ── CTA BANNER ─────────────────────────── -->
-    <section id="home-cta" class="tab-pane active" style="padding-bottom: 100px;">
+    <!-- ── STATS STRIP TAB ─────────────────────── -->
+    <section class="stats-strip tab-pane" id="stats">
         <div class="container">
-            <div class="cta-box io-reveal">
-                <h2 style="font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; margin-bottom: 14px;">
-                    Ready to join <span class="grad">NINJA NEXUS?</span>
-                </h2>
-                <p style="color: var(--sub); font-size: 1rem; max-width: 500px; margin: 0 auto 30px;">
-                    Join dozens of players, chat about anime, participate in events, and have fun.
-                </p>
-                <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-cta">
-                    <i class="fab fa-discord" style="font-size: 1.15rem;"></i> JOIN THE SERVER
-                </a>
+            <div style="display: flex; justify-content: center; margin-bottom: 40px;">
+                <div class="discord-presence">
+                    <div class="dp-avatar">
+                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.src='https://ui-avatars.com/api/?name=N&background=6d28d9&color=fff'">
+                        <div class="dp-status"></div>
+                    </div>
+                    <div class="dp-info">
+                        <div class="dp-name">
+                            NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
+                        </div>
+                        <div class="dp-activity dp-dynamic-text">1 SERVERS</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-strip-inner">
+                <div class="stat-item">
+                    <div class="stat-num" id="server-count-stat">0</div>
+                    <div class="stat-lbl">Active Servers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="user-count-stat">41</div>
+                    <div class="stat-lbl">Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="cmd-count-stat">74</div>
+                    <div class="stat-lbl">Commands</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">99.91%</div>
+                    <div class="stat-lbl">Uptime</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 60px;">
+                <div class="cta-box">
+                    <div class="pill" style="justify-content:center; margin-bottom: 24px;">
+                        <span class="pill-dot"></span> Get Started
+                    </div>
+                    <h2 class="cta-title">Ready to Experience<br><span class="grad">NEXUS GUARDIAN?</span></h2>
+                    <p class="cta-sub">Step into the future of Discord with NEXUS. Enjoy advanced AI features, impenetrable server security, and a beautifully crafted web dashboard.</p>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- ── FOOTER ─────────────────────────────── -->
-    <footer id="site-footer">
+    <footer class="footer" id="site-footer">
         <div class="container">
             <div class="foot-inner">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;" onerror="this.style.display='none'">
+                    <img src="images/nexus_logo.png" alt="Nexus" style="width: 32px; height: 32px; border-radius: 8px;" onerror="this.style.display='none'">
                     <div>
                         <div style="font-weight: 800; font-size: 0.95rem;">NINJA NEXUS</div>
-                        <div class="foot-copy">© 2026 Ninja Nexus. All rights reserved.</div>
+                        <div class="foot-copy">© 2026 Nexus Bot. All rights reserved.</div>
                     </div>
                 </div>
 
@@ -381,17 +792,102 @@
         </div>
     </footer>
 
-    <!-- ── Background Music Player ───────────────── -->
-    <audio id="bg-music" loop preload="auto">
-        <source src="audio/anime-ambient.mp3" type="audio/mpeg">
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
-    </audio>
-
-    <button id="music-toggle" class="music-btn" title="Toggle Music">
-        <i class="fas fa-volume-mute" id="music-icon"></i>
-    </button>
-
     <!-- ── Scripts ─────────────────────────────── -->
-    <script src="js/main.js"></script>
+    <script>
+        // ── Tab System ─────────────────────────────────────
+        const ALL_TABS = ['home', 'about', 'features', 'commands', 'stats'];
+
+        function showTab(targetId) {
+            document.body.className = targetId + '-tab-active';
+            
+            ALL_TABS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+
+            const el = document.getElementById(targetId);
+            if (el) el.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (!href || !href.startsWith('#')) return;
+                e.preventDefault();
+                const targetId = href.substring(1);
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                showTab(targetId);
+            });
+        });
+
+        const navLogo = document.querySelector('.nav-logo');
+        if (navLogo) {
+            navLogo.addEventListener('click', (e) => {
+                e.preventDefault();
+                showTab('home');
+            });
+        }
+
+        // ── Command filters ──
+        const filterBtns = document.querySelectorAll('.cmd-filter');
+        const categories = document.querySelectorAll('.cmd-category');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                categories.forEach(cat => {
+                    if (filter === 'all' || cat.dataset.cat === filter) {
+                        cat.style.display = 'block';
+                        setTimeout(() => cat.style.opacity = '1', 10);
+                    } else {
+                        cat.style.opacity = '0';
+                        setTimeout(() => cat.style.display = 'none', 250);
+                    }
+                });
+            });
+        });
+
+        // ── Live stats ──
+        async function fetchStats() {
+            try {
+                let d = null;
+                try {
+                    const r = await fetch('/api/bot_data?t=' + Date.now());
+                    if (r.ok) d = await r.json();
+                } catch(e) {}
+
+                if (!d) {
+                    try {
+                        const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
+                        if (r2.ok) d = await r2.json();
+                    } catch(e) {}
+                }
+
+                if (!d) return;
+
+                const hs = document.getElementById('hero-servers');
+                const hm = document.getElementById('hero-members');
+                const hp = document.getElementById('hero-ping');
+                const as = document.getElementById('about-servers');
+                const au = document.getElementById('about-users');
+                const ap = document.getElementById('about-ping');
+
+                if (hs) hs.textContent = d.total_servers || 1;
+                if (hm) hm.textContent = d.total_users || 50;
+                if (hp) hp.textContent = (d.ping || 106) + ' ms';
+                if (as) as.textContent = d.total_servers || 1;
+                if (au) au.textContent = d.total_users || 50;
+                if (ap) ap.textContent = (d.ping || 106) + 'ms';
+            } catch(e) {}
+        }
+        fetchStats();
+        setInterval(fetchStats, 10000);
+    </script>
 </body>
 </html>
