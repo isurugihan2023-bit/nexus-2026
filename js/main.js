@@ -2,7 +2,7 @@
 const nav = document.getElementById('navbar');
 
 const ALL_TABS = ['home', 'lounge', 'home-cta', 'about', 'features', 'commands', 'stats'];
-const HOME_TABS = ['home', 'home-cta'];
+const HOME_TABS = ['home'];
 
 function showTab(targetId) {
     document.body.className = targetId + '-tab-active';
@@ -27,9 +27,7 @@ function showTab(targetId) {
         if (footer) footer.style.display = '';
     } else if (targetId === 'stats') {
         const statsEl = document.getElementById('stats');
-        const ctaEl = document.getElementById('home-cta');
         if (statsEl) statsEl.classList.add('active');
-        if (ctaEl) ctaEl.classList.add('active');
         if (footer) footer.style.display = 'none';
     } else {
         const el = document.getElementById(targetId);
