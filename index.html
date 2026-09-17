@@ -1656,8 +1656,10 @@
                 if (footer) footer.style.display = '';
             } else if (targetId === 'stats') {
                 const statsEl = document.getElementById('stats');
+                const ctaEl = document.getElementById('home-cta');
                 if (statsEl) statsEl.classList.add('active');
-                if (footer) footer.style.display = 'none';
+                if (ctaEl) ctaEl.classList.add('active');
+                if (footer) footer.style.display = '';
             } else {
                 const el = document.getElementById(targetId);
                 if (el) el.classList.add('active');
