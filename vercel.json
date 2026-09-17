@@ -1,14 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/bot_data",
-      "destination": "http://157.90.181.183:23063/api/public_stats"
-    },
-    {
-      "source": "/api/public_stats",
-      "destination": "http://157.90.181.183:23063/api/public_stats"
-    },
-    {
       "source": "/api/discord_stats",
       "destination": "https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true"
     },

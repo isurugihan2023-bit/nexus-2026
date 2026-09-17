@@ -869,79 +869,6 @@
             box-shadow: 0 4px 16px var(--game-accent-glow);
             transform: translateX(2px);
         }
-        /* ── Grid-Balancing Squad CTA Card ── */
-        .squad-cta-card {
-            background: linear-gradient(145deg, rgba(20, 16, 38, 0.6) 0%, rgba(13, 11, 24, 0.75) 100%);
-            border: 1.5px dashed rgba(139, 92, 246, 0.35);
-            border-radius: 22px;
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            min-height: 290px;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s, box-shadow 0.35s;
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .squad-cta-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--p400);
-            box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.35), 0 0 24px rgba(139, 92, 246, 0.2);
-        }
-        .squad-cta-icon-wrap {
-            width: 60px;
-            height: 60px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(139, 92, 246, 0.15));
-            border: 1px solid rgba(139, 92, 246, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            color: var(--p400);
-            margin-bottom: 18px;
-            transition: transform 0.3s ease, background 0.3s ease;
-        }
-        .squad-cta-card:hover .squad-cta-icon-wrap {
-            transform: scale(1.12) rotate(4deg);
-            background: linear-gradient(135deg, var(--p600), var(--p500));
-            color: #fff;
-        }
-        .squad-cta-title {
-            font-size: 1.15rem;
-            font-weight: 850;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-        .squad-cta-sub {
-            font-size: 0.8rem;
-            color: var(--muted);
-            line-height: 1.5;
-            margin-bottom: 20px;
-            max-width: 240px;
-        }
-        .squad-cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 20px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--p600), var(--p500));
-            color: #fff;
-            font-size: 0.82rem;
-            font-weight: 750;
-            border: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-        .squad-cta-card:hover .squad-cta-btn {
-            opacity: 0.95;
-            transform: translateY(-2px);
-        }
-
         /* ── Tooltips ── */
         .interactive-avatar-wrap {
             position: relative;
@@ -1261,86 +1188,79 @@
             
             <div id="live-games-grid" class="live-games-grid reveal">
                 <!-- Pre-rendered active gaming sessions (dynamically synchronized with bot API) -->
-                <div class="game-card reveal visible is-hot" style="--game-accent: #10b981; --game-accent-glow: rgba(16, 185, 129, 0.35); --game-accent-border: rgba(16, 185, 129, 0.5);">
+                <div class="game-card reveal visible is-hot" style="--game-accent: #38bdf8; --game-accent-glow: rgba(56, 189, 248, 0.35); --game-accent-border: rgba(56, 189, 248, 0.5);">
                     <div class="game-card-img-wrap">
                         <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
                         <div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>
-                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
-                        <img src="https://cdn.discordapp.com/app-assets/1438769318430117909/1489554874470367315.png" alt="DREAM CREATION STUDIO" loading="lazy" onerror="this.src='https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg';">
+                        <div class="game-player-badge"><i class="fas fa-users"></i> 2 In Session</div>
+                        <img src="https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg" alt="Brawlhalla" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
                     </div>
                     <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas fa-circle" style="font-size: 5px;"></i> FiveM Studio</div>
-                        <div class="game-name" title="DREAM CREATION STUDIO">DREAM CREATION STUDIO</div>
+                        <div class="game-genre-tag"><i class="fas fa-fist-raised" style="font-size: 0.65rem;"></i> Platform Fighter</div>
+                        <div class="game-name" title="Brawlhalla">Brawlhalla</div>
+                        <div class="game-player-headline"><i class="fas fa-user-friends"></i> <span class="game-player-name">PaMuJiThA &amp; Dodam</span></div>
+                        <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
+                        <div class="game-players-strip">
+                            <div class="avatar-stack">
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024" alt="PaMuJiThA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                                    <div class="player-tooltip"><span class="tooltip-name">PaMuJiThA</span><span class="tooltip-status">Playing</span></div>
+                                </div>
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024" alt="Dodam" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png';">
+                                    <div class="player-tooltip"><span class="tooltip-name">Dodam</span><span class="tooltip-status">In Lobby</span></div>
+                                </div>
+                            </div>
+                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card reveal visible" style="--game-accent: #f97316; --game-accent-glow: rgba(249, 115, 22, 0.35); --game-accent-border: rgba(249, 115, 22, 0.5);">
+                    <div class="game-card-img-wrap">
+                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
+                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
+                        <img src="https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg" alt="ARC Raiders" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-genre-tag"><i class="fas fa-crosshairs" style="font-size: 0.65rem;"></i> Extraction Shooter</div>
+                        <div class="game-name" title="ARC Raiders">ARC Raiders</div>
+                        <div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">Animo</span></div>
+                        <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
+                        <div class="game-players-strip">
+                            <div class="avatar-stack">
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024" alt="Animo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png';">
+                                    <div class="player-tooltip"><span class="tooltip-name">Animo</span><span class="tooltip-status">Playing</span></div>
+                                </div>
+                            </div>
+                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card reveal visible" style="--game-accent: #3b82f6; --game-accent-glow: rgba(59, 130, 246, 0.35); --game-accent-border: rgba(59, 130, 246, 0.5);">
+                    <div class="game-card-img-wrap">
+                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
+                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
+                        <img src="https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png" alt="Visual Studio Code" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-genre-tag"><i class="fas fa-code" style="font-size: 0.65rem;"></i> Development</div>
+                        <div class="game-name" title="Visual Studio Code">Visual Studio Code</div>
                         <div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">! DINGDONG GAMING</span></div>
-                        <div class="game-match-detail" title="TEAM DREAM CREATION STUDIO"><i class="fas fa-gamepad"></i> TEAM DREAM CREATION STUDIO</div>
+                        <div class="game-match-detail" title="Editing targeting.lua"><i class="fas fa-code"></i> Editing targeting.lua</div>
                         <div class="game-players-strip">
                             <div class="avatar-stack">
                                 <div class="interactive-avatar-wrap">
                                     <img src="https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024" alt="! DINGDONG GAMING" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">! DINGDONG GAMING</span><span class="tooltip-status">FiveM Session</span></div>
+                                    <div class="player-tooltip"><span class="tooltip-name">! DINGDONG GAMING</span><span class="tooltip-status">Editing targeting.lua</span></div>
                                 </div>
                             </div>
                             <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="game-card reveal visible" style="--game-accent: #10b981; --game-accent-glow: rgba(16, 185, 129, 0.35); --game-accent-border: rgba(16, 185, 129, 0.5);">
-                    <div class="game-card-img-wrap">
-                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
-                        <img src="https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png" alt="Ceylon Roleplay" loading="lazy" onerror="this.src='https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg';">
-                    </div>
-                    <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas fa-circle" style="font-size: 5px;"></i> FiveM Roleplay</div>
-                        <div class="game-name" title="Ceylon Roleplay">Ceylon Roleplay</div>
-                        <div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">Animo</span></div>
-                        <div class="game-match-detail" title="Players 64/100"><i class="fas fa-server"></i> Players 64/100</div>
-                        <div class="game-players-strip">
-                            <div class="avatar-stack">
-                                <div class="interactive-avatar-wrap">
-                                    <img src="https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024" alt="Animo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">Animo</span><span class="tooltip-status">Players 64/100</span></div>
-                                </div>
-                            </div>
-                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card reveal visible" style="--game-accent: #f59e0b; --game-accent-glow: rgba(245, 158, 11, 0.35); --game-accent-border: rgba(245, 158, 11, 0.5);">
-                    <div class="game-card-img-wrap">
-                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
-                        <img src="https://cdn.discordapp.com/app-assets/530196305138417685/1046984300706398248.png" alt="PUBG: BATTLEGROUNDS" loading="lazy" onerror="this.src='https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg';">
-                    </div>
-                    <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas fa-circle" style="font-size: 5px;"></i> Battle Royale</div>
-                        <div class="game-name" title="PUBG: BATTLEGROUNDS">PUBG: BATTLEGROUNDS</div>
-                        <div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">PaMuJiThA</span></div>
-                        <div class="game-match-detail" title="Watching, Team Spectating"><i class="fas fa-crosshairs"></i> Watching, Team Spectating</div>
-                        <div class="game-players-strip">
-                            <div class="avatar-stack">
-                                <div class="interactive-avatar-wrap">
-                                    <img src="https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024" alt="PaMuJiThA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">PaMuJiThA</span><span class="tooltip-status">Watching, Team Spectating</span></div>
-                                </div>
-                            </div>
-                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="squad-cta-card reveal visible">
-                    <div class="squad-cta-icon-wrap">
-                        <i class="fab fa-discord"></i>
-                    </div>
-                    <div class="squad-cta-title">Looking For Squad?</div>
-                    <div class="squad-cta-sub">Jump into Discord voice channels to squad up with community members right now.</div>
-                    <div class="squad-cta-btn">
-                        <i class="fas fa-headset"></i> Join Voice Squad
-                    </div>
-                </a>
             </div>
         </div>
     </section>
@@ -1888,85 +1808,6 @@
             }
         }
 
-        async function fetchBotData() {
-            let d = null;
-            const endpoints = [
-                '/api/bot_data?_t=' + Date.now(),
-                '/api/public_stats?_t=' + Date.now(),
-                'http://157.90.181.183:23063/api/public_stats?_t=' + Date.now()
-            ];
-
-            for (const url of endpoints) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3500);
-                    const r = await fetch(url, { 
-                        signal: controller.signal,
-                        cache: 'no-store'
-                    });
-                    clearTimeout(timeoutId);
-                    if (r.ok) {
-                        const parsed = await r.json();
-                        if (parsed && (parsed.top_played_games || parsed.total_users || parsed.uptime || parsed.ping)) {
-                            d = parsed;
-                            break;
-                        }
-                    }
-                } catch(err) {
-                    // Try next endpoint in pipeline
-                }
-            }
-
-            if (d) {
-                const hp = document.getElementById('hero-ping');
-                const ap = document.getElementById('about-ping');
-                if (hp && d.ping) hp.textContent = d.ping + ' ms';
-                if (ap && d.ping) ap.textContent = d.ping + 'ms';
-
-                if (d.uptime_seconds !== undefined) {
-                    window.heroUptimeSec = d.uptime_seconds;
-                } else if (d.uptime) {
-                    const hu = document.getElementById('hero-uptime');
-                    if (hu) hu.textContent = d.uptime;
-                }
-
-                if (d.ninja_nexus_members) {
-                    updateMemberDisplays(d.ninja_nexus_members);
-                }
-
-                if (d.top_played_games && Array.isArray(d.top_played_games)) {
-                    renderLiveGames(d.top_played_games);
-                }
-            }
-        }
-
-        async function fetchDiscordStats() {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2500);
-                const r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true', {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (r.ok) {
-                    const disc = await r.json();
-                    const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
-                    if (count) {
-                        updateMemberDisplays(count);
-                    }
-                }
-            } catch(e) {
-                // Ignore timeout gracefully; bot data already provides real member count
-            }
-        }
-
-        function fetchPublicStats() {
-            fetchBotData();
-            fetchDiscordStats();
-        }
-        fetchPublicStats();
-        startStatsPolling();
-
         // ── Real-time Uptime Counter ──
         window.heroUptimeSec = 3131;
         setInterval(() => {
@@ -2028,10 +1869,17 @@
             "dota": "https://steamcdn-a.akamaihd.net/steam/apps/570/library_600x900_2x.jpg",
             "wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg",
             "arc raiders": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg",
-            "arc": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg"
+            "arc": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg",
+            "brawlhalla": "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg",
+            "visual studio code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
+            "vscode": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
+            "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
         };
 
         const GAME_THEMES = {
+            "brawlhalla": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Platform Fighter", icon: "fa-fist-raised" },
+            "visual studio code": { accent: "#3b82f6", glow: "rgba(59, 130, 246, 0.35)", border: "rgba(59, 130, 246, 0.5)", tag: "Development", icon: "fa-code" },
+            "vscode": { accent: "#3b82f6", glow: "rgba(59, 130, 246, 0.35)", border: "rgba(59, 130, 246, 0.5)", tag: "Development", icon: "fa-code" },
             "ceylon": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
             "dream creation": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Studio", icon: "fa-code" },
             "fivem": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
@@ -2069,37 +1917,38 @@
 
         const DEFAULT_COMMUNITY_GAMES = [
             {
-                name: "VALORANT",
-                count: 1,
+                name: "Brawlhalla",
+                count: 2,
                 is_live: true,
-                sample_detail: "Competitive 5v5",
-                players: ["Ninja Member"],
+                sample_detail: "Active Discord Session",
+                players: ["PaMuJiThA", "Dodam"],
                 player_details: [
-                    { name: "Ninja Member", avatar: "https://cdn.discordapp.com/embed/avatars/1.png", details: "In Match - Competitive" }
+                    { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "Playing" },
+                    { name: "Dodam", avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024", details: "In Lobby" }
                 ],
-                rich_cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg"
+                rich_cover: "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg"
             },
             {
-                name: "Ceylon Roleplay",
+                name: "ARC Raiders",
                 count: 1,
                 is_live: true,
-                sample_detail: "Players 69/100",
+                sample_detail: "Active Discord Session",
                 players: ["Animo"],
                 player_details: [
-                    { name: "Animo", avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024", details: "Players 69/100" }
+                    { name: "Animo", avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024", details: "Playing" }
                 ],
-                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png"
+                rich_cover: "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg"
             },
             {
-                name: "PUBG: BATTLEGROUNDS",
+                name: "Visual Studio Code",
                 count: 1,
                 is_live: true,
-                sample_detail: "In Lobby",
-                players: ["PaMuJiThA"],
+                sample_detail: "Editing targeting.lua",
+                players: ["! DINGDONG GAMING"],
                 player_details: [
-                    { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "In Lobby" }
+                    { name: "! DINGDONG GAMING", avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024", details: "Editing targeting.lua" }
                 ],
-                rich_cover: "https://cdn.discordapp.com/app-assets/530196305138417685/853805058045771786.png"
+                rich_cover: "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
             }
         ];
 
@@ -2274,22 +2123,6 @@
                 grid.appendChild(card);
             });
 
-            // Grid-balancing Squad CTA Card
-            const squadCta = document.createElement('a');
-            squadCta.href = 'https://discord.gg/fZNDG5sfhf';
-            squadCta.target = '_blank';
-            squadCta.className = 'squad-cta-card reveal visible';
-            squadCta.innerHTML = `
-                <div class="squad-cta-icon-wrap">
-                    <i class="fab fa-discord"></i>
-                </div>
-                <div class="squad-cta-title">Looking For Squad?</div>
-                <div class="squad-cta-sub">Jump into Discord voice channels to squad up with community members right now.</div>
-                <div class="squad-cta-btn">
-                    <i class="fas fa-headset"></i> Join Voice Squad
-                </div>
-            `;
-            grid.appendChild(squadCta);
         }
 
         function escapeHtml(str) {
@@ -2358,11 +2191,92 @@
             if (e.key === 'Escape') closeGameModal();
         });
 
-        // ── Visibility Change Awareness ──
+        // ── Real-Time Bot & Discord Synchronization Pipeline ──
+        async function fetchBotData() {
+            let d = null;
+            const endpoints = [
+                '/api/bot_data?_t=' + Date.now(),
+                '/api/public_stats?_t=' + Date.now(),
+                'http://157.90.181.183:23063/api/public_stats?_t=' + Date.now()
+            ];
+
+            for (const url of endpoints) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3500);
+                    const r = await fetch(url, { 
+                        signal: controller.signal,
+                        cache: 'no-store'
+                    });
+                    clearTimeout(timeoutId);
+                    if (r.ok) {
+                        const parsed = await r.json();
+                        if (parsed && (parsed.top_played_games || parsed.playing_games || parsed.total_users || parsed.uptime || parsed.ping)) {
+                            d = parsed;
+                            console.log('[NEXUS Live] Sync success via:', url);
+                            break;
+                        }
+                    }
+                } catch(err) {
+                    // Try next endpoint in pipeline
+                }
+            }
+
+            if (d) {
+                const hp = document.getElementById('hero-ping');
+                const ap = document.getElementById('about-ping');
+                if (hp && d.ping) hp.textContent = d.ping + ' ms';
+                if (ap && d.ping) ap.textContent = d.ping + 'ms';
+
+                if (d.uptime_seconds !== undefined) {
+                    window.heroUptimeSec = d.uptime_seconds;
+                } else if (d.uptime) {
+                    const hu = document.getElementById('hero-uptime');
+                    if (hu) hu.textContent = d.uptime;
+                }
+
+                if (d.ninja_nexus_members) {
+                    updateMemberDisplays(d.ninja_nexus_members);
+                }
+
+                const liveGames = (d.top_played_games && d.top_played_games.length > 0)
+                    ? d.top_played_games
+                    : (d.playing_games && d.playing_games.length > 0 ? d.playing_games : []);
+                
+                renderLiveGames(liveGames);
+            }
+        }
+
+        async function fetchDiscordStats() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (r.ok) {
+                    const disc = await r.json();
+                    const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
+                    if (count) {
+                        updateMemberDisplays(count);
+                    }
+                }
+            } catch(e) {
+                // Graceful fallback
+            }
+        }
+
+        function fetchPublicStats() {
+            fetchBotData();
+            fetchDiscordStats();
+        }
+
+        // ── Visibility Change Awareness & Polling ──
         let statsInterval = null;
         function startStatsPolling() {
             if (statsInterval) clearInterval(statsInterval);
-            statsInterval = setInterval(fetchPublicStats, 4000); // Ultra-fast 4s live sync
+            statsInterval = setInterval(fetchPublicStats, 4000); // 4s live sync
         }
 
         document.addEventListener('visibilitychange', () => {
@@ -2373,6 +2287,10 @@
                 startStatsPolling();
             }
         });
+
+        // Initialize immediately
+        fetchPublicStats();
+        startStatsPolling();
     </script>
 </body>
 </html>
