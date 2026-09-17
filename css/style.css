@@ -406,9 +406,14 @@ ul { list-style: none; }
     width: 100%;
     aspect-ratio: 2 / 3;
     object-fit: cover;
+    filter: grayscale(100%) contrast(1.1);
     border-radius: 8px;
     margin-bottom: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: filter 0.3s ease;
+}
+.game-card:hover img {
+    filter: grayscale(100%) contrast(1.15) brightness(1.1);
 }
 .game-name {
     font-size: 0.9rem;
