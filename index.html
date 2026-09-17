@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#7C3AED">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="images/favicon.png">
-    <link rel="shortcut icon" type="image/png" href="images/favicon.png">
-    <link rel="apple-touch-icon" href="images/favicon.png">
+    <link rel="icon" type="image/png" href="images/favicon.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="images/favicon.png?v=2">
+    <link rel="apple-touch-icon" href="images/favicon.png?v=2">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1088,10 +1088,90 @@
             </div>
             
             <div id="live-games-grid" class="live-games-grid reveal">
-                <!-- Skeleton cards until loaded -->
-                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <!-- Pre-rendered featured community cards (dynamically updated by live bot data) -->
+                <div class="game-card reveal visible">
+                    <div class="game-card-img-wrap">
+                        <div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>
+                        <div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> 1 Player</div>
+                        <img src="https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg" alt="Grand Theft Auto V" loading="lazy">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-name" title="Grand Theft Auto V">Grand Theft Auto V</div>
+                        <div class="game-match-detail" title="Los Santos Street Racing">Los Santos Street Racing</div>
+                        <div class="game-players-strip">
+                            <div class="avatar-stack">
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="N3WB">
+                                    <div class="player-tooltip"><span class="tooltip-name">N3WB</span><span class="tooltip-status">Exploring Los Santos</span></div>
+                                </div>
+                            </div>
+                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card reveal visible">
+                    <div class="game-card-img-wrap">
+                        <div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>
+                        <div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> 1 Player</div>
+                        <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg" alt="VALORANT" loading="lazy">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-name" title="VALORANT">VALORANT</div>
+                        <div class="game-match-detail" title="Competitive 5v5">Competitive 5v5</div>
+                        <div class="game-players-strip">
+                            <div class="avatar-stack">
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/embed/avatars/1.png" alt="kiri putha">
+                                    <div class="player-tooltip"><span class="tooltip-name">kiri putha</span><span class="tooltip-status">In Match</span></div>
+                                </div>
+                            </div>
+                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card reveal visible">
+                    <div class="game-card-img-wrap">
+                        <div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>
+                        <div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> 1 Player</div>
+                        <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/co1x7d.jpg" alt="Minecraft" loading="lazy">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-name" title="Minecraft">Minecraft</div>
+                        <div class="game-match-detail" title="Survival Realm">Survival Realm</div>
+                        <div class="game-players-strip">
+                            <div class="avatar-stack">
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/embed/avatars/2.png" alt="Pegging Boy">
+                                    <div class="player-tooltip"><span class="tooltip-name">Pegging Boy</span><span class="tooltip-status">Building Megabase</span></div>
+                                </div>
+                            </div>
+                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card reveal visible">
+                    <div class="game-card-img-wrap">
+                        <div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>
+                        <div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> 1 Player</div>
+                        <img src="https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg" alt="PUBG: BATTLEGROUNDS" loading="lazy">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-name" title="PUBG: BATTLEGROUNDS">PUBG: BATTLEGROUNDS</div>
+                        <div class="game-match-detail" title="Battle Royale Squads">Battle Royale Squads</div>
+                        <div class="game-players-strip">
+                            <div class="avatar-stack">
+                                <div class="interactive-avatar-wrap">
+                                    <img src="https://cdn.discordapp.com/embed/avatars/3.png" alt="Haaaaaalan">
+                                    <div class="player-tooltip"><span class="tooltip-name">Haaaaaalan</span><span class="tooltip-status">Squad Match</span></div>
+                                </div>
+                            </div>
+                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1623,93 +1703,80 @@
         const activities = ["1 SERVER", "46 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
         let activityIdx = 0;
         const dpTexts = document.querySelectorAll('.dp-dynamic-text');
+        const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
 
-        async function fetchPublicStats() {
+        function updateMemberDisplays(count) {
+            currentNinjaNexusMembers = count;
+            const hm = document.getElementById('hero-members');
+            const am = document.getElementById('about-users');
+            const uc = document.getElementById('user-count-stat');
+            if (hm) hm.textContent = fmt(count);
+            if (am) am.textContent = fmt(count);
+            if (uc) uc.textContent = fmt(count);
+            activities[1] = `${fmt(count)} MEMBERS`;
+            if (activityIdx === 1 && dpTexts.length > 0) {
+                dpTexts.forEach(el => el.textContent = activities[1]);
+            }
+        }
+
+        async function fetchBotData() {
             try {
-                // Fetch Discord invite data (exact Ninja Nexus server member count)
-                // and bot stats (uptime, ping, commands) in parallel
-                const [discordData, botData] = await Promise.allSettled([
-                    (async () => {
-                        try {
-                            let r = await fetch('/api/discord_stats?t=' + Date.now());
-                            if (!r.ok) {
-                                r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true');
-                            }
-                            if (r.ok) return await r.json();
-                        } catch (e) {}
-                        return null;
-                    })(),
-                    (async () => {
-                        try {
-                            let r = await fetch('/api/bot_data?t=' + Date.now());
-                            if (r.ok) return await r.json();
-                        } catch (e) {}
-                        try {
-                            const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
-                            if (r2.ok) return await r2.json();
-                        } catch (e) {}
-                        return null;
-                    })()
-                ]);
-
-                const disc = discordData.status === 'fulfilled' ? discordData.value : null;
-                const d = botData.status === 'fulfilled' ? botData.value : null;
-
-                const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
-
-                // Extract exact Ninja Nexus member count
-                if (disc && (disc.approximate_member_count || (disc.guild && disc.guild.member_count))) {
-                    currentNinjaNexusMembers = disc.approximate_member_count || disc.guild.member_count;
-                } else if (d && d.ninja_nexus_members) {
-                    currentNinjaNexusMembers = d.ninja_nexus_members;
+                let r = await fetch('/api/bot_data?t=' + Date.now());
+                if (!r.ok) {
+                    r = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
                 }
+                if (r.ok) {
+                    const d = await r.json();
+                    if (d) {
+                        const hp = document.getElementById('hero-ping');
+                        const ap = document.getElementById('about-ping');
+                        if (hp && d.ping) hp.textContent = d.ping + ' ms';
+                        if (ap && d.ping) ap.textContent = d.ping + 'ms';
 
-                // ALWAYS 1 SERVER FOR NINJA NEXUS
-                const displayServers = 1;
-                // ONLY NINJA NEXUS MEMBERS
-                const displayUsers = currentNinjaNexusMembers;
-                
-                const hs = document.getElementById('hero-servers');
-                const hm = document.getElementById('hero-members');
-                const hp = document.getElementById('hero-ping');
-                if (hs) hs.textContent = '1';
-                if (hm) hm.textContent = fmt(displayUsers);
-                if (d && hp) hp.textContent = (d.ping || 106) + ' ms';
+                        if (d.uptime_seconds !== undefined) {
+                            window.heroUptimeSec = d.uptime_seconds;
+                        } else if (d.uptime) {
+                            const hu = document.getElementById('hero-uptime');
+                            if (hu) hu.textContent = d.uptime;
+                        }
 
-                if (d) {
-                    if (d.uptime_seconds !== undefined) {
-                        window.heroUptimeSec = d.uptime_seconds;
-                    } else if (d.uptime) {
-                        const hu = document.getElementById('hero-uptime');
-                        if (hu) hu.textContent = d.uptime;
+                        if (d.ninja_nexus_members) {
+                            updateMemberDisplays(d.ninja_nexus_members);
+                        }
+
+                        if (d.top_played_games && Array.isArray(d.top_played_games)) {
+                            renderLiveGames(d.top_played_games);
+                        }
                     }
                 }
+            } catch(e) {
+                console.warn('Bot data notice:', e);
+            }
+        }
 
-                const aServ = document.getElementById('about-servers');
-                const aUsers = document.getElementById('about-users');
-                const aPing = document.getElementById('about-ping');
-                if (aServ) aServ.textContent = '1';
-                if (aUsers) aUsers.textContent = fmt(displayUsers);
-                if (d && aPing) aPing.textContent = (d.ping || 106) + 'ms';
-
-                const sc = document.getElementById('server-count-stat');
-                const uc = document.getElementById('user-count-stat');
-                if (sc) { sc.textContent = '1'; }
-                if (uc) { uc.textContent = fmt(displayUsers); }
-                
-                activities[0] = '1 SERVER';
-                activities[1] = `${fmt(displayUsers)} MEMBERS`;
-                if (activityIdx === 1 && dpTexts.length > 0) {
-                    dpTexts.forEach(el => el.textContent = activities[1]);
-                }
-                if (d && d.top_played_games && Array.isArray(d.top_played_games)) {
-                    renderLiveGames(d.top_played_games);
-                } else if (!window.hasRenderedLiveGames) {
-                    renderLiveGames([]);
+        async function fetchDiscordStats() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (r.ok) {
+                    const disc = await r.json();
+                    const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
+                    if (count) {
+                        updateMemberDisplays(count);
+                    }
                 }
             } catch(e) {
-                console.warn('fetchPublicStats notice:', e);
+                // Ignore timeout gracefully; bot data already provides real member count
             }
+        }
+
+        function fetchPublicStats() {
+            fetchBotData();
+            fetchDiscordStats();
         }
         fetchPublicStats();
         startStatsPolling();
@@ -1756,7 +1823,9 @@
             "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
             "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
             "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+            "fivem": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
             "ceylon": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+            "dream creation": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
             "counter-strike": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
             "cs2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
             "pubg": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",

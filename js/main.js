@@ -121,86 +121,74 @@ const activities = ["1 SERVER", "46 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
 let activityIdx = 0;
 const dpTexts = document.querySelectorAll('.dp-dynamic-text');
 
-async function fetchPublicStats() {
+const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
+
+function updateMemberDisplays(count) {
+    currentNinjaNexusMembers = count;
+    updateStatText('hero-members', fmt(count));
+    updateStatText('about-users', fmt(count));
+    const uc = document.getElementById('user-count-stat');
+    if (uc) uc.textContent = count;
+    activities[1] = `${fmt(count)} MEMBERS`;
+    if (activityIdx === 1 && dpTexts.length > 0) {
+        dpTexts.forEach(el => el.textContent = activities[1]);
+    }
+}
+
+async function fetchBotData() {
     try {
-        const [discordData, botData] = await Promise.allSettled([
-            (async () => {
-                try {
-                    let r = await fetch('/api/discord_stats?t=' + Date.now());
-                    if (!r.ok) {
-                        r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true');
-                    }
-                    if (r.ok) return await r.json();
-                } catch (e) {}
-                return null;
-            })(),
-            (async () => {
-                try {
-                    let r = await fetch('/api/bot_data?t=' + Date.now());
-                    if (r.ok) return await r.json();
-                } catch (e) {}
-                try {
-                    const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
-                    if (r2.ok) return await r2.json();
-                } catch (e) {}
-                return null;
-            })()
-        ]);
-
-        const disc = discordData.status === 'fulfilled' ? discordData.value : null;
-        const d = botData.status === 'fulfilled' ? botData.value : null;
-        
-        const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
-
-        if (disc && (disc.approximate_member_count || (disc.guild && disc.guild.member_count))) {
-            currentNinjaNexusMembers = disc.approximate_member_count || disc.guild.member_count;
-        } else if (d && d.ninja_nexus_members) {
-            currentNinjaNexusMembers = d.ninja_nexus_members;
+        let r = await fetch('/api/bot_data?t=' + Date.now());
+        if (!r.ok) {
+            r = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
         }
-
-        const displayServers = 1;
-        const displayUsers = currentNinjaNexusMembers;
-        
-        updateStatText('hero-servers', fmt(displayServers));
-        updateStatText('hero-members', fmt(displayUsers));
-        if (d) updateStatText('hero-ping', (d.ping || 106) + ' ms');
-        
-        if (d) {
-            if (d.uptime_seconds !== undefined) {
-                window.heroUptimeSec = d.uptime_seconds;
-            } else if (d.uptime) {
-                updateStatText('hero-uptime', d.uptime);
+        if (r.ok) {
+            const d = await r.json();
+            if (d) {
+                if (d.ping) {
+                    updateStatText('hero-ping', d.ping + ' ms');
+                    updateStatText('about-ping', d.ping + 'ms');
+                }
+                if (d.uptime_seconds !== undefined) {
+                    window.heroUptimeSec = d.uptime_seconds;
+                } else if (d.uptime) {
+                    updateStatText('hero-uptime', d.uptime);
+                }
+                if (d.total_commands) {
+                    const cc = document.getElementById('cmd-count-stat');
+                    if (cc) cc.textContent = d.total_commands;
+                }
+                if (d.ninja_nexus_members) {
+                    updateMemberDisplays(d.ninja_nexus_members);
+                }
+                if (d.top_played_games && Array.isArray(d.top_played_games)) {
+                    renderLiveGames(d.top_played_games);
+                }
             }
         }
-        
-        updateStatText('about-servers', fmt(displayServers));
-        updateStatText('about-users', fmt(displayUsers));
-        if (d) updateStatText('about-ping', (d.ping || 106) + 'ms');
-        
-        const sc = document.getElementById('server-count-stat');
-        const uc = document.getElementById('user-count-stat');
-        const cc = document.getElementById('cmd-count-stat');
-        if (sc) sc.textContent = displayServers;
-        if (uc) uc.textContent = displayUsers;
-        if (cc && d && d.total_commands) cc.textContent = d.total_commands;
-        
-        const serverLabelEl = document.getElementById('hero-servers-label');
-        if (serverLabelEl) {
-            serverLabelEl.textContent = 'Server';
-        }
-        
-        if (typeof activities !== 'undefined') {
-            activities[0] = '1 SERVER';
-            activities[1] = `${fmt(displayUsers)} MEMBERS`;
-            if (activityIdx === 1 && typeof dpTexts !== 'undefined' && dpTexts.length > 0) {
-                dpTexts.forEach(el => el.textContent = activities[1]);
-            }
-        }
-        
-        if (d && d.top_played_games && Array.isArray(d.top_played_games)) {
-            renderLiveGames(d.top_played_games);
+    } catch(e) {
+        console.warn('Bot data notice:', e);
+    }
+}
+
+async function fetchDiscordStats() {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true', {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (r.ok) {
+            const disc = await r.json();
+            const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
+            if (count) updateMemberDisplays(count);
         }
     } catch(e) {}
+}
+
+async function fetchPublicStats() {
+    fetchBotData();
+    fetchDiscordStats();
 }
 
 const GAME_IMAGE_OVERRIDES = {
@@ -213,6 +201,9 @@ const GAME_IMAGE_OVERRIDES = {
     "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
     "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
     "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+    "fivem": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+    "ceylon": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+    "dream creation": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
     "counter-strike": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
     "cs2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
     "pubg": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
