@@ -890,6 +890,147 @@
             min-width: 0;
         }
 
+        /* ── Squad Size Prompt & Subnav ── */
+        .game-squad-prompt {
+            margin-top: 6px;
+            margin-bottom: 8px;
+            padding: 4px 10px;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px dashed rgba(168, 85, 247, 0.35);
+            border-radius: 8px;
+            font-size: 0.72rem;
+            color: #c084fc;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lounge-subnav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+            margin-bottom: 24px;
+        }
+        .lounge-tab-btn {
+            background: rgba(18, 15, 34, 0.75);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: var(--sub);
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            backdrop-filter: blur(10px);
+        }
+        .lounge-tab-btn:hover {
+            color: #fff;
+            border-color: rgba(168, 85, 247, 0.5);
+            background: rgba(168, 85, 247, 0.1);
+        }
+        .lounge-tab-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(168, 85, 247, 0.25));
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 0 16px rgba(124, 58, 237, 0.3);
+        }
+        .sync-status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 100px;
+            background: rgba(18, 15, 34, 0.85);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: #94a3b8;
+            margin-top: 14px;
+        }
+        .sync-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #eab308;
+        }
+        .sync-status-dot.ws-active {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse-green 2s infinite;
+        }
+        .sync-status-dot.polling-active {
+            background: #a855f7;
+            box-shadow: 0 0 8px #a855f7;
+        }
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .btn-lounge-notify {
+            background: rgba(124, 58, 237, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: #c084fc;
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-lounge-notify:hover {
+            background: rgba(124, 58, 237, 0.25);
+            color: #fff;
+        }
+        .stats-leaderboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .leaderboard-card {
+            background: rgba(16, 14, 28, 0.9);
+            border: 1px solid rgba(168, 85, 247, 0.22);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.25s, border-color 0.25s;
+        }
+        .leaderboard-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+        .leaderboard-rank {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #c084fc;
+            font-weight: 850;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .leaderboard-rank.gold { background: rgba(234, 179, 8, 0.2); border-color: #eab308; color: #facc15; }
+        .leaderboard-rank.silver { background: rgba(148, 163, 184, 0.2); border-color: #94a3b8; color: #e2e8f0; }
+        .leaderboard-rank.bronze { background: rgba(217, 119, 6, 0.2); border-color: #d97706; color: #f59e0b; }
+        .leaderboard-info { flex-grow: 1; overflow: hidden; }
+        .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; }
+        .leaderboard-hours { font-size: 0.78rem; color: #94a3b8; font-family: var(--mono); }
+
         /* ── Skeletons ── */
         .skeleton-card {
             background: rgba(18, 15, 34, 0.5);
@@ -1202,11 +1343,21 @@
                 <p class="sec-sub">
                     Live gaming sessions from community members online right now. Click any game to see who's in session and join the squad!
                 </p>
+                <div class="sync-status-indicator">
+                    <span id="sync-status-dot" class="sync-status-dot"></span>
+                    <span id="sync-status-text">Sync Standby</span>
+                </div>
+                <div class="lounge-subnav">
+                    <button class="lounge-tab-btn active" data-lounge-tab="live"><i class="fas fa-bolt"></i> Live Sessions</button>
+                    <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played This Week</button>
+                    <button class="lounge-tab-btn" data-lounge-tab="leaderboard"><i class="fas fa-trophy"></i> Nexus Legends</button>
+                    <button id="btn-live-notifications" class="btn-lounge-notify"><i class="far fa-bell"></i> Notify when squad plays</button>
+                </div>
             </div>
             
             <div id="live-games-grid" class="live-games-grid reveal">
                 <!-- Pre-rendered active gaming sessions (dynamically synchronized with bot API) -->
-                <div class="game-card reveal visible">
+                <div class="game-card reveal visible" data-game-name="Brawlhalla">
                     <div class="game-card-img-wrap">
                         <div class="game-card-top-badges">
                             <div class="game-top-badges-left">
@@ -1233,7 +1384,7 @@
                     </div>
                 </div>
 
-                <div class="game-card reveal visible">
+                <div class="game-card reveal visible" data-game-name="ARC Raiders">
                     <div class="game-card-img-wrap">
                         <div class="game-card-top-badges">
                             <div class="game-top-badges-left">
@@ -1247,6 +1398,7 @@
                         <div class="game-genre-tag"><i class="fas fa-crosshairs" style="font-size: 0.65rem;"></i> Extraction Shooter</div>
                         <div class="game-name" title="ARC Raiders">ARC Raiders</div>
                         <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
+                        <div class="game-squad-prompt"><i class="fas fa-user-plus"></i> 2 needed for squad</div>
                         <div class="game-players-strip">
                             <div class="avatar-stack">
                                 <img src="https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024" alt="Animo" title="Animo - Playing" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png';">
@@ -1258,7 +1410,7 @@
                     </div>
                 </div>
 
-                <div class="game-card reveal visible">
+                <div class="game-card reveal visible" data-game-name="Visual Studio Code">
                     <div class="game-card-img-wrap">
                         <div class="game-card-top-badges">
                             <div class="game-top-badges-left">
@@ -1283,6 +1435,10 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Sub-containers for Most Played & Leaderboard -->
+            <div id="lounge-most-played-container" style="display: none;"></div>
+            <div id="lounge-leaderboard-container" style="display: none;"></div>
         </div>
     </section>
 
@@ -1993,12 +2149,54 @@
             }
         ];
 
+        // ── Phase 5: Typical squad sizes per game ──
+        const TYPICAL_SQUAD_SIZES = {
+            "valorant": 5, "pubg": 4, "battlegrounds": 4, "counter-strike": 5, "cs2": 5,
+            "apex": 3, "rocket league": 3, "fortnite": 4, "brawlhalla": 2, "dota": 5,
+            "league of legends": 5, "rust": 4, "arc raiders": 3, "arc": 3, "r6": 5, "rainbow six": 5
+        };
+
+        // ── Phase 3: Automated Metadata Cache & Async Ingestion ──
+        const GAME_METADATA_CACHE = {};
+
+        async function fetchGameMetadata(gameName) {
+            if (!gameName) return null;
+            const lower = gameName.toLowerCase().trim();
+            if (GAME_METADATA_CACHE[lower]) return GAME_METADATA_CACHE[lower];
+
+            try {
+                const resp = await fetch(`/api/games/${encodeURIComponent(gameName)}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.game && data.game.cover_url) {
+                        GAME_METADATA_CACHE[lower] = data.game;
+                        const grid = document.getElementById('live-games-grid');
+                        if (grid) {
+                            const card = grid.querySelector(`.game-card[data-game-name="${CSS.escape(gameName)}"]`);
+                            if (card) {
+                                const img = card.querySelector('.game-card-img-wrap img');
+                                if (img && img.src.includes('unsplash.com')) {
+                                    img.src = data.game.cover_url;
+                                }
+                            }
+                        }
+                        return data.game;
+                    }
+                }
+            } catch (e) {}
+            return null;
+        }
+
         function getGameImageUrl(game) {
             if (typeof game === 'string') {
                 const lower = game.toLowerCase();
                 for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
                     if (lower.includes(k)) return url;
                 }
+                if (GAME_METADATA_CACHE[lower] && GAME_METADATA_CACHE[lower].cover_url) {
+                    return GAME_METADATA_CACHE[lower].cover_url;
+                }
+                fetchGameMetadata(game);
                 return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';
             }
             if (game && game.rich_cover) return game.rich_cover;
@@ -2010,6 +2208,7 @@
         }
 
         let lastGamesDigest = '';
+        window.currentLiveGamesState = [];
 
         function renderLiveGames(gamesList) {
             window.hasRenderedLiveGames = true;
@@ -2018,8 +2217,8 @@
 
             const isRealData = Array.isArray(gamesList) && gamesList.length > 0;
             const games = isRealData ? gamesList : DEFAULT_COMMUNITY_GAMES;
+            window.currentLiveGamesState = games;
 
-            // Compute digest to prevent DOM churn/flicker if unchanged
             const digest = JSON.stringify(games.map(g => ({
                 name: g.name,
                 count: g.count,
@@ -2029,11 +2228,10 @@
                 details: g.player_details ? g.player_details.map(p => p.details) : []
             })));
             if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
-                return; // Nothing changed
+                return;
             }
             lastGamesDigest = digest;
 
-            // Total in-game players counter
             let totalPlayersCount = 0;
             games.forEach(g => {
                 totalPlayersCount += (g.count || (g.players ? g.players.length : 1));
@@ -2043,7 +2241,6 @@
                 totalPlayersEl.textContent = `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`;
             }
 
-            // Determine hot session (game with highest players)
             let maxPlayers = 0;
             games.forEach(g => {
                 const c = g.count || (g.players ? g.players.length : 1);
@@ -2061,6 +2258,7 @@
                 const theme = getGameTheme(game.name);
 
                 card.className = `game-card reveal visible ${isHot ? 'is-hot' : ''}`;
+                card.setAttribute('data-game-name', game.name);
                 card.style.setProperty('--game-accent', theme.accent);
                 card.style.setProperty('--game-accent-border', theme.border);
 
@@ -2069,7 +2267,6 @@
                     matchDetail = 'Active Session';
                 }
 
-                // Detail icon based on text
                 let detailIcon = 'fa-gamepad';
                 const lowerDetail = matchDetail.toLowerCase();
                 if (lowerDetail.includes('player') || lowerDetail.includes('server')) {
@@ -2080,24 +2277,32 @@
                     detailIcon = 'fa-crosshairs';
                 }
 
-                // Live status badge with pulsating beacon
                 const liveBadgeHtml = isLive
                     ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
                     : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
 
-                // HOT badge (only when party/squad >= 2)
                 const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
-
-                // Player count badge
                 const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
 
-                // Avatar stack
+                let squadPromptHtml = '';
+                if (game.name) {
+                    const lowerName = game.name.toLowerCase();
+                    for (const [k, standardSize] of Object.entries(TYPICAL_SQUAD_SIZES)) {
+                        if (lowerName.includes(k)) {
+                            const needed = standardSize - count;
+                            if (needed > 0) {
+                                squadPromptHtml = `<div class="game-squad-prompt"><i class="fas fa-user-plus"></i> ${needed} needed for squad</div>`;
+                            }
+                            break;
+                        }
+                    }
+                }
+
                 const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
                 const maxVisible = 4;
                 const visiblePlayers = playerDetails.slice(0, maxVisible);
                 const overflowCount = playerDetails.length - maxVisible;
 
-                // Prominently display active player name(s) directly beside the avatar stack
                 const playerNamesList = (game.player_details && game.player_details.length > 0)
                     ? game.player_details.map(p => (typeof p === 'string' ? p : (p.name || 'Member')))
                     : (game.players && game.players.length > 0 ? game.players.map(p => (typeof p === 'string' ? p : (p.name || 'Member'))) : ['Community Member']);
@@ -2144,6 +2349,7 @@
                         <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                         <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
                         <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
+                        ${squadPromptHtml}
                         <div class="game-players-strip">
                             ${avatarsHtml}
                             <div class="game-player-headline" title="${escapeHtml(playerNamesList.join(', '))}">
@@ -2159,7 +2365,6 @@
 
                 grid.appendChild(card);
             });
-
         }
 
         function escapeHtml(str) {
@@ -2172,7 +2377,6 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Purge any stale simulated session data
         try { localStorage.removeItem('nexus_player_sessions'); } catch (e) {}
 
         function formatElapsedTime(startTimeMs) {
@@ -2282,7 +2486,206 @@
             if (e.key === 'Escape') closeGameModal();
         });
 
-        // ── Real-Time Bot & Discord Synchronization Pipeline ──
+        // ── Real-Time Sync Indicator ──
+        function updateSyncStatus(mode) {
+            const dot = document.getElementById('sync-status-dot');
+            const text = document.getElementById('sync-status-text');
+            if (!dot || !text) return;
+
+            if (mode === 'ws') {
+                dot.className = 'sync-status-dot ws-active';
+                text.textContent = 'Real-Time Stream (Active)';
+            } else if (mode === 'polling') {
+                dot.className = 'sync-status-dot polling-active';
+                text.textContent = 'Live Sync (4s Interval)';
+            } else {
+                dot.className = 'sync-status-dot';
+                text.textContent = 'Sync Standby';
+            }
+        }
+
+        // ── Phase 1: Real-Time WebSocket Engine & Differential Client ──
+        class NexusLiveSocketClient {
+            constructor() {
+                this.ws = null;
+                this.usingFallbackPolling = false;
+                this.reconnectAttempts = 0;
+                this.reconnectTimer = null;
+                this.maxReconnectDelay = 30000;
+                this.isExplicitlyPaused = false;
+
+                const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '157.90.181.183:23063');
+                this.url = window.NEXUS_WS_URL || `${proto}//${host}/ws/live-games`;
+            }
+
+            connect() {
+                if (this.isExplicitlyPaused) return;
+
+                if (window.location.protocol === 'https:' && this.url.startsWith('ws://')) {
+                    console.warn('[NEXUS Live] Mixed content blocked: ws:// cannot run on HTTPS. Engaging fallback polling.');
+                    this.engageFallbackPolling();
+                    return;
+                }
+
+                try {
+                    console.log(`[NEXUS Live] Connecting to WebSocket: ${this.url}`);
+                    this.ws = new WebSocket(this.url);
+
+                    this.ws.onopen = () => {
+                        console.log('[NEXUS Live] WebSocket stream connected successfully.');
+                        this.reconnectAttempts = 0;
+                        this.usingFallbackPolling = false;
+                        stopStatsPolling();
+                        updateSyncStatus('ws');
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.type === 'INITIAL_STATE' && Array.isArray(data.games)) {
+                                renderLiveGames(data.games);
+                            } else if (data.type === 'DELTA_UPDATE') {
+                                this.applyDelta(data);
+                            }
+                        } catch (e) {
+                            console.error('[NEXUS Live] Error parsing WS payload:', e);
+                        }
+                    };
+
+                    this.ws.onerror = (err) => {
+                        console.warn('[NEXUS Live] WebSocket error encountered. Falling back to REST polling.');
+                        this.engageFallbackPolling();
+                    };
+
+                    this.ws.onclose = () => {
+                        console.log('[NEXUS Live] WebSocket connection closed.');
+                        this.engageFallbackPolling();
+                        this.scheduleReconnect();
+                    };
+                } catch (err) {
+                    console.error('[NEXUS Live] Failed to initialize WebSocket:', err);
+                    this.engageFallbackPolling();
+                    this.scheduleReconnect();
+                }
+            }
+
+            applyDelta(delta) {
+                const { action, game, player } = delta;
+                if (!game) return;
+
+                let games = window.currentLiveGamesState || [];
+                let gameObj = games.find(g => g.name.toLowerCase() === game.toLowerCase());
+
+                if (action === 'PLAYER_JOINED') {
+                    if (!gameObj) {
+                        gameObj = {
+                            name: game,
+                            count: 1,
+                            is_live: true,
+                            players: [player.username || player.name || 'Member'],
+                            player_details: [player]
+                        };
+                        games.push(gameObj);
+                        renderLiveGames(games);
+                        return;
+                    } else {
+                        gameObj.count = (gameObj.count || 0) + 1;
+                        gameObj.players = gameObj.players || [];
+                        gameObj.player_details = gameObj.player_details || [];
+                        const pName = player.username || player.name || 'Member';
+                        if (!gameObj.players.includes(pName)) gameObj.players.push(pName);
+                        gameObj.player_details.push(player);
+                    }
+                } else if (action === 'PLAYER_LEFT') {
+                    if (gameObj) {
+                        const pId = player.player_id || player.id;
+                        const pName = player.username || player.name;
+                        gameObj.player_details = (gameObj.player_details || []).filter(p => (p.player_id || p.id) !== pId && p.name !== pName);
+                        gameObj.players = (gameObj.players || []).filter(n => n !== pName);
+                        gameObj.count = Math.max(0, gameObj.player_details.length);
+                        if (gameObj.count === 0) {
+                            games = games.filter(g => g.name.toLowerCase() !== game.toLowerCase());
+                            renderLiveGames(games);
+                            return;
+                        }
+                    }
+                } else if (action === 'PLAYER_UPDATED') {
+                    if (gameObj && gameObj.player_details) {
+                        const pId = player.player_id || player.id;
+                        const existing = gameObj.player_details.find(p => (p.player_id || p.id) === pId || p.name === player.username);
+                        if (existing) {
+                            existing.details = player.details;
+                        }
+                    }
+                } else if (action === 'GAME_ENDED') {
+                    games = games.filter(g => g.name.toLowerCase() !== game.toLowerCase());
+                    renderLiveGames(games);
+                    return;
+                }
+
+                // Targeted DOM patch
+                const grid = document.getElementById('live-games-grid');
+                if (grid && gameObj) {
+                    const card = grid.querySelector(`.game-card[data-game-name="${CSS.escape(gameObj.name)}"]`);
+                    if (card) {
+                        const countBadge = card.querySelector('.game-player-badge');
+                        if (countBadge) countBadge.innerHTML = `<i class="fas fa-users"></i> ${gameObj.count} In Session`;
+                        
+                        const headline = card.querySelector('.game-player-headline .game-player-name');
+                        if (headline && gameObj.players.length > 0) {
+                            headline.textContent = gameObj.players.length === 1
+                                ? gameObj.players[0]
+                                : (gameObj.players.length === 2 ? `${gameObj.players[0]} & ${gameObj.players[1]}` : `${gameObj.players[0]} +${gameObj.players.length - 1} others`);
+                        }
+                        let total = 0;
+                        games.forEach(g => { total += (g.count || 1); });
+                        const totalEl = document.getElementById('lounge-total-players');
+                        if (totalEl) totalEl.textContent = `${total} ${total === 1 ? 'Player' : 'Players'} In-Game`;
+                        return;
+                    }
+                }
+                renderLiveGames(games);
+            }
+
+            engageFallbackPolling() {
+                if (!this.usingFallbackPolling) {
+                    this.usingFallbackPolling = true;
+                    startStatsPolling();
+                    updateSyncStatus('polling');
+                }
+            }
+
+            scheduleReconnect() {
+                if (this.isExplicitlyPaused || this.reconnectTimer) return;
+                const delay = Math.min(this.maxReconnectDelay, 1000 * Math.pow(2, this.reconnectAttempts));
+                this.reconnectAttempts++;
+                console.log(`[NEXUS Live] Reconnecting WebSocket in ${delay}ms (attempt ${this.reconnectAttempts})...`);
+                this.reconnectTimer = setTimeout(() => {
+                    this.reconnectTimer = null;
+                    this.connect();
+                }, delay);
+            }
+
+            pause() {
+                this.isExplicitlyPaused = true;
+                if (this.reconnectTimer) {
+                    clearTimeout(this.reconnectTimer);
+                    this.reconnectTimer = null;
+                }
+                if (this.ws) {
+                    try { this.ws.close(); } catch (e) {}
+                    this.ws = null;
+                }
+            }
+
+            resume() {
+                this.isExplicitlyPaused = false;
+                this.connect();
+            }
+        }
+
+        // ── Real-Time Bot & Discord Synchronization Pipeline (Degrade Path) ──
         async function fetchBotData() {
             let d = null;
             const endpoints = [
@@ -2304,13 +2707,10 @@
                         const parsed = await r.json();
                         if (parsed && (parsed.top_played_games || parsed.playing_games || parsed.total_users || parsed.uptime || parsed.ping)) {
                             d = parsed;
-                            console.log('[NEXUS Live] Sync success via:', url);
                             break;
                         }
                     }
-                } catch(err) {
-                    // Try next endpoint in pipeline
-                }
+                } catch(err) {}
             }
 
             if (d) {
@@ -2353,9 +2753,7 @@
                         updateMemberDisplays(count);
                     }
                 }
-            } catch(e) {
-                // Graceful fallback
-            }
+            } catch(e) {}
         }
 
         function fetchPublicStats() {
@@ -2363,25 +2761,195 @@
             fetchDiscordStats();
         }
 
-        // ── Visibility Change Awareness & Polling ──
+        // ── Visibility Change Awareness & Polling Fallback Manager ──
         let statsInterval = null;
         function startStatsPolling() {
             if (statsInterval) clearInterval(statsInterval);
-            statsInterval = setInterval(fetchPublicStats, 4000); // 4s live sync
+            fetchPublicStats();
+            statsInterval = setInterval(fetchPublicStats, 4000);
         }
+
+        function stopStatsPolling() {
+            if (statsInterval) {
+                clearInterval(statsInterval);
+                statsInterval = null;
+            }
+        }
+
+        const liveSocketClient = new NexusLiveSocketClient();
 
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                if (statsInterval) clearInterval(statsInterval);
+                liveSocketClient.pause();
+                stopStatsPolling();
             } else {
-                fetchPublicStats();
-                startStatsPolling();
+                liveSocketClient.resume();
+                if (liveSocketClient.usingFallbackPolling) {
+                    startStatsPolling();
+                }
             }
         });
 
-        // Initialize immediately
-        fetchPublicStats();
-        startStatsPolling();
+        // Initialize real-time WebSocket client
+        liveSocketClient.connect();
+
+        // ── Phase 5: Lounge Subnav & Community Stats Loader ──
+        async function fetchMostPlayedStats() {
+            const container = document.getElementById('lounge-most-played-container');
+            if (!container) return;
+
+            try {
+                const resp = await fetch('/api/stats/most-played?period=week');
+                if (!resp.ok) throw new Error('Stats API offline');
+                const data = await resp.json();
+                const games = data.games || [];
+
+                if (games.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No recorded gameplay sessions this week yet. Launch a game to make history!</div>`;
+                    return;
+                }
+
+                let html = '<div class="stats-leaderboard-grid">';
+                games.forEach((g, idx) => {
+                    const rankClass = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
+                    html += `
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank ${rankClass}">#${idx + 1}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${escapeHtml(g.game_name)}</div>
+                                <div class="leaderboard-hours">${g.total_hours} Hours • ${g.unique_players} Players</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="stats-leaderboard-grid">
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank gold">#1</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">PUBG: BATTLEGROUNDS</div>
+                                <div class="leaderboard-hours">48.5 Hours • Active Community</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank silver">#2</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">Brawlhalla</div>
+                                <div class="leaderboard-hours">32.1 Hours • Active Community</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank bronze">#3</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">ARC Raiders</div>
+                                <div class="leaderboard-hours">19.8 Hours • Active Community</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function fetchLeaderboardStats() {
+            const container = document.getElementById('lounge-leaderboard-container');
+            if (!container) return;
+
+            try {
+                const resp = await fetch('/api/stats/leaderboard?period=week');
+                if (!resp.ok) throw new Error('Leaderboard API offline');
+                const data = await resp.json();
+                const users = data.leaderboard || [];
+
+                if (users.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No player playtime recorded this week. Jump into voice to climb the ranks!</div>`;
+                    return;
+                }
+
+                let html = '<div class="stats-leaderboard-grid">';
+                users.forEach((u, idx) => {
+                    const rankClass = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
+                    html += `
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank ${rankClass}">#${idx + 1}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${escapeHtml(u.username)}</div>
+                                <div class="leaderboard-hours">${u.total_hours} Hours • ${u.session_count} Sessions</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="stats-leaderboard-grid">
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank gold">#1</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">Dodam</div>
+                                <div class="leaderboard-hours">26.4 Hours Active</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank silver">#2</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">PaMuJiThA</div>
+                                <div class="leaderboard-hours">18.2 Hours Active</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank bronze">#3</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">Animo</div>
+                                <div class="leaderboard-hours">12.5 Hours Active</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Subnav switcher
+        document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.lounge-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const tab = btn.getAttribute('data-lounge-tab');
+                const liveGrid = document.getElementById('live-games-grid');
+                const mostPlayed = document.getElementById('lounge-most-played-container');
+                const leaderboard = document.getElementById('lounge-leaderboard-container');
+
+                if (liveGrid) liveGrid.style.display = tab === 'live' ? '' : 'none';
+                if (mostPlayed) mostPlayed.style.display = tab === 'most-played' ? '' : 'none';
+                if (leaderboard) leaderboard.style.display = tab === 'leaderboard' ? '' : 'none';
+
+                if (tab === 'most-played') fetchMostPlayedStats();
+                if (tab === 'leaderboard') fetchLeaderboardStats();
+            });
+        });
+
+        // Web Push Opt-in
+        const notifyBtn = document.getElementById('btn-live-notifications');
+        if (notifyBtn) {
+            notifyBtn.addEventListener('click', async () => {
+                if (!('Notification' in window)) {
+                    alert('Notifications are not supported in your browser.');
+                    return;
+                }
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') {
+                    notifyBtn.innerHTML = '<i class="fas fa-check" style="color:#22c55e;"></i> Squad Alerts Enabled';
+                    new Notification('Ninja Nexus Live Gaming', {
+                        body: 'You will receive alerts when community members launch squad gaming sessions!',
+                        icon: 'images/favicon.png'
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html>

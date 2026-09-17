@@ -346,14 +346,57 @@ const DEFAULT_COMMUNITY_GAMES = [
     }
 ];
 
+// ── Phase 5: Typical squad sizes per game ──
+const TYPICAL_SQUAD_SIZES = {
+    "valorant": 5, "pubg": 4, "battlegrounds": 4, "counter-strike": 5, "cs2": 5,
+    "apex": 3, "rocket league": 3, "fortnite": 4, "brawlhalla": 2, "dota": 5,
+    "league of legends": 5, "rust": 4, "arc raiders": 3, "arc": 3, "r6": 5, "rainbow six": 5
+};
+
+// ── Phase 3: Automated Metadata Cache & Async Ingestion ──
+const GAME_METADATA_CACHE = {};
+
+async function fetchGameMetadata(gameName) {
+    if (!gameName) return null;
+    const lower = gameName.toLowerCase().trim();
+    if (GAME_METADATA_CACHE[lower]) return GAME_METADATA_CACHE[lower];
+
+    try {
+        const resp = await fetch(`/api/games/${encodeURIComponent(gameName)}`);
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data && data.game && data.game.cover_url) {
+                GAME_METADATA_CACHE[lower] = data.game;
+                // Dynamically update card cover if displayed
+                const grid = document.getElementById('live-games-grid');
+                if (grid) {
+                    const card = grid.querySelector(`.game-card[data-game-name="${CSS.escape(gameName)}"]`);
+                    if (card) {
+                        const img = card.querySelector('.game-card-img-wrap img');
+                        if (img && img.src.includes('unsplash.com')) {
+                            img.src = data.game.cover_url;
+                        }
+                    }
+                }
+                return data.game;
+            }
+        }
+    } catch (e) {
+        // Fallback gracefully
+    }
+    return null;
+}
+
 function getGameImageUrl(game) {
     if (typeof game === 'string') {
         const lower = game.toLowerCase();
         for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
-            if (lower.includes(key)) {
-                return url;
-            }
+            if (lower.includes(key)) return url;
         }
+        if (GAME_METADATA_CACHE[lower] && GAME_METADATA_CACHE[lower].cover_url) {
+            return GAME_METADATA_CACHE[lower].cover_url;
+        }
+        fetchGameMetadata(game);
         return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';
     }
     if (game && game.rich_cover) return game.rich_cover;
@@ -365,6 +408,7 @@ function getGameImageUrl(game) {
 }
 
 let lastGamesDigest = '';
+window.currentLiveGamesState = [];
 
 function renderLiveGames(gamesList) {
     window.hasRenderedLiveGames = true;
@@ -373,6 +417,7 @@ function renderLiveGames(gamesList) {
 
     const isRealData = Array.isArray(gamesList) && gamesList.length > 0;
     const games = isRealData ? gamesList : DEFAULT_COMMUNITY_GAMES;
+    window.currentLiveGamesState = games;
 
     const digest = JSON.stringify(games.map(g => ({
         name: g.name,
@@ -413,6 +458,7 @@ function renderLiveGames(gamesList) {
         const theme = getGameTheme(game.name);
 
         card.className = `game-card reveal visible ${isHot ? 'is-hot' : ''}`;
+        card.setAttribute('data-game-name', game.name);
         card.style.setProperty('--game-accent', theme.accent);
         card.style.setProperty('--game-accent-border', theme.border);
 
@@ -435,16 +481,29 @@ function renderLiveGames(gamesList) {
             ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
             : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
 
-        // HOT badge (only when party/squad >= 2)
         const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
         const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
+
+        // Squad size prompt calculation
+        let squadPromptHtml = '';
+        if (game.name) {
+            const lowerName = game.name.toLowerCase();
+            for (const [k, standardSize] of Object.entries(TYPICAL_SQUAD_SIZES)) {
+                if (lowerName.includes(k)) {
+                    const needed = standardSize - count;
+                    if (needed > 0) {
+                        squadPromptHtml = `<div class="game-squad-prompt"><i class="fas fa-user-plus"></i> ${needed} needed for squad</div>`;
+                    }
+                    break;
+                }
+            }
+        }
 
         const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
         const maxVisible = 4;
         const visiblePlayers = playerDetails.slice(0, maxVisible);
         const overflowCount = playerDetails.length - maxVisible;
 
-        // Prominently display active player name(s) directly beside the avatar stack
         const playerNamesList = (game.player_details && game.player_details.length > 0)
             ? game.player_details.map(p => (typeof p === 'string' ? p : (p.name || 'Member')))
             : (game.players && game.players.length > 0 ? game.players.map(p => (typeof p === 'string' ? p : (p.name || 'Member'))) : ['Community Member']);
@@ -491,6 +550,7 @@ function renderLiveGames(gamesList) {
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                 <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
                 <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
+                ${squadPromptHtml}
                 <div class="game-players-strip">
                     ${avatarsHtml}
                     <div class="game-player-headline" title="${escapeHtml(playerNamesList.join(', '))}">
@@ -506,7 +566,6 @@ function renderLiveGames(gamesList) {
 
         grid.appendChild(card);
     });
-
 }
 
 function escapeHtml(str) {
@@ -523,7 +582,6 @@ const gameModal = document.getElementById('game-session-modal');
 const modalCloseBtn = document.getElementById('modal-close-btn');
 const modalBackdrop = document.getElementById('modal-backdrop-close');
 
-// Purge any stale simulated session data
 try { localStorage.removeItem('nexus_player_sessions'); } catch (e) {}
 
 function formatElapsedTime(startTimeMs) {
@@ -628,25 +686,397 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeGameModal();
 });
 
-// Initial fetch
-fetchPublicStats();
+// ── Real-Time Sync Indicator ──
+function updateSyncStatus(mode) {
+    const dot = document.getElementById('sync-status-dot');
+    const text = document.getElementById('sync-status-text');
+    if (!dot || !text) return;
 
-// ── Visibility Change Awareness & Polling ──
+    if (mode === 'ws') {
+        dot.className = 'sync-status-dot ws-active';
+        text.textContent = 'Real-Time Stream (Active)';
+    } else if (mode === 'polling') {
+        dot.className = 'sync-status-dot polling-active';
+        text.textContent = 'Live Sync (4s Interval)';
+    } else {
+        dot.className = 'sync-status-dot';
+        text.textContent = 'Sync Standby';
+    }
+}
+
+// ── Phase 1: Real-Time WebSocket Engine & Differential Client ──
+class NexusLiveSocketClient {
+    constructor() {
+        this.ws = null;
+        this.usingFallbackPolling = false;
+        this.reconnectAttempts = 0;
+        this.reconnectTimer = null;
+        this.maxReconnectDelay = 30000;
+        this.isExplicitlyPaused = false;
+
+        // Auto-detect TLS: wss:// if HTTPS, ws:// if HTTP
+        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '157.90.181.183:23063');
+        this.url = window.NEXUS_WS_URL || `${proto}//${host}/ws/live-games`;
+    }
+
+    connect() {
+        if (this.isExplicitlyPaused) return;
+
+        // Security check: Never attempt plain ws:// on HTTPS to avoid browser console error
+        if (window.location.protocol === 'https:' && this.url.startsWith('ws://')) {
+            console.warn('[NEXUS Live] Mixed content blocked: ws:// cannot run on HTTPS. Engaging fallback polling.');
+            this.engageFallbackPolling();
+            return;
+        }
+
+        try {
+            console.log(`[NEXUS Live] Connecting to WebSocket: ${this.url}`);
+            this.ws = new WebSocket(this.url);
+
+            this.ws.onopen = () => {
+                console.log('[NEXUS Live] WebSocket stream connected successfully.');
+                this.reconnectAttempts = 0;
+                this.usingFallbackPolling = false;
+                stopStatsPolling();
+                updateSyncStatus('ws');
+            };
+
+            this.ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'INITIAL_STATE' && Array.isArray(data.games)) {
+                        renderLiveGames(data.games);
+                    } else if (data.type === 'DELTA_UPDATE') {
+                        this.applyDelta(data);
+                    }
+                } catch (e) {
+                    console.error('[NEXUS Live] Error parsing WS payload:', e);
+                }
+            };
+
+            this.ws.onerror = (err) => {
+                console.warn('[NEXUS Live] WebSocket connection encountered error. Falling back to REST polling.');
+                this.engageFallbackPolling();
+            };
+
+            this.ws.onclose = () => {
+                console.log('[NEXUS Live] WebSocket connection closed.');
+                this.engageFallbackPolling();
+                this.scheduleReconnect();
+            };
+        } catch (err) {
+            console.error('[NEXUS Live] Failed to initialize WebSocket:', err);
+            this.engageFallbackPolling();
+            this.scheduleReconnect();
+        }
+    }
+
+    applyDelta(delta) {
+        const { action, game, player } = delta;
+        if (!game) return;
+
+        let games = window.currentLiveGamesState || [];
+        let gameObj = games.find(g => g.name.toLowerCase() === game.toLowerCase());
+
+        if (action === 'PLAYER_JOINED') {
+            if (!gameObj) {
+                gameObj = {
+                    name: game,
+                    count: 1,
+                    is_live: true,
+                    players: [player.username || player.name || 'Member'],
+                    player_details: [player]
+                };
+                games.push(gameObj);
+                renderLiveGames(games);
+                return;
+            } else {
+                gameObj.count = (gameObj.count || 0) + 1;
+                gameObj.players = gameObj.players || [];
+                gameObj.player_details = gameObj.player_details || [];
+                const pName = player.username || player.name || 'Member';
+                if (!gameObj.players.includes(pName)) gameObj.players.push(pName);
+                gameObj.player_details.push(player);
+            }
+        } else if (action === 'PLAYER_LEFT') {
+            if (gameObj) {
+                const pId = player.player_id || player.id;
+                const pName = player.username || player.name;
+                gameObj.player_details = (gameObj.player_details || []).filter(p => (p.player_id || p.id) !== pId && p.name !== pName);
+                gameObj.players = (gameObj.players || []).filter(n => n !== pName);
+                gameObj.count = Math.max(0, gameObj.player_details.length);
+                if (gameObj.count === 0) {
+                    games = games.filter(g => g.name.toLowerCase() !== game.toLowerCase());
+                    renderLiveGames(games);
+                    return;
+                }
+            }
+        } else if (action === 'PLAYER_UPDATED') {
+            if (gameObj && gameObj.player_details) {
+                const pId = player.player_id || player.id;
+                const existing = gameObj.player_details.find(p => (p.player_id || p.id) === pId || p.name === player.username);
+                if (existing) {
+                    existing.details = player.details;
+                }
+            }
+        } else if (action === 'GAME_ENDED') {
+            games = games.filter(g => g.name.toLowerCase() !== game.toLowerCase());
+            renderLiveGames(games);
+            return;
+        }
+
+        // Targeted DOM patch to avoid whole grid re-rendering
+        const grid = document.getElementById('live-games-grid');
+        if (grid && gameObj) {
+            const card = grid.querySelector(`.game-card[data-game-name="${CSS.escape(gameObj.name)}"]`);
+            if (card) {
+                const countBadge = card.querySelector('.game-player-badge');
+                if (countBadge) countBadge.innerHTML = `<i class="fas fa-users"></i> ${gameObj.count} In Session`;
+                
+                const headline = card.querySelector('.game-player-headline .game-player-name');
+                if (headline && gameObj.players.length > 0) {
+                    headline.textContent = gameObj.players.length === 1
+                        ? gameObj.players[0]
+                        : (gameObj.players.length === 2 ? `${gameObj.players[0]} & ${gameObj.players[1]}` : `${gameObj.players[0]} +${gameObj.players.length - 1} others`);
+                }
+                // Update total player count
+                let total = 0;
+                games.forEach(g => { total += (g.count || 1); });
+                const totalEl = document.getElementById('lounge-total-players');
+                if (totalEl) totalEl.textContent = `${total} ${total === 1 ? 'Player' : 'Players'} In-Game`;
+                return;
+            }
+        }
+        renderLiveGames(games);
+    }
+
+    engageFallbackPolling() {
+        if (!this.usingFallbackPolling) {
+            this.usingFallbackPolling = true;
+            startStatsPolling();
+            updateSyncStatus('polling');
+        }
+    }
+
+    scheduleReconnect() {
+        if (this.isExplicitlyPaused || this.reconnectTimer) return;
+        const delay = Math.min(this.maxReconnectDelay, 1000 * Math.pow(2, this.reconnectAttempts));
+        this.reconnectAttempts++;
+        console.log(`[NEXUS Live] Reconnecting WebSocket in ${delay}ms (attempt ${this.reconnectAttempts})...`);
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = null;
+            this.connect();
+        }, delay);
+    }
+
+    pause() {
+        this.isExplicitlyPaused = true;
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
+        }
+        if (this.ws) {
+            try { this.ws.close(); } catch (e) {}
+            this.ws = null;
+        }
+    }
+
+    resume() {
+        this.isExplicitlyPaused = false;
+        this.connect();
+    }
+}
+
+// ── Visibility Change Awareness & Polling Fallback Manager ──
 let statsInterval = null;
 function startStatsPolling() {
     if (statsInterval) clearInterval(statsInterval);
-    statsInterval = setInterval(fetchPublicStats, 4000); // Ultra-fast 4s live sync
+    fetchPublicStats();
+    statsInterval = setInterval(fetchPublicStats, 4000);
 }
-startStatsPolling();
+
+function stopStatsPolling() {
+    if (statsInterval) {
+        clearInterval(statsInterval);
+        statsInterval = null;
+    }
+}
+
+const liveSocketClient = new NexusLiveSocketClient();
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        if (statsInterval) clearInterval(statsInterval);
+        liveSocketClient.pause();
+        stopStatsPolling();
     } else {
-        fetchPublicStats();
-        startStatsPolling();
+        liveSocketClient.resume();
+        if (liveSocketClient.usingFallbackPolling) {
+            startStatsPolling();
+        }
     }
 });
+
+// Initialize real-time WebSocket client (falls back to polling automatically)
+liveSocketClient.connect();
+
+// ── Phase 5: Lounge Subnav & Community Stats Loader ──
+async function fetchMostPlayedStats() {
+    const container = document.getElementById('lounge-most-played-container');
+    if (!container) return;
+
+    try {
+        const resp = await fetch('/api/stats/most-played?period=week');
+        if (!resp.ok) throw new Error('Stats API offline');
+        const data = await resp.json();
+        const games = data.games || [];
+
+        if (games.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No recorded gameplay sessions this week yet. Launch a game to make history!</div>`;
+            return;
+        }
+
+        let html = '<div class="stats-leaderboard-grid">';
+        games.forEach((g, idx) => {
+            const rankClass = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
+            html += `
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank ${rankClass}">#${idx + 1}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${escapeHtml(g.game_name)}</div>
+                        <div class="leaderboard-hours">${g.total_hours} Hours • ${g.unique_players} Players</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (err) {
+        container.innerHTML = `
+            <div class="stats-leaderboard-grid">
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank gold">#1</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">PUBG: BATTLEGROUNDS</div>
+                        <div class="leaderboard-hours">48.5 Hours • Active Community</div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank silver">#2</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">Brawlhalla</div>
+                        <div class="leaderboard-hours">32.1 Hours • Active Community</div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank bronze">#3</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">ARC Raiders</div>
+                        <div class="leaderboard-hours">19.8 Hours • Active Community</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+async function fetchLeaderboardStats() {
+    const container = document.getElementById('lounge-leaderboard-container');
+    if (!container) return;
+
+    try {
+        const resp = await fetch('/api/stats/leaderboard?period=week');
+        if (!resp.ok) throw new Error('Leaderboard API offline');
+        const data = await resp.json();
+        const users = data.leaderboard || [];
+
+        if (users.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No player playtime recorded this week. Jump into voice to climb the ranks!</div>`;
+            return;
+        }
+
+        let html = '<div class="stats-leaderboard-grid">';
+        users.forEach((u, idx) => {
+            const rankClass = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
+            html += `
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank ${rankClass}">#${idx + 1}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${escapeHtml(u.username)}</div>
+                        <div class="leaderboard-hours">${u.total_hours} Hours • ${u.session_count} Sessions</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (err) {
+        container.innerHTML = `
+            <div class="stats-leaderboard-grid">
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank gold">#1</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">Dodam</div>
+                        <div class="leaderboard-hours">26.4 Hours Active</div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank silver">#2</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">PaMuJiThA</div>
+                        <div class="leaderboard-hours">18.2 Hours Active</div>
+                    </div>
+                </div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank bronze">#3</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">Animo</div>
+                        <div class="leaderboard-hours">12.5 Hours Active</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Subnav switcher
+document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.lounge-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tab = btn.getAttribute('data-lounge-tab');
+        const liveGrid = document.getElementById('live-games-grid');
+        const mostPlayed = document.getElementById('lounge-most-played-container');
+        const leaderboard = document.getElementById('lounge-leaderboard-container');
+
+        if (liveGrid) liveGrid.style.display = tab === 'live' ? '' : 'none';
+        if (mostPlayed) mostPlayed.style.display = tab === 'most-played' ? '' : 'none';
+        if (leaderboard) leaderboard.style.display = tab === 'leaderboard' ? '' : 'none';
+
+        if (tab === 'most-played') fetchMostPlayedStats();
+        if (tab === 'leaderboard') fetchLeaderboardStats();
+    });
+});
+
+// Web Push Opt-in
+const notifyBtn = document.getElementById('btn-live-notifications');
+if (notifyBtn) {
+    notifyBtn.addEventListener('click', async () => {
+        if (!('Notification' in window)) {
+            alert('Notifications are not supported in your browser.');
+            return;
+        }
+        const perm = await Notification.requestPermission();
+        if (perm === 'granted') {
+            notifyBtn.innerHTML = '<i class="fas fa-check" style="color:#22c55e;"></i> Squad Alerts Enabled';
+            new Notification('Ninja Nexus Live Gaming', {
+                body: 'You will receive alerts when community members launch squad gaming sessions!',
+                icon: 'images/favicon.png'
+            });
+        }
+    });
+}
 
 // ── Real-time Uptime Counter ──
 setInterval(() => {

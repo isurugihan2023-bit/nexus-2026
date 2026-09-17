@@ -1,0 +1,32 @@
+[Unit]
+Description=Ninja Nexus Discord Bot & Live Gaming Daemon
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/nexus-bot
+# Set Python path and entrypoint file (adjust path if deployed in a virtual environment)
+ExecStart=/usr/bin/python3 main.py
+
+# Auto-restart on crash
+Restart=always
+RestartSec=4s
+
+# Crash-loop mitigation: allow at most 5 restarts within a 60-second window
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+# Environment variables
+Environment=PYTHONUNBUFFERED=1
+Environment=PORT=23063
+# Environment=RAWG_API_KEY=your_key_here
+
+# Resource limits & safety
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

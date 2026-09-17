@@ -1,0 +1,25 @@
+# Caddyfile - Phase 0 TLS Reverse Proxy for Ninja Nexus VPS
+# Place this at /etc/caddy/Caddyfile on the VPS (157.90.181.183)
+# Replace your-domain.com with your actual subdomain (e.g., api.ninjanexus.duckdns.org or nexus-api.duckdns.org)
+
+api.ninjanexus.duckdns.org {
+    # Reverse proxy both HTTP REST API and WebSocket connections to the Python aiohttp bot daemon
+    reverse_proxy localhost:23063 {
+        # Enable WebSocket upgrades and header forwarding
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Optional compression for text/JSON responses
+    encode gzip zstd
+
+    # Logging
+    log {
+        output file /var/log/caddy/nexus_access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+    }
+}
