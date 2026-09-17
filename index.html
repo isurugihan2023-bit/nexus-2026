@@ -803,6 +803,46 @@
         }
         .game-players-strip .avatar-stack {
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+        .avatar-stack {
+            display: flex;
+            align-items: center;
+        }
+        .avatar-stack img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #100e1c;
+            margin-left: -8px;
+            object-fit: cover;
+            background: #201b35;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), z-index 0.2s ease, border-color 0.25s ease;
+            position: relative;
+        }
+        .avatar-stack img:first-child {
+            margin-left: 0;
+        }
+        .avatar-stack img:hover {
+            transform: scale(1.2) translateY(-2px);
+            z-index: 10;
+            border-color: var(--game-accent);
+        }
+        .avatar-overflow {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--p600), var(--p700));
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #100e1c;
+            margin-left: -8px;
+            z-index: 5;
         }
         .game-players-strip .game-player-headline {
             margin-bottom: 0;
