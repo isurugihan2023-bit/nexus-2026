@@ -1652,9 +1652,7 @@
                 document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
             } else if (targetId === 'lounge') {
                 const loungeEl = document.getElementById('lounge');
-                const ctaEl = document.getElementById('home-cta');
                 if (loungeEl) loungeEl.classList.add('active');
-                if (ctaEl) ctaEl.classList.add('active');
                 if (footer) footer.style.display = '';
             } else if (targetId === 'stats') {
                 const statsEl = document.getElementById('stats');
