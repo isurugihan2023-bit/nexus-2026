@@ -278,6 +278,38 @@
         .chip-val { font-size: 1.1rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
         .chip-label { color: var(--muted); font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
 
+        /* Hero Since Badge */
+        .hero-since {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .hero-since-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 999px;
+            background: rgba(15, 13, 26, 0.7);
+            border: 1px solid rgba(168, 85, 247, 0.28);
+            color: #c084fc;
+            font-size: 0.84rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 200ms ease, border-color 200ms, background 200ms;
+        }
+        .hero-since-pill:hover {
+            border-color: #a855f7;
+            background: rgba(26, 20, 48, 0.85);
+            transform: translateY(-2px);
+        }
+        .hero-since-pill i {
+            color: #a855f7;
+            font-size: 0.88rem;
+        }
+
         /* ── STATS STRIP ─────────────────────── */
         .stats-strip {
             padding: 52px 0;
@@ -1139,6 +1171,12 @@
                             <div class="chip-val" id="hero-ping">106 ms</div>
                             <div class="chip-label">Ping</div>
                         </div>
+                    </div>
+                </div>
+                <div class="hero-since fade-up" style="animation-delay:0.5s">
+                    <div class="hero-since-pill">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Since March 2026</span>
                     </div>
                 </div>
             </div>
