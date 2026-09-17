@@ -654,24 +654,36 @@
             background: linear-gradient(180deg, rgba(16, 14, 28, 0.05) 0%, rgba(16, 14, 28, 0.3) 45%, rgba(16, 14, 28, 0.9) 85%, #100e1c 100%);
             pointer-events: none;
         }
-        .game-live-badge {
+        .game-card-top-badges {
             position: absolute;
-            top: 14px;
-            left: 14px;
+            top: 13px;
+            left: 13px;
+            right: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .game-top-badges-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .game-live-badge {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 5px 12px;
+            gap: 6px;
+            padding: 4px 10px;
             background: rgba(16, 14, 28, 0.92);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(168, 85, 247, 0.35);
             border-radius: 100px;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 850;
             color: #c084fc;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            z-index: 3;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .game-live-dot-pulse {
@@ -681,40 +693,32 @@
             border-radius: 50%;
         }
         .game-hot-badge {
-            position: absolute;
-            top: 14px;
-            left: 92px;
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 5px 11px;
-            background: rgba(147, 51, 234, 0.16);
+            padding: 4px 10px;
+            background: rgba(147, 51, 234, 0.18);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(168, 85, 247, 0.35);
             border-radius: 100px;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 850;
             color: #c084fc;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            z-index: 3;
         }
         .game-player-badge {
-            position: absolute;
-            top: 14px;
-            right: 14px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 12px;
+            padding: 4px 11px;
             background: rgba(16, 14, 28, 0.92);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(168, 85, 247, 0.3);
             border-radius: 100px;
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 800;
             color: #f1f5f9;
-            z-index: 3;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .game-player-badge i {
@@ -792,85 +796,18 @@
         .game-players-strip {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 12px;
             margin-top: auto;
             padding-top: 14px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .avatar-stack {
-            display: flex;
-            align-items: center;
+        .game-players-strip .avatar-stack {
+            flex-shrink: 0;
         }
-        .avatar-stack img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid #100e1c;
-            margin-left: -10px;
-            object-fit: cover;
-            background: #201b35;
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), z-index 0.2s ease, border-color 0.25s ease;
-            position: relative;
-        }
-        .avatar-stack img:first-child {
-            margin-left: 0;
-        }
-        .avatar-stack img:hover {
-            transform: scale(1.25) translateY(-3px);
-            z-index: 10;
-            border-color: var(--game-accent);
-        }
-        .avatar-overflow {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--p600), var(--p700));
-            color: #fff;
-            font-size: 0.72rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #100e1c;
-            margin-left: -10px;
-            z-index: 5;
-        }
-        /* ── Tooltips ── */
-        .interactive-avatar-wrap {
-            position: relative;
-            display: inline-block;
-        }
-        .player-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%) translateY(4px);
-            background: rgba(13, 11, 24, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(139, 92, 246, 0.4);
-            border-radius: 10px;
-            padding: 6px 12px;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-        }
-        .interactive-avatar-wrap:hover .player-tooltip {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        .tooltip-name {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: #fff;
-            display: block;
-        }
-        .tooltip-status {
-            font-size: 0.68rem;
-            color: var(--p400);
-            display: block;
+        .game-players-strip .game-player-headline {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 0;
         }
 
         /* ── Skeletons ── */
@@ -1156,26 +1093,26 @@
                 <!-- Pre-rendered active gaming sessions (dynamically synchronized with bot API) -->
                 <div class="game-card reveal visible">
                     <div class="game-card-img-wrap">
-                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                        <div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>
-                        <div class="game-player-badge"><i class="fas fa-users"></i> 2 In Session</div>
+                        <div class="game-card-top-badges">
+                            <div class="game-top-badges-left">
+                                <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
+                                <div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>
+                            </div>
+                            <div class="game-player-badge"><i class="fas fa-users"></i> 2 In Session</div>
+                        </div>
                         <img src="https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg" alt="Brawlhalla" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas fa-fist-raised" style="font-size: 0.65rem;"></i> Platform Fighter</div>
                         <div class="game-name" title="Brawlhalla">Brawlhalla</div>
-                        <div class="game-player-headline"><i class="fas fa-user-friends"></i> <span class="game-player-name">PaMuJiThA &amp; Dodam</span></div>
                         <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
                         <div class="game-players-strip">
                             <div class="avatar-stack">
-                                <div class="interactive-avatar-wrap">
-                                    <img src="https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024" alt="PaMuJiThA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">PaMuJiThA</span><span class="tooltip-status">Playing</span></div>
-                                </div>
-                                <div class="interactive-avatar-wrap">
-                                    <img src="https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024" alt="Dodam" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">Dodam</span><span class="tooltip-status">In Lobby</span></div>
-                                </div>
+                                <img src="https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024" alt="PaMuJiThA" title="PaMuJiThA - Playing" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                                <img src="https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024" alt="Dodam" title="Dodam - In Lobby" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png';">
+                            </div>
+                            <div class="game-player-headline" title="PaMuJiThA &amp; Dodam">
+                                <span class="game-player-name">PaMuJiThA &amp; Dodam</span>
                             </div>
                         </div>
                     </div>
@@ -1183,21 +1120,24 @@
 
                 <div class="game-card reveal visible">
                     <div class="game-card-img-wrap">
-                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
+                        <div class="game-card-top-badges">
+                            <div class="game-top-badges-left">
+                                <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
+                            </div>
+                            <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
+                        </div>
                         <img src="https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg" alt="ARC Raiders" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas fa-crosshairs" style="font-size: 0.65rem;"></i> Extraction Shooter</div>
                         <div class="game-name" title="ARC Raiders">ARC Raiders</div>
-                        <div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">Animo</span></div>
                         <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
                         <div class="game-players-strip">
                             <div class="avatar-stack">
-                                <div class="interactive-avatar-wrap">
-                                    <img src="https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024" alt="Animo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">Animo</span><span class="tooltip-status">Playing</span></div>
-                                </div>
+                                <img src="https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024" alt="Animo" title="Animo - Playing" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png';">
+                            </div>
+                            <div class="game-player-headline" title="Animo">
+                                <span class="game-player-name">Animo</span>
                             </div>
                         </div>
                     </div>
@@ -1205,21 +1145,24 @@
 
                 <div class="game-card reveal visible">
                     <div class="game-card-img-wrap">
-                        <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                        <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
+                        <div class="game-card-top-badges">
+                            <div class="game-top-badges-left">
+                                <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
+                            </div>
+                            <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
+                        </div>
                         <img src="https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png" alt="Visual Studio Code" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas fa-code" style="font-size: 0.65rem;"></i> Development</div>
                         <div class="game-name" title="Visual Studio Code">Visual Studio Code</div>
-                        <div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">! DINGDONG GAMING</span></div>
                         <div class="game-match-detail" title="Editing targeting.lua"><i class="fas fa-code"></i> Editing targeting.lua</div>
                         <div class="game-players-strip">
                             <div class="avatar-stack">
-                                <div class="interactive-avatar-wrap">
-                                    <img src="https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024" alt="! DINGDONG GAMING" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                                    <div class="player-tooltip"><span class="tooltip-name">! DINGDONG GAMING</span><span class="tooltip-status">Editing targeting.lua</span></div>
-                                </div>
+                                <img src="https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024" alt="! DINGDONG GAMING" title="! DINGDONG GAMING - Editing targeting.lua" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                            </div>
+                            <div class="game-player-headline" title="! DINGDONG GAMING">
+                                <span class="game-player-name">! DINGDONG GAMING</span>
                             </div>
                         </div>
                     </div>
@@ -1990,7 +1933,7 @@
                 const card = document.createElement('div');
                 const count = game.count || (game.players ? game.players.length : 1);
                 const isLive = isRealData || (game.is_live === true);
-                const isHot = (maxPlayers > 1 && count === maxPlayers) || (maxPlayers === 1 && idx === 0);
+                const isHot = maxPlayers >= 2 && count === maxPlayers;
 
                 const theme = getGameTheme(game.name);
 
@@ -2019,47 +1962,41 @@
                     ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
                     : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
 
-                // HOT badge
+                // HOT badge (only when party/squad >= 2)
                 const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
 
                 // Player count badge
-                const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} ${count === 1 ? 'In Session' : 'In Session'}</div>`;
+                const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
 
-                // Avatar stack with interactive tooltips
+                // Avatar stack
                 const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
                 const maxVisible = 4;
                 const visiblePlayers = playerDetails.slice(0, maxVisible);
                 const overflowCount = playerDetails.length - maxVisible;
 
-                // Prominently display active player name(s) directly on the card face
+                // Prominently display active player name(s) directly beside the avatar stack
                 const playerNamesList = (game.player_details && game.player_details.length > 0)
                     ? game.player_details.map(p => (typeof p === 'string' ? p : (p.name || 'Member')))
                     : (game.players && game.players.length > 0 ? game.players.map(p => (typeof p === 'string' ? p : (p.name || 'Member'))) : ['Community Member']);
 
-                let playerHeadline = '';
+                let playerHeadlineText = '';
                 if (playerNamesList.length === 1) {
-                    playerHeadline = `<div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])}</span></div>`;
+                    playerHeadlineText = playerNamesList[0];
                 } else if (playerNamesList.length === 2) {
-                    playerHeadline = `<div class="game-player-headline"><i class="fas fa-user-friends"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])} &amp; ${escapeHtml(playerNamesList[1])}</span></div>`;
+                    playerHeadlineText = `${playerNamesList[0]} & ${playerNamesList[1]}`;
                 } else {
-                    playerHeadline = `<div class="game-player-headline"><i class="fas fa-users"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])} +${playerNamesList.length - 1} others</span></div>`;
+                    playerHeadlineText = `${playerNamesList[0]} +${playerNamesList.length - 1} others`;
                 }
 
                 let avatarsHtml = '<div class="avatar-stack">';
                 visiblePlayers.forEach(p => {
                     const pName = typeof p === 'string' ? p : (p.name || 'Member');
                     const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-                    let detailStr = p.details ? escapeHtml(p.details) : 'Playing';
+                    let detailStr = p.details ? p.details : 'Playing';
                     if (detailStr.includes('???') || !detailStr.trim()) detailStr = 'In Session';
 
                     avatarsHtml += `
-                        <div class="interactive-avatar-wrap">
-                            <img src="${avatarUrl}" alt="${escapeHtml(pName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                            <div class="player-tooltip">
-                                <span class="tooltip-name">${escapeHtml(pName)}</span>
-                                <span class="tooltip-status">${detailStr}</span>
-                            </div>
-                        </div>
+                        <img src="${avatarUrl}" alt="${escapeHtml(pName)}" title="${escapeHtml(pName)} - ${escapeHtml(detailStr)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
                     `;
                 });
                 if (overflowCount > 0) {
@@ -2071,18 +2008,24 @@
 
                 card.innerHTML = `
                     <div class="game-card-img-wrap">
-                        ${liveBadgeHtml}
-                        ${hotBadgeHtml}
-                        ${countBadgeHtml}
+                        <div class="game-card-top-badges">
+                            <div class="game-top-badges-left">
+                                ${liveBadgeHtml}
+                                ${hotBadgeHtml}
+                            </div>
+                            ${countBadgeHtml}
+                        </div>
                         <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                         <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
-                        ${playerHeadline}
                         <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
                         <div class="game-players-strip">
                             ${avatarsHtml}
+                            <div class="game-player-headline" title="${escapeHtml(playerNamesList.join(', '))}">
+                                <span class="game-player-name">${escapeHtml(playerHeadlineText)}</span>
+                            </div>
                         </div>
                     </div>
                 `;

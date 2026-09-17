@@ -401,7 +401,7 @@ function renderLiveGames(gamesList) {
         const card = document.createElement('div');
         const count = game.count || (game.players ? game.players.length : 1);
         const isLive = isRealData || (game.is_live === true);
-        const isHot = (maxPlayers > 1 && count === maxPlayers) || (maxPlayers === 1 && idx === 0);
+        const isHot = maxPlayers >= 2 && count === maxPlayers;
 
         const theme = getGameTheme(game.name);
 
@@ -428,43 +428,38 @@ function renderLiveGames(gamesList) {
             ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
             : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
 
+        // HOT badge (only when party/squad >= 2)
         const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
-        const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} ${count === 1 ? 'In Session' : 'In Session'}</div>`;
+        const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
 
         const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
         const maxVisible = 4;
         const visiblePlayers = playerDetails.slice(0, maxVisible);
         const overflowCount = playerDetails.length - maxVisible;
 
-        // Prominently display active player name(s) directly on the card face
+        // Prominently display active player name(s) directly beside the avatar stack
         const playerNamesList = (game.player_details && game.player_details.length > 0)
             ? game.player_details.map(p => (typeof p === 'string' ? p : (p.name || 'Member')))
             : (game.players && game.players.length > 0 ? game.players.map(p => (typeof p === 'string' ? p : (p.name || 'Member'))) : ['Community Member']);
 
-        let playerHeadline = '';
+        let playerHeadlineText = '';
         if (playerNamesList.length === 1) {
-            playerHeadline = `<div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])}</span></div>`;
+            playerHeadlineText = playerNamesList[0];
         } else if (playerNamesList.length === 2) {
-            playerHeadline = `<div class="game-player-headline"><i class="fas fa-user-friends"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])} &amp; ${escapeHtml(playerNamesList[1])}</span></div>`;
+            playerHeadlineText = `${playerNamesList[0]} & ${playerNamesList[1]}`;
         } else {
-            playerHeadline = `<div class="game-player-headline"><i class="fas fa-users"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])} +${playerNamesList.length - 1} others</span></div>`;
+            playerHeadlineText = `${playerNamesList[0]} +${playerNamesList.length - 1} others`;
         }
 
         let avatarsHtml = '<div class="avatar-stack">';
         visiblePlayers.forEach(p => {
             const pName = typeof p === 'string' ? p : (p.name || 'Member');
             const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            let detailStr = p.details ? escapeHtml(p.details) : 'Playing';
+            let detailStr = p.details ? p.details : 'Playing';
             if (detailStr.includes('???') || !detailStr.trim()) detailStr = 'In Session';
 
             avatarsHtml += `
-                <div class="interactive-avatar-wrap">
-                    <img src="${avatarUrl}" alt="${escapeHtml(pName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                    <div class="player-tooltip">
-                        <span class="tooltip-name">${escapeHtml(pName)}</span>
-                        <span class="tooltip-status">${detailStr}</span>
-                    </div>
-                </div>
+                <img src="${avatarUrl}" alt="${escapeHtml(pName)}" title="${escapeHtml(pName)} - ${escapeHtml(detailStr)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
             `;
         });
         if (overflowCount > 0) {
@@ -476,18 +471,24 @@ function renderLiveGames(gamesList) {
 
         card.innerHTML = `
             <div class="game-card-img-wrap">
-                ${liveBadgeHtml}
-                ${hotBadgeHtml}
-                ${countBadgeHtml}
+                <div class="game-card-top-badges">
+                    <div class="game-top-badges-left">
+                        ${liveBadgeHtml}
+                        ${hotBadgeHtml}
+                    </div>
+                    ${countBadgeHtml}
+                </div>
                 <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
             </div>
             <div class="game-card-body">
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                 <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
-                ${playerHeadline}
                 <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
                 <div class="game-players-strip">
                     ${avatarsHtml}
+                    <div class="game-player-headline" title="${escapeHtml(playerNamesList.join(', '))}">
+                        <span class="game-player-name">${escapeHtml(playerHeadlineText)}</span>
+                    </div>
                 </div>
             </div>
         `;
