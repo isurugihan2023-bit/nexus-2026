@@ -2,8 +2,8 @@
 const nav = document.getElementById('navbar');
 
 // ── Tab System ─────────────────────────────────────
-const ALL_TABS = ['home', 'home-cta', 'about', 'features', 'commands', 'stats', 'games'];
-const HOME_TABS = ['home'];
+const ALL_TABS = ['home', 'lounge', 'home-cta', 'about', 'features', 'commands', 'stats'];
+const HOME_TABS = ['home', 'lounge', 'home-cta'];
 
 function showTab(targetId) {
     document.body.className = targetId + '-tab-active';
@@ -22,6 +22,12 @@ function showTab(targetId) {
         });
         if (footer) footer.style.display = '';
         document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+    } else if (targetId === 'lounge') {
+        const loungeEl = document.getElementById('lounge');
+        const ctaEl = document.getElementById('home-cta');
+        if (loungeEl) loungeEl.classList.add('active');
+        if (ctaEl) ctaEl.classList.add('active');
+        if (footer) footer.style.display = '';
     } else if (targetId === 'stats') {
         const statsEl = document.getElementById('stats');
         const ctaEl = document.getElementById('home-cta');
@@ -136,37 +142,54 @@ function updateMemberDisplays(count) {
 }
 
 async function fetchBotData() {
-    try {
-        let r = await fetch('/api/bot_data?t=' + Date.now());
-        if (!r.ok) {
-            r = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
-        }
-        if (r.ok) {
-            const d = await r.json();
-            if (d) {
-                if (d.ping) {
-                    updateStatText('hero-ping', d.ping + ' ms');
-                    updateStatText('about-ping', d.ping + 'ms');
-                }
-                if (d.uptime_seconds !== undefined) {
-                    window.heroUptimeSec = d.uptime_seconds;
-                } else if (d.uptime) {
-                    updateStatText('hero-uptime', d.uptime);
-                }
-                if (d.total_commands) {
-                    const cc = document.getElementById('cmd-count-stat');
-                    if (cc) cc.textContent = d.total_commands;
-                }
-                if (d.ninja_nexus_members) {
-                    updateMemberDisplays(d.ninja_nexus_members);
-                }
-                if (d.top_played_games && Array.isArray(d.top_played_games)) {
-                    renderLiveGames(d.top_played_games);
+    let d = null;
+    const endpoints = [
+        '/api/bot_data?_t=' + Date.now(),
+        '/api/public_stats?_t=' + Date.now(),
+        'http://157.90.181.183:23063/api/public_stats?_t=' + Date.now()
+    ];
+
+    for (const url of endpoints) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const r = await fetch(url, { 
+                signal: controller.signal,
+                cache: 'no-store'
+            });
+            clearTimeout(timeoutId);
+            if (r.ok) {
+                const parsed = await r.json();
+                if (parsed && (parsed.top_played_games || parsed.total_users || parsed.uptime || parsed.ping)) {
+                    d = parsed;
+                    break;
                 }
             }
+        } catch(err) {
+            // Failover gracefully
         }
-    } catch(e) {
-        console.warn('Bot data notice:', e);
+    }
+
+    if (d) {
+        if (d.ping) {
+            updateStatText('hero-ping', d.ping + ' ms');
+            updateStatText('about-ping', d.ping + 'ms');
+        }
+        if (d.uptime_seconds !== undefined) {
+            window.heroUptimeSec = d.uptime_seconds;
+        } else if (d.uptime) {
+            updateStatText('hero-uptime', d.uptime);
+        }
+        if (d.total_commands) {
+            const cc = document.getElementById('cmd-count-stat');
+            if (cc) cc.textContent = d.total_commands;
+        }
+        if (d.ninja_nexus_members) {
+            updateMemberDisplays(d.ninja_nexus_members);
+        }
+        if (d.top_played_games && Array.isArray(d.top_played_games)) {
+            renderLiveGames(d.top_played_games);
+        }
     }
 }
 
@@ -218,7 +241,9 @@ const GAME_IMAGE_OVERRIDES = {
     "cyberpunk": "https://steamcdn-a.akamaihd.net/steam/apps/1091500/library_600x900_2x.jpg",
     "rust": "https://steamcdn-a.akamaihd.net/steam/apps/252490/library_600x900_2x.jpg",
     "dota": "https://steamcdn-a.akamaihd.net/steam/apps/570/library_600x900_2x.jpg",
-    "wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg"
+    "wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg",
+    "arc raiders": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg",
+    "arc": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg"
 };
 
 const GAME_THEMES = {
@@ -243,7 +268,9 @@ const GAME_THEMES = {
     "dota": { accent: "#f43f5e", glow: "rgba(244, 63, 94, 0.35)", border: "rgba(244, 63, 94, 0.5)", tag: "MOBA Strategy", icon: "fa-chess-knight" },
     "wukong": { accent: "#d97706", glow: "rgba(217, 119, 6, 0.35)", border: "rgba(217, 119, 6, 0.5)", tag: "Action RPG", icon: "fa-dragon" },
     "wuthering waves": { accent: "#6366f1", glow: "rgba(99, 102, 241, 0.35)", border: "rgba(99, 102, 241, 0.5)", tag: "Action RPG", icon: "fa-bolt" },
-    "league of legends": { accent: "#eab308", glow: "rgba(234, 179, 8, 0.35)", border: "rgba(234, 179, 8, 0.5)", tag: "MOBA Arena", icon: "fa-shield" }
+    "league of legends": { accent: "#eab308", glow: "rgba(234, 179, 8, 0.35)", border: "rgba(234, 179, 8, 0.5)", tag: "MOBA Arena", icon: "fa-shield" },
+    "arc raiders": { accent: "#f97316", glow: "rgba(249, 115, 22, 0.35)", border: "rgba(249, 115, 22, 0.5)", tag: "Extraction Shooter", icon: "fa-crosshairs" },
+    "arc": { accent: "#f97316", glow: "rgba(249, 115, 22, 0.35)", border: "rgba(249, 115, 22, 0.5)", tag: "Extraction Shooter", icon: "fa-crosshairs" }
 };
 
 function getGameTheme(gameName) {
@@ -257,6 +284,17 @@ function getGameTheme(gameName) {
 
 const DEFAULT_COMMUNITY_GAMES = [
     {
+        name: "VALORANT",
+        count: 1,
+        is_live: true,
+        sample_detail: "Competitive 5v5",
+        players: ["Ninja Member"],
+        player_details: [
+            { name: "Ninja Member", avatar: "https://cdn.discordapp.com/embed/avatars/1.png", details: "In Match - Competitive" }
+        ],
+        rich_cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg"
+    },
+    {
         name: "Ceylon Roleplay",
         count: 1,
         is_live: true,
@@ -268,24 +306,13 @@ const DEFAULT_COMMUNITY_GAMES = [
         rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png"
     },
     {
-        name: "DREAM CREATION STUDIO",
-        count: 1,
-        is_live: true,
-        sample_detail: "TEAM DREAM CREATION STUDIO",
-        players: ["! DINGDONG GAMING"],
-        player_details: [
-            { name: "! DINGDONG GAMING", avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024", details: "TEAM DREAM CREATION STUDIO" }
-        ],
-        rich_cover: "https://cdn.discordapp.com/app-assets/1438769318430117909/1489554874470367315.png"
-    },
-    {
         name: "PUBG: BATTLEGROUNDS",
         count: 1,
         is_live: true,
-        sample_detail: "Normal, Taego, 28/97",
+        sample_detail: "In Lobby",
         players: ["PaMuJiThA"],
         player_details: [
-            { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "Normal, Taego, 28/97" }
+            { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "In Lobby" }
         ],
         rich_cover: "https://cdn.discordapp.com/app-assets/530196305138417685/853805058045771786.png"
     }
@@ -299,7 +326,7 @@ function getGameImageUrl(game) {
                 return url;
             }
         }
-        return 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';
+        return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';
     }
     if (game && game.rich_cover) return game.rich_cover;
     if (game && game.player_details && game.player_details[0] && game.player_details[0].rich_cover) {
@@ -323,6 +350,8 @@ function renderLiveGames(gamesList) {
         name: g.name,
         count: g.count,
         players: g.players,
+        player_names: g.player_details ? g.player_details.map(p => p.name) : [],
+        avatars: g.player_details ? g.player_details.map(p => p.avatar) : [],
         details: g.player_details ? g.player_details.map(p => p.details) : []
     })));
     if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
@@ -371,7 +400,7 @@ function renderLiveGames(gamesList) {
             detailIcon = 'fa-server';
         } else if (lowerDetail.includes('watch') || lowerDetail.includes('spectat')) {
             detailIcon = 'fa-eye';
-        } else if (lowerDetail.includes('match') || lowerDetail.includes('5v5') || lowerDetail.includes('taego') || lowerDetail.includes('erangel')) {
+        } else if (lowerDetail.includes('match') || lowerDetail.includes('5v5') || lowerDetail.includes('taego') || lowerDetail.includes('erangel') || lowerDetail.includes('lobby')) {
             detailIcon = 'fa-crosshairs';
         }
 
@@ -386,6 +415,20 @@ function renderLiveGames(gamesList) {
         const maxVisible = 4;
         const visiblePlayers = playerDetails.slice(0, maxVisible);
         const overflowCount = playerDetails.length - maxVisible;
+
+        // Prominently display active player name(s) directly on the card face
+        const playerNamesList = (game.player_details && game.player_details.length > 0)
+            ? game.player_details.map(p => (typeof p === 'string' ? p : (p.name || 'Member')))
+            : (game.players && game.players.length > 0 ? game.players.map(p => (typeof p === 'string' ? p : (p.name || 'Member'))) : ['Community Member']);
+
+        let playerHeadline = '';
+        if (playerNamesList.length === 1) {
+            playerHeadline = `<div class="game-player-headline"><i class="fas fa-user-circle"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])}</span></div>`;
+        } else if (playerNamesList.length === 2) {
+            playerHeadline = `<div class="game-player-headline"><i class="fas fa-user-friends"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])} &amp; ${escapeHtml(playerNamesList[1])}</span></div>`;
+        } else {
+            playerHeadline = `<div class="game-player-headline"><i class="fas fa-users"></i> <span class="game-player-name">${escapeHtml(playerNamesList[0])} +${playerNamesList.length - 1} others</span></div>`;
+        }
 
         let avatarsHtml = '<div class="avatar-stack">';
         visiblePlayers.forEach(p => {
@@ -416,11 +459,12 @@ function renderLiveGames(gamesList) {
                 ${liveBadgeHtml}
                 ${hotBadgeHtml}
                 ${countBadgeHtml}
-                <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';">
+                <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
             </div>
             <div class="game-card-body">
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                 <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
+                ${playerHeadline}
                 <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
                 <div class="game-players-strip">
                     ${avatarsHtml}
@@ -454,8 +498,6 @@ function renderLiveGames(gamesList) {
     `;
     grid.appendChild(squadCta);
 }
-
-renderLiveGames([]);
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -524,8 +566,23 @@ window.addEventListener('keydown', (e) => {
 
 // Initial fetch
 fetchPublicStats();
-renderLiveGames([]);
-setInterval(fetchPublicStats, 10000);
+
+// ── Visibility Change Awareness & Polling ──
+let statsInterval = null;
+function startStatsPolling() {
+    if (statsInterval) clearInterval(statsInterval);
+    statsInterval = setInterval(fetchPublicStats, 4000); // Ultra-fast 4s live sync
+}
+startStatsPolling();
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (statsInterval) clearInterval(statsInterval);
+    } else {
+        fetchPublicStats();
+        startStatsPolling();
+    }
+});
 
 // ── Real-time Uptime Counter ──
 setInterval(() => {
