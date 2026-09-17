@@ -221,26 +221,92 @@ const GAME_IMAGE_OVERRIDES = {
     "wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg"
 };
 
+const GAME_THEMES = {
+    "ceylon": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
+    "dream creation": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Studio", icon: "fa-code" },
+    "fivem": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
+    "grand theft auto": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "GTA V / FiveM", icon: "fa-car" },
+    "gta": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "GTA V / FiveM", icon: "fa-car" },
+    "valorant": { accent: "#ff4655", glow: "rgba(255, 70, 85, 0.38)", border: "rgba(255, 70, 85, 0.55)", tag: "Tactical FPS", icon: "fa-crosshairs" },
+    "pubg": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.35)", border: "rgba(245, 158, 11, 0.5)", tag: "Battle Royale", icon: "fa-crosshairs" },
+    "battlegrounds": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.35)", border: "rgba(245, 158, 11, 0.5)", tag: "Battle Royale", icon: "fa-crosshairs" },
+    "minecraft": { accent: "#22c55e", glow: "rgba(34, 197, 94, 0.35)", border: "rgba(34, 197, 94, 0.5)", tag: "Sandbox Survival", icon: "fa-cube" },
+    "counter-strike": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Competitive FPS", icon: "fa-bullseye" },
+    "cs2": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Competitive FPS", icon: "fa-bullseye" },
+    "forza": { accent: "#ec4899", glow: "rgba(236, 72, 153, 0.35)", border: "rgba(236, 72, 153, 0.5)", tag: "Sim Racing", icon: "fa-flag-checkered" },
+    "apex": { accent: "#ef4444", glow: "rgba(239, 68, 68, 0.35)", border: "rgba(239, 68, 68, 0.5)", tag: "Battle Royale", icon: "fa-shield-halved" },
+    "roblox": { accent: "#ef4444", glow: "rgba(239, 68, 68, 0.35)", border: "rgba(239, 68, 68, 0.5)", tag: "Platform Sandbox", icon: "fa-shapes" },
+    "red dead": { accent: "#dc2626", glow: "rgba(220, 38, 38, 0.35)", border: "rgba(220, 38, 38, 0.5)", tag: "Open World RPG", icon: "fa-hat-cowboy" },
+    "rdr": { accent: "#dc2626", glow: "rgba(220, 38, 38, 0.35)", border: "rgba(220, 38, 38, 0.5)", tag: "Open World RPG", icon: "fa-hat-cowboy" },
+    "cyberpunk": { accent: "#06b6d4", glow: "rgba(6, 182, 212, 0.35)", border: "rgba(6, 182, 212, 0.5)", tag: "Cyber RPG", icon: "fa-microchip" },
+    "rust": { accent: "#ea580c", glow: "rgba(234, 88, 12, 0.35)", border: "rgba(234, 88, 12, 0.5)", tag: "Survival", icon: "fa-hammer" },
+    "dota": { accent: "#f43f5e", glow: "rgba(244, 63, 94, 0.35)", border: "rgba(244, 63, 94, 0.5)", tag: "MOBA Strategy", icon: "fa-chess-knight" },
+    "wukong": { accent: "#d97706", glow: "rgba(217, 119, 6, 0.35)", border: "rgba(217, 119, 6, 0.5)", tag: "Action RPG", icon: "fa-dragon" },
+    "wuthering waves": { accent: "#6366f1", glow: "rgba(99, 102, 241, 0.35)", border: "rgba(99, 102, 241, 0.5)", tag: "Action RPG", icon: "fa-bolt" },
+    "league of legends": { accent: "#eab308", glow: "rgba(234, 179, 8, 0.35)", border: "rgba(234, 179, 8, 0.5)", tag: "MOBA Arena", icon: "fa-shield" }
+};
+
+function getGameTheme(gameName) {
+    if (!gameName) return { accent: "#a855f7", glow: "rgba(168, 85, 247, 0.35)", border: "rgba(168, 85, 247, 0.5)", tag: "Multiplayer", icon: "fa-gamepad" };
+    const lower = gameName.toLowerCase();
+    for (const [k, theme] of Object.entries(GAME_THEMES)) {
+        if (lower.includes(k)) return theme;
+    }
+    return { accent: "#a855f7", glow: "rgba(168, 85, 247, 0.35)", border: "rgba(168, 85, 247, 0.5)", tag: "Live Gaming", icon: "fa-gamepad" };
+}
+
 const DEFAULT_COMMUNITY_GAMES = [
-    { name: "Grand Theft Auto V", count: 2, is_live: true, players: [{ name: "N3WB", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }, { name: "isuru", avatar: "https://cdn.discordapp.com/embed/avatars/1.png" }] },
-    { name: "VALORANT", count: 1, is_live: true, players: [{ name: "kiri putha", avatar: "https://cdn.discordapp.com/embed/avatars/2.png" }] },
-    { name: "Minecraft", count: 1, is_live: true, players: [{ name: "Pegging Boy", avatar: "https://cdn.discordapp.com/embed/avatars/3.png" }] },
-    { name: "Counter-Strike 2", count: 1, is_live: true, players: [{ name: "Haaaaaalan", avatar: "https://cdn.discordapp.com/embed/avatars/4.png" }] },
-    { name: "ROBLOX", count: 1, is_live: false, players: [] },
-    { name: "PUBG: BATTLEGROUNDS", count: 1, is_live: false, players: [] },
-    { name: "Wuthering Waves", count: 1, is_live: false, players: [] },
-    { name: "Forza Horizon 5", count: 1, is_live: false, players: [] }
+    {
+        name: "Ceylon Roleplay",
+        count: 1,
+        is_live: true,
+        sample_detail: "Players 69/100",
+        players: ["Animo"],
+        player_details: [
+            { name: "Animo", avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024", details: "Players 69/100" }
+        ],
+        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png"
+    },
+    {
+        name: "DREAM CREATION STUDIO",
+        count: 1,
+        is_live: true,
+        sample_detail: "TEAM DREAM CREATION STUDIO",
+        players: ["! DINGDONG GAMING"],
+        player_details: [
+            { name: "! DINGDONG GAMING", avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024", details: "TEAM DREAM CREATION STUDIO" }
+        ],
+        rich_cover: "https://cdn.discordapp.com/app-assets/1438769318430117909/1489554874470367315.png"
+    },
+    {
+        name: "PUBG: BATTLEGROUNDS",
+        count: 1,
+        is_live: true,
+        sample_detail: "Normal, Taego, 28/97",
+        players: ["PaMuJiThA"],
+        player_details: [
+            { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "Normal, Taego, 28/97" }
+        ],
+        rich_cover: "https://cdn.discordapp.com/app-assets/530196305138417685/853805058045771786.png"
+    }
 ];
 
-function getGameImageUrl(gameName) {
-    if (!gameName) return 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';
-    const lower = gameName.toLowerCase();
-    for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
-        if (lower.includes(key)) {
-            return url;
+function getGameImageUrl(game) {
+    if (typeof game === 'string') {
+        const lower = game.toLowerCase();
+        for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+            if (lower.includes(key)) {
+                return url;
+            }
         }
+        return 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';
     }
-    return 'https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg';
+    if (game && game.rich_cover) return game.rich_cover;
+    if (game && game.player_details && game.player_details[0] && game.player_details[0].rich_cover) {
+        return game.player_details[0].rich_cover;
+    }
+    const gameName = game && game.name ? game.name : '';
+    return getGameImageUrl(gameName);
 }
 
 let lastGamesDigest = '';
@@ -270,40 +336,69 @@ function renderLiveGames(gamesList) {
     });
     const totalPlayersEl = document.getElementById('lounge-total-players');
     if (totalPlayersEl) {
-        totalPlayersEl.textContent = isRealData 
-            ? `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`
-            : 'Community Roster';
+        totalPlayersEl.textContent = `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`;
     }
+
+    let maxPlayers = 0;
+    games.forEach(g => {
+        const c = g.count || (g.players ? g.players.length : 1);
+        if (c > maxPlayers) maxPlayers = c;
+    });
 
     grid.innerHTML = '';
 
-    games.forEach(game => {
+    games.forEach((game, idx) => {
         const card = document.createElement('div');
-        card.className = 'game-card reveal visible';
-        const isLive = isRealData || (game.is_live === true);
         const count = game.count || (game.players ? game.players.length : 1);
-        const matchDetail = game.sample_detail || (game.player_details && game.player_details[0] && game.player_details[0].details) || 'Active Discord Session';
+        const isLive = isRealData || (game.is_live === true);
+        const isHot = (maxPlayers > 1 && count === maxPlayers) || (maxPlayers === 1 && idx === 0);
+
+        const theme = getGameTheme(game.name);
+
+        card.className = `game-card reveal visible ${isHot ? 'is-hot' : ''}`;
+        card.style.setProperty('--game-accent', theme.accent);
+        card.style.setProperty('--game-accent-glow', theme.glow);
+        card.style.setProperty('--game-accent-border', theme.border);
+
+        let matchDetail = game.sample_detail || (game.player_details && game.player_details[0] && game.player_details[0].details) || 'Active Discord Session';
+        if (matchDetail.includes('???') || !matchDetail.trim()) {
+            matchDetail = 'Active Session';
+        }
+
+        let detailIcon = 'fa-gamepad';
+        const lowerDetail = matchDetail.toLowerCase();
+        if (lowerDetail.includes('player') || lowerDetail.includes('server')) {
+            detailIcon = 'fa-server';
+        } else if (lowerDetail.includes('watch') || lowerDetail.includes('spectat')) {
+            detailIcon = 'fa-eye';
+        } else if (lowerDetail.includes('match') || lowerDetail.includes('5v5') || lowerDetail.includes('taego') || lowerDetail.includes('erangel')) {
+            detailIcon = 'fa-crosshairs';
+        }
 
         const liveBadgeHtml = isLive
-            ? `<div class="game-live-badge"><span class="lounge-live-dot"></span> LIVE</div>`
+            ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
             : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
 
-        const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> ${count} ${count === 1 ? 'Player' : 'Players'}</div>`;
+        const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
+        const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} ${count === 1 ? 'In Session' : 'In Session'}</div>`;
 
-        const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: p, avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: matchDetail })) : []);
+        const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
         const maxVisible = 4;
         const visiblePlayers = playerDetails.slice(0, maxVisible);
         const overflowCount = playerDetails.length - maxVisible;
 
         let avatarsHtml = '<div class="avatar-stack">';
         visiblePlayers.forEach(p => {
+            const pName = typeof p === 'string' ? p : (p.name || 'Member');
             const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-            const detailStr = p.details ? escapeHtml(p.details) : 'Playing';
+            let detailStr = p.details ? escapeHtml(p.details) : 'Playing';
+            if (detailStr.includes('???') || !detailStr.trim()) detailStr = 'In Session';
+
             avatarsHtml += `
                 <div class="interactive-avatar-wrap">
-                    <img src="${avatarUrl}" alt="${escapeHtml(p.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                    <img src="${avatarUrl}" alt="${escapeHtml(pName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
                     <div class="player-tooltip">
-                        <span class="tooltip-name">${escapeHtml(p.name)}</span>
+                        <span class="tooltip-name">${escapeHtml(pName)}</span>
                         <span class="tooltip-status">${detailStr}</span>
                     </div>
                 </div>
@@ -319,12 +414,14 @@ function renderLiveGames(gamesList) {
         card.innerHTML = `
             <div class="game-card-img-wrap">
                 ${liveBadgeHtml}
+                ${hotBadgeHtml}
                 ${countBadgeHtml}
                 <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';">
             </div>
             <div class="game-card-body">
+                <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                 <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
-                <div class="game-match-detail" title="${escapeHtml(matchDetail)}">${escapeHtml(matchDetail)}</div>
+                <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
                 <div class="game-players-strip">
                     ${avatarsHtml}
                     <span class="game-action-btn">
@@ -340,6 +437,22 @@ function renderLiveGames(gamesList) {
 
         grid.appendChild(card);
     });
+
+    const squadCta = document.createElement('a');
+    squadCta.href = 'https://discord.gg/fZNDG5sfhf';
+    squadCta.target = '_blank';
+    squadCta.className = 'squad-cta-card reveal visible';
+    squadCta.innerHTML = `
+        <div class="squad-cta-icon-wrap">
+            <i class="fab fa-discord"></i>
+        </div>
+        <div class="squad-cta-title">Looking For Squad?</div>
+        <div class="squad-cta-sub">Jump into Discord voice channels to squad up with community members right now.</div>
+        <div class="squad-cta-btn">
+            <i class="fas fa-headset"></i> Join Voice Squad
+        </div>
+    `;
+    grid.appendChild(squadCta);
 }
 
 renderLiveGames([]);
