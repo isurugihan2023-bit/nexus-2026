@@ -548,7 +548,7 @@ function openGameModal(game, coverUrl, matchDetail) {
                     <div class="modal-player-name">${escapeHtml(p.name)}</div>
                     <div class="modal-player-detail">${p.details ? escapeHtml(p.details) : 'In Discord Gaming Session'}</div>
                 </div>
-                <span style="font-size: 0.72rem; color: #2ecc71; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                <span style="font-size: 0.72rem; color: #c084fc; font-weight: 700; display: flex; align-items: center; gap: 5px;">
                     <span class="lounge-live-dot" style="width: 5px; height: 5px;"></span> Playing
                 </span>
             `;
