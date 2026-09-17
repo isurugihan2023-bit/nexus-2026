@@ -1,12 +1,16 @@
 {
   "rewrites": [
     {
-      "source": "/api/discord_stats",
-      "destination": "https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true"
-    },
-    {
       "source": "/api/bot_data",
       "destination": "http://157.90.181.183:23063/api/public_stats"
+    },
+    {
+      "source": "/api/public_stats",
+      "destination": "http://157.90.181.183:23063/api/public_stats"
+    },
+    {
+      "source": "/api/discord_stats",
+      "destination": "https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true"
     },
     {
       "source": "/members",
@@ -21,28 +25,56 @@
       "destination": "http://157.90.181.183:23063/dashboard"
     },
     {
-      "source": "/api/:path*",
-      "destination": "http://157.90.181.183:23063/api/:path*"
-    },
-    {
-      "source": "/admin/:path*",
-      "destination": "http://157.90.181.183:23063/admin/:path*"
-    },
-    {
-      "source": "/admin",
-      "destination": "http://157.90.181.183:23063/admin"
+      "source": "/admin_dashboard",
+      "destination": "http://157.90.181.183:23063/admin_dashboard"
     },
     {
       "source": "/servers",
       "destination": "http://157.90.181.183:23063/servers"
     },
     {
+      "source": "/admin",
+      "destination": "http://157.90.181.183:23063/admin"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "http://157.90.181.183:23063/admin/:path*"
+    },
+    {
       "source": "/static/:path*",
       "destination": "http://157.90.181.183:23063/static/:path*"
     },
     {
-      "source": "/admin_dashboard",
-      "destination": "http://157.90.181.183:23063/admin_dashboard"
+      "source": "/api/:path*",
+      "destination": "http://157.90.181.183:23063/api/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    },
+    {
+      "source": "/(index.html)?",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
