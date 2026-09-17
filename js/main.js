@@ -1,9 +1,8 @@
 /* ── Navbar scroll ── */
 const nav = document.getElementById('navbar');
 
-// ── Tab System ─────────────────────────────────────
 const ALL_TABS = ['home', 'lounge', 'home-cta', 'about', 'features', 'commands', 'stats'];
-const HOME_TABS = ['home', 'lounge', 'home-cta'];
+const HOME_TABS = ['home', 'home-cta'];
 
 function showTab(targetId) {
     document.body.className = targetId + '-tab-active';
@@ -63,6 +62,16 @@ if (navLogo) {
         e.preventDefault();
         showTab('home');
     });
+}
+
+// Handle initial URL hash on page load
+if (window.location.hash) {
+    const initialTab = window.location.hash.substring(1);
+    if (ALL_TABS.includes(initialTab)) {
+        const activeNav = document.querySelector(`.nav-links a[href="#${initialTab}"]`);
+        if (activeNav) activeNav.classList.add('active');
+        showTab(initialTab);
+    }
 }
 
 // Add scrolled class to nav
