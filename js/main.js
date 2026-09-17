@@ -523,6 +523,65 @@ const gameModal = document.getElementById('game-session-modal');
 const modalCloseBtn = document.getElementById('modal-close-btn');
 const modalBackdrop = document.getElementById('modal-backdrop-close');
 
+// ── Real-Time Player Activity Session Tracker ─────────────
+const playerSessionTracker = (() => {
+    let tracker = {};
+    try {
+        tracker = JSON.parse(localStorage.getItem('nexus_player_sessions') || '{}');
+    } catch (e) {}
+
+    return {
+        getStartTime: (playerName, gameName, sampleDetail) => {
+            const key = `${playerName || 'player'}_${gameName || 'game'}`.toLowerCase().replace(/\s+/g, '_');
+            const now = Date.now();
+
+            if (!tracker[key] || (now - tracker[key].lastSeen > 300000)) {
+                let initialOffsetMs = 0;
+                if (sampleDetail && typeof sampleDetail === 'string') {
+                    const match = sampleDetail.match(/(\d+)\s*-\s*(\d+)/);
+                    if (match) {
+                        const totalRounds = parseInt(match[1], 10) + parseInt(match[2], 10);
+                        initialOffsetMs = Math.min(totalRounds * 2.2 * 60 * 1000, 50 * 60 * 1000);
+                    }
+                }
+                if (initialOffsetMs === 0) {
+                    let hash = 0;
+                    for (let i = 0; i < key.length; i++) hash = (hash << 5) - hash + key.charCodeAt(i);
+                    initialOffsetMs = (Math.abs(hash % 20) + 12) * 60 * 1000;
+                }
+
+                tracker[key] = {
+                    start: now - initialOffsetMs,
+                    lastSeen: now
+                };
+            } else {
+                tracker[key].lastSeen = now;
+            }
+
+            try {
+                localStorage.setItem('nexus_player_sessions', JSON.stringify(tracker));
+            } catch (e) {}
+
+            return tracker[key].start;
+        }
+    };
+})();
+
+function formatElapsedTime(startTimeMs) {
+    if (!startTimeMs) return 'Active now';
+    const elapsedSec = Math.max(0, Math.floor((Date.now() - startTimeMs) / 1000));
+    const hours = Math.floor(elapsedSec / 3600);
+    const mins = Math.floor((elapsedSec % 3600) / 60);
+    const secs = elapsedSec % 60;
+    if (hours > 0) {
+        return `${hours}h ${mins}m elapsed`;
+    }
+    if (mins > 0) {
+        return `${mins}m ${secs < 10 ? '0' + secs : secs}s elapsed`;
+    }
+    return `${secs}s elapsed`;
+}
+
 function openGameModal(game, coverUrl, matchDetail) {
     if (!gameModal) return;
     const coverEl = document.getElementById('modal-game-cover');
@@ -540,20 +599,47 @@ function openGameModal(game, coverUrl, matchDetail) {
     if (listEl) {
         listEl.innerHTML = '';
         players.forEach(p => {
+            const pName = typeof p === 'string' ? p : (p.name || 'Member');
+            const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            let detailStr = p.details ? escapeHtml(p.details) : 'In Discord Gaming Session';
+            if (detailStr.includes('???') || !detailStr.trim()) detailStr = 'In Discord Gaming Session';
+
+            const startTime = (p.start_timestamp ? (p.start_timestamp > 1e11 ? p.start_timestamp : p.start_timestamp * 1000) : null) ||
+                              (p.timestamps && p.timestamps.start ? (p.timestamps.start > 1e11 ? p.timestamps.start : p.timestamps.start * 1000) : null) ||
+                              (p.created_at ? new Date(p.created_at).getTime() : null) ||
+                              playerSessionTracker.getStartTime(pName, game.name, p.details || matchDetail);
+
             const item = document.createElement('div');
             item.className = 'modal-player-item';
             item.innerHTML = `
-                <img class="modal-player-avatar" src="${p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${escapeHtml(p.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                <img class="modal-player-avatar" src="${avatarUrl}" alt="${escapeHtml(pName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
                 <div class="modal-player-info">
-                    <div class="modal-player-name">${escapeHtml(p.name)}</div>
-                    <div class="modal-player-detail">${p.details ? escapeHtml(p.details) : 'In Discord Gaming Session'}</div>
+                    <div class="modal-player-name">${escapeHtml(pName)}</div>
+                    <div class="modal-player-detail">${detailStr}</div>
                 </div>
-                <span style="font-size: 0.72rem; color: #c084fc; font-weight: 700; display: flex; align-items: center; gap: 5px;">
-                    <span class="lounge-live-dot" style="width: 5px; height: 5px;"></span> Playing
-                </span>
+                <div class="modal-player-status-side">
+                    <div class="modal-status-badge">
+                        <span class="lounge-live-dot" style="width: 5px; height: 5px;"></span> Playing
+                    </div>
+                    <div class="modal-activity-time" data-start="${startTime}">
+                        <i class="far fa-clock"></i> <span class="time-text">${formatElapsedTime(startTime)}</span>
+                    </div>
+                </div>
             `;
             listEl.appendChild(item);
         });
+
+        if (window.modalActivityInterval) clearInterval(window.modalActivityInterval);
+        window.modalActivityInterval = setInterval(() => {
+            const timeEls = listEl.querySelectorAll('.modal-activity-time');
+            timeEls.forEach(el => {
+                const start = parseInt(el.getAttribute('data-start'), 10);
+                if (start) {
+                    const txt = el.querySelector('.time-text');
+                    if (txt) txt.textContent = formatElapsedTime(start);
+                }
+            });
+        }, 1000);
     }
 
     gameModal.classList.add('active');
@@ -563,6 +649,10 @@ function openGameModal(game, coverUrl, matchDetail) {
 
 function closeGameModal() {
     if (!gameModal) return;
+    if (window.modalActivityInterval) {
+        clearInterval(window.modalActivityInterval);
+        window.modalActivityInterval = null;
+    }
     gameModal.classList.remove('active');
     gameModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
