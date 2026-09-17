@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     
     // --- 1. Sticky Navbar & Scroll ---
     const navbar = document.getElementById('navbar');
@@ -174,15 +174,16 @@
 
             // Update Data Targets for Stats Grid so animation counts up to real numbers
             const serverStat = document.getElementById('server-count-stat');
-            if (serverStat && data.total_servers !== undefined) {
-                serverStat.setAttribute('data-target', data.total_servers);
-                serverStat.textContent = data.total_servers; // Update immediately
+            if (serverStat) {
+                serverStat.setAttribute('data-target', '1');
+                serverStat.textContent = '1';
             }
             
             const userStat = document.getElementById('user-count-stat');
-            if (userStat && data.total_users !== undefined) {
-                userStat.setAttribute('data-target', data.total_users);
-                userStat.textContent = data.total_users; // Update immediately
+            if (userStat) {
+                const count = data.ninja_nexus_members || 46;
+                userStat.setAttribute('data-target', count);
+                userStat.textContent = count;
             }
             
         } catch (error) {

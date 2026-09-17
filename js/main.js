@@ -109,65 +109,95 @@ function updateStatText(id, text) {
 
 // Immediate initial values so cards never show empty
 updateStatText('hero-servers', '1');
-updateStatText('hero-members', '50');
+updateStatText('hero-members', '46');
 updateStatText('hero-ping', '106 ms');
 updateStatText('hero-uptime', '52m');
 updateStatText('about-servers', '1');
-updateStatText('about-users', '50');
+updateStatText('about-users', '46');
 updateStatText('about-ping', '106ms');
+
+let currentNinjaNexusMembers = 46;
+const activities = ["1 SERVER", "46 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
+let activityIdx = 0;
+const dpTexts = document.querySelectorAll('.dp-dynamic-text');
 
 async function fetchPublicStats() {
     try {
-        let d = null;
-        try {
-            const r = await fetch('/api/bot_data?t=' + Date.now());
-            if (r.ok) d = await r.json();
-        } catch(e) {}
+        const [discordData, botData] = await Promise.allSettled([
+            (async () => {
+                try {
+                    let r = await fetch('/api/discord_stats?t=' + Date.now());
+                    if (!r.ok) {
+                        r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true');
+                    }
+                    if (r.ok) return await r.json();
+                } catch (e) {}
+                return null;
+            })(),
+            (async () => {
+                try {
+                    let r = await fetch('/api/bot_data?t=' + Date.now());
+                    if (r.ok) return await r.json();
+                } catch (e) {}
+                try {
+                    const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
+                    if (r2.ok) return await r2.json();
+                } catch (e) {}
+                return null;
+            })()
+        ]);
 
-        if (!d) {
-            try {
-                const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
-                if (r2.ok) d = await r2.json();
-            } catch(e) {}
-        }
-        
-        if (!d) return;
+        const disc = discordData.status === 'fulfilled' ? discordData.value : null;
+        const d = botData.status === 'fulfilled' ? botData.value : null;
         
         const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
+
+        if (disc && (disc.approximate_member_count || (disc.guild && disc.guild.member_count))) {
+            currentNinjaNexusMembers = disc.approximate_member_count || disc.guild.member_count;
+        } else if (d && d.ninja_nexus_members) {
+            currentNinjaNexusMembers = d.ninja_nexus_members;
+        }
+
         const displayServers = 1;
-        const displayUsers = d.total_users || 50;
+        const displayUsers = currentNinjaNexusMembers;
         
         updateStatText('hero-servers', fmt(displayServers));
         updateStatText('hero-members', fmt(displayUsers));
-        updateStatText('hero-ping', (d.ping || 106) + ' ms');
+        if (d) updateStatText('hero-ping', (d.ping || 106) + ' ms');
         
-        if (d.uptime_seconds !== undefined) {
-            window.heroUptimeSec = d.uptime_seconds;
-        } else if (d.uptime) {
-            updateStatText('hero-uptime', d.uptime);
+        if (d) {
+            if (d.uptime_seconds !== undefined) {
+                window.heroUptimeSec = d.uptime_seconds;
+            } else if (d.uptime) {
+                updateStatText('hero-uptime', d.uptime);
+            }
         }
         
         updateStatText('about-servers', fmt(displayServers));
         updateStatText('about-users', fmt(displayUsers));
-        updateStatText('about-ping', (d.ping || 106) + 'ms');
+        if (d) updateStatText('about-ping', (d.ping || 106) + 'ms');
         
         const sc = document.getElementById('server-count-stat');
         const uc = document.getElementById('user-count-stat');
         const cc = document.getElementById('cmd-count-stat');
         if (sc) sc.textContent = displayServers;
         if (uc) uc.textContent = displayUsers;
-        if (cc && d.total_commands) cc.textContent = d.total_commands;
+        if (cc && d && d.total_commands) cc.textContent = d.total_commands;
         
         const serverLabelEl = document.getElementById('hero-servers-label');
         if (serverLabelEl) {
-            serverLabelEl.textContent = displayServers === 1 ? 'SERVER' : 'SERVERS';
+            serverLabelEl.textContent = 'Server';
         }
         
         if (typeof activities !== 'undefined') {
-            activities[1] = `${fmt(displayServers)} ${displayServers === 1 ? 'SERVER' : 'SERVERS'}`;
+            activities[0] = '1 SERVER';
+            activities[1] = `${fmt(displayUsers)} MEMBERS`;
+            if (activityIdx === 1 && typeof dpTexts !== 'undefined' && dpTexts.length > 0) {
+                dpTexts.forEach(el => el.textContent = activities[1]);
+            }
         }
         
-        if (d.top_played_games && Array.isArray(d.top_played_games)) {
+        if (d && d.top_played_games && Array.isArray(d.top_played_games)) {
             renderLiveGames(d.top_played_games);
         }
     } catch(e) {}
@@ -222,61 +252,171 @@ function getGameImageUrl(gameName) {
     return 'https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg';
 }
 
+let lastGamesDigest = '';
+
 function renderLiveGames(gamesList) {
+    window.hasRenderedLiveGames = true;
     const grid = document.getElementById('live-games-grid');
     if (!grid) return;
-    
-    const games = (gamesList && gamesList.length > 0) ? gamesList : DEFAULT_COMMUNITY_GAMES;
+
+    const isRealData = Array.isArray(gamesList) && gamesList.length > 0;
+    const games = isRealData ? gamesList : DEFAULT_COMMUNITY_GAMES;
+
+    const digest = JSON.stringify(games.map(g => ({
+        name: g.name,
+        count: g.count,
+        players: g.players,
+        details: g.player_details ? g.player_details.map(p => p.details) : []
+    })));
+    if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
+        return;
+    }
+    lastGamesDigest = digest;
+
+    let totalPlayersCount = 0;
+    games.forEach(g => {
+        totalPlayersCount += (g.count || (g.players ? g.players.length : 1));
+    });
+    const totalPlayersEl = document.getElementById('lounge-total-players');
+    if (totalPlayersEl) {
+        totalPlayersEl.textContent = isRealData 
+            ? `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`
+            : 'Community Roster';
+    }
+
     grid.innerHTML = '';
+
     games.forEach(game => {
         const card = document.createElement('div');
-        card.className = 'game-card';
-        const isLive = (game.is_live === true) || (game.players && game.players.length > 0);
-        
-        let liveBadgeHtml = '';
-        if (isLive) {
-            liveBadgeHtml = `
-                <div class="game-live-badge">
-                    <span class="game-live-dot"></span> LIVE
-                </div>
-            `;
-        }
+        card.className = 'game-card reveal visible';
+        const isLive = isRealData || (game.is_live === true);
+        const count = game.count || (game.players ? game.players.length : 1);
+        const matchDetail = game.sample_detail || (game.player_details && game.player_details[0] && game.player_details[0].details) || 'Active Discord Session';
 
-        let playersHtml = '';
-        if (game.players && game.players.length > 0) {
-            const avatarImgs = game.players.map(p => 
-                `<img src="${p.avatar}" alt="${p.name}" title="${p.name}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">`
-            ).join('');
-            
-            const firstPlayer = game.players[0].name;
-            const moreCount = game.players.length - 1;
-            const playerText = moreCount > 0 ? `${firstPlayer} +${moreCount}` : firstPlayer;
-            
-            playersHtml = `
-                <div class="game-players-strip">
-                    <div class="avatar-stack">${avatarImgs}</div>
-                    <span class="player-names-label" title="${game.players.map(p=>p.name).join(', ')}">${playerText}</span>
+        const liveBadgeHtml = isLive
+            ? `<div class="game-live-badge"><span class="lounge-live-dot"></span> LIVE</div>`
+            : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
+
+        const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> ${count} ${count === 1 ? 'Player' : 'Players'}</div>`;
+
+        const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: p, avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: matchDetail })) : []);
+        const maxVisible = 4;
+        const visiblePlayers = playerDetails.slice(0, maxVisible);
+        const overflowCount = playerDetails.length - maxVisible;
+
+        let avatarsHtml = '<div class="avatar-stack">';
+        visiblePlayers.forEach(p => {
+            const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const detailStr = p.details ? escapeHtml(p.details) : 'Playing';
+            avatarsHtml += `
+                <div class="interactive-avatar-wrap">
+                    <img src="${avatarUrl}" alt="${escapeHtml(p.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                    <div class="player-tooltip">
+                        <span class="tooltip-name">${escapeHtml(p.name)}</span>
+                        <span class="tooltip-status">${detailStr}</span>
+                    </div>
                 </div>
             `;
-        } else {
-            playersHtml = `
-                <div class="game-players-strip">
-                    <span class="player-names-label" style="opacity: 0.65;">Community Favorite</span>
-                </div>
-            `;
+        });
+        if (overflowCount > 0) {
+            avatarsHtml += `<div class="avatar-overflow">+${overflowCount}</div>`;
         }
+        avatarsHtml += '</div>';
+
+        const coverUrl = getGameImageUrl(game);
 
         card.innerHTML = `
             <div class="game-card-img-wrap">
                 ${liveBadgeHtml}
-                <img src="${getGameImageUrl(game.name)}" alt="${game.name}" loading="lazy" onerror="this.src='https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';">
+                ${countBadgeHtml}
+                <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';">
             </div>
-            <div class="game-name">${game.name} <span style="font-size: 0.78rem; opacity: 0.7; font-weight: 500;">(${game.count || 1})</span></div>
-            ${playersHtml}
+            <div class="game-card-body">
+                <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
+                <div class="game-match-detail" title="${escapeHtml(matchDetail)}">${escapeHtml(matchDetail)}</div>
+                <div class="game-players-strip">
+                    ${avatarsHtml}
+                    <span class="game-action-btn">
+                        <i class="fas fa-expand-alt"></i> View Squad
+                    </span>
+                </div>
+            </div>
         `;
+
+        card.addEventListener('click', () => {
+            openGameModal(game, coverUrl, matchDetail);
+        });
+
         grid.appendChild(card);
     });
 }
+
+renderLiveGames([]);
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+const gameModal = document.getElementById('game-session-modal');
+const modalCloseBtn = document.getElementById('modal-close-btn');
+const modalBackdrop = document.getElementById('modal-backdrop-close');
+
+function openGameModal(game, coverUrl, matchDetail) {
+    if (!gameModal) return;
+    const coverEl = document.getElementById('modal-game-cover');
+    const titleEl = document.getElementById('modal-game-title');
+    const countEl = document.getElementById('modal-game-count');
+    const listEl = document.getElementById('modal-players-list');
+
+    const count = game.count || (game.players ? game.players.length : 1);
+    if (coverEl) coverEl.src = coverUrl || getGameImageUrl(game);
+    if (titleEl) titleEl.textContent = game.name;
+    if (countEl) countEl.textContent = `${count} ${count === 1 ? 'Member' : 'Members'} Active in Session`;
+
+    const players = game.player_details || (game.players ? game.players.map(p => ({ name: p, avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: matchDetail })) : []);
+
+    if (listEl) {
+        listEl.innerHTML = '';
+        players.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'modal-player-item';
+            item.innerHTML = `
+                <img class="modal-player-avatar" src="${p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${escapeHtml(p.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                <div class="modal-player-info">
+                    <div class="modal-player-name">${escapeHtml(p.name)}</div>
+                    <div class="modal-player-detail">${p.details ? escapeHtml(p.details) : 'In Discord Gaming Session'}</div>
+                </div>
+                <span style="font-size: 0.72rem; color: #2ecc71; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                    <span class="lounge-live-dot" style="width: 5px; height: 5px;"></span> Playing
+                </span>
+            `;
+            listEl.appendChild(item);
+        });
+    }
+
+    gameModal.classList.add('active');
+    gameModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGameModal() {
+    if (!gameModal) return;
+    gameModal.classList.remove('active');
+    gameModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeGameModal);
+if (modalBackdrop) modalBackdrop.addEventListener('click', closeGameModal);
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeGameModal();
+});
 
 // Initial fetch
 fetchPublicStats();
@@ -300,10 +440,6 @@ setInterval(() => {
 }, 1000);
 
 // ── Real-time Discord Presence Update ──
-const activities = ["Watching Ninja Nexus", "75+ COMMANDS", "99.99% UPTIME"];
-let activityIdx = 0;
-const dpTexts = document.querySelectorAll('.dp-dynamic-text');
-
 if (dpTexts.length > 0) {
     setInterval(() => {
         activityIdx = (activityIdx + 1) % activities.length;

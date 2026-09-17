@@ -554,6 +554,422 @@
             .footer-grid { grid-template-columns: 1fr; }
             .footer-bottom { flex-direction: column; gap: 12px; }
         }
+
+        /* ── LIVE GAMES LOUNGE ─────────────────────── */
+        .lounge-section {
+            padding: 80px 0 100px 0;
+            position: relative;
+            background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.08) 0%, transparent 65%);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .lounge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(35, 165, 89, 0.12);
+            border: 1px solid rgba(35, 165, 89, 0.3);
+            padding: 6px 14px;
+            border-radius: 100px;
+            color: #2ecc71;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+        .lounge-live-dot {
+            width: 7px;
+            height: 7px;
+            background: #2ecc71;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #2ecc71;
+            animation: liveGlow 1.8s ease-in-out infinite;
+        }
+        @keyframes liveGlow {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px #2ecc71; }
+            50% { opacity: 0.4; transform: scale(1.3); box-shadow: 0 0 14px #2ecc71; }
+        }
+        .lounge-count-tag {
+            background: rgba(0,0,0,0.4);
+            padding: 2px 7px;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.72rem;
+            margin-left: 4px;
+        }
+        .live-games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 36px;
+        }
+        .game-card {
+            background: rgba(18, 15, 34, 0.75);
+            border: 1px solid rgba(139, 92, 246, 0.16);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s, box-shadow 0.35s;
+            cursor: pointer;
+            position: relative;
+        }
+        .game-card:hover {
+            transform: translateY(-7px);
+            border-color: rgba(167, 139, 250, 0.45);
+            box-shadow: 0 20px 40px -12px rgba(124, 58, 237, 0.3), 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+        .game-card-img-wrap {
+            position: relative;
+            width: 100%;
+            height: 165px;
+            overflow: hidden;
+            background: #100e1c;
+        }
+        .game-card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .game-card:hover .game-card-img-wrap img {
+            transform: scale(1.08);
+        }
+        .game-live-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #2ecc71;
+            letter-spacing: 0.06em;
+            z-index: 2;
+        }
+        .game-player-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            z-index: 2;
+        }
+        .game-card-body {
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .game-name {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 4px;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .game-match-detail {
+            font-size: 0.8rem;
+            color: #a78bfa;
+            font-weight: 500;
+            margin-bottom: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 1.1rem;
+        }
+        .game-players-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .avatar-stack {
+            display: flex;
+            align-items: center;
+        }
+        .avatar-stack img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #151225;
+            margin-left: -10px;
+            object-fit: cover;
+            background: #201b35;
+            transition: transform 0.2s ease, z-index 0.2s ease, border-color 0.2s ease;
+            position: relative;
+        }
+        .avatar-stack img:first-child {
+            margin-left: 0;
+        }
+        .avatar-stack img:hover {
+            transform: scale(1.22) translateY(-2px);
+            z-index: 10;
+            border-color: var(--p400);
+        }
+        .avatar-overflow {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--p600), var(--p700));
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #151225;
+            margin-left: -10px;
+            z-index: 5;
+        }
+        .game-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--p400);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.22);
+            transition: all 0.2s ease;
+        }
+        .game-card:hover .game-action-btn {
+            background: var(--p600);
+            color: #fff;
+            border-color: var(--p500);
+        }
+
+        /* ── Tooltips ── */
+        .interactive-avatar-wrap {
+            position: relative;
+            display: inline-block;
+        }
+        .player-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: rgba(13, 11, 24, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 10px;
+            padding: 6px 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        }
+        .interactive-avatar-wrap:hover .player-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .tooltip-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fff;
+            display: block;
+        }
+        .tooltip-status {
+            font-size: 0.68rem;
+            color: var(--p400);
+            display: block;
+        }
+
+        /* ── Skeletons ── */
+        .skeleton-card {
+            background: rgba(18, 15, 34, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            height: 270px;
+        }
+        .skeleton-shimmer {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.8s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── Modal ── */
+        .game-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .game-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(6, 5, 12, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .modal-box {
+            position: relative;
+            width: 100%;
+            max-width: 540px;
+            background: #131024;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px -10px rgba(0,0,0,0.8), 0 0 35px rgba(124, 58, 237, 0.2);
+            overflow: hidden;
+            transform: scale(0.92) translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 2;
+        }
+        .game-modal.active .modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .modal-banner {
+            position: relative;
+            height: 180px;
+            width: 100%;
+            overflow: hidden;
+            background: #0b0914;
+        }
+        .modal-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.65);
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .modal-close-btn:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg);
+        }
+        .modal-banner-content {
+            position: absolute;
+            bottom: 16px;
+            left: 20px;
+            right: 20px;
+        }
+        .modal-game-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+        .modal-game-subtitle {
+            font-size: 0.82rem;
+            color: #c4b5fd;
+            font-weight: 600;
+        }
+        .modal-body {
+            padding: 24px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .modal-players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .modal-player-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .modal-player-item:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+        .modal-player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--p500);
+        }
+        .modal-player-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .modal-player-name {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .modal-player-detail {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            background: rgba(10, 8, 20, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -572,6 +988,7 @@
                     <li><a href="#features">Features</a></li>
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#stats">Stats</a></li>
+                    <li><a href="#lounge">Live Games</a></li>
                 </ul>
                 <div class="nav-cta">
                     <a href="https://discord.gg/fZNDG5sfhf" class="nav-invite" target="_blank">
@@ -629,7 +1046,7 @@
                     <div class="chip">
                         <i class="fas fa-users"></i>
                         <div>
-                            <div class="chip-val" id="hero-members">50</div>
+                            <div class="chip-val" id="hero-members">46</div>
                             <div class="chip-label">Members</div>
                         </div>
                     </div>
@@ -648,6 +1065,28 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── LIVE GAMES LOUNGE ─────────────────────── -->
+    <section id="lounge" class="lounge-section tab-pane active">
+        <div class="container">
+            <div class="sec-head reveal" style="text-align: center;">
+                <div class="lounge-pill">
+                    <span class="lounge-live-dot"></span> Live Lounge <span class="lounge-count-tag" id="lounge-total-players">Online</span>
+                </div>
+                <h2 class="sec-title">Currently Playing in <span class="grad">Ninja Nexus</span></h2>
+                <p class="sec-sub">
+                    Live gaming sessions from community members online right now. Click any game to see who's in session and join the squad!
+                </p>
+            </div>
+            
+            <div id="live-games-grid" class="live-games-grid reveal">
+                <!-- Skeleton cards until loaded -->
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
             </div>
         </div>
     </section>
@@ -704,7 +1143,7 @@
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">50</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">46</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Happy Members</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
@@ -739,7 +1178,7 @@
                     <div class="stat-lbl">Active Server</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-num stat-number" id="user-count-stat" data-target="50" data-suffix="">50</div>
+                    <div class="stat-num stat-number" id="user-count-stat" data-target="46" data-suffix="">46</div>
                     <div class="stat-lbl">Total Members</div>
                 </div>
                 <div class="stat-item">
@@ -1038,12 +1477,41 @@
         </div>
     </footer>
 
+    <!-- ── GAME SESSION MODAL ─────────────────────── -->
+    <div id="game-session-modal" class="game-modal" aria-hidden="true">
+        <div class="modal-backdrop" id="modal-backdrop-close"></div>
+        <div class="modal-box">
+            <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-banner">
+                <img id="modal-game-cover" src="images/nexus_logo.png" alt="Game Banner">
+                <div class="modal-banner-content">
+                    <h3 class="modal-game-title" id="modal-game-title">Game Title</h3>
+                    <div class="modal-game-subtitle" id="modal-game-count">1 Member In-Game</div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 0.76rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;">Active Squad Members</div>
+                <div class="modal-players-list" id="modal-players-list">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span style="font-size: 0.8rem; color: #94a3b8;"><i class="fab fa-discord" style="color: #5865F2; margin-right: 6px;"></i> Ninja Nexus Discord</span>
+                <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-primary" style="padding: 8px 18px; font-size: 0.85rem;">
+                    Join Voice Squad <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script>
         /* ── Navbar scroll ── */
         const nav = document.getElementById('navbar');
         // ── Tab System ─────────────────────────────────────
-        const ALL_TABS = ['home', 'home-cta', 'about', 'features', 'commands', 'stats'];
-        const HOME_TABS = ['home'];
+        const ALL_TABS = ['home', 'lounge', 'home-cta', 'about', 'features', 'commands', 'stats'];
+        const HOME_TABS = ['home', 'lounge', 'home-cta'];
 
         function showTab(targetId) {
             document.body.className = targetId + '-tab-active';
@@ -1062,6 +1530,12 @@
                 });
                 if (footer) footer.style.display = '';
                 document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+            } else if (targetId === 'lounge') {
+                const loungeEl = document.getElementById('lounge');
+                const ctaEl = document.getElementById('home-cta');
+                if (loungeEl) loungeEl.classList.add('active');
+                if (ctaEl) ctaEl.classList.add('active');
+                if (footer) footer.style.display = '';
             } else if (targetId === 'stats') {
                 const statsEl = document.getElementById('stats');
                 const ctaEl = document.getElementById('home-cta');
@@ -1139,42 +1613,71 @@
             });
         });
 
-        /* ── Live stats from API ── */
+        /* ── Live stats from Discord & Bot API ── */
+        let currentNinjaNexusMembers = 46;
+        const activities = ["1 SERVER", "46 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
+        let activityIdx = 0;
+        const dpTexts = document.querySelectorAll('.dp-dynamic-text');
+
         async function fetchPublicStats() {
             try {
-                let d = null;
-                try {
-                    const r = await fetch('/api/bot_data?t=' + Date.now());
-                    if (r.ok) d = await r.json();
-                } catch(e) {}
+                // Fetch Discord invite data (exact Ninja Nexus server member count)
+                // and bot stats (uptime, ping, commands) in parallel
+                const [discordData, botData] = await Promise.allSettled([
+                    (async () => {
+                        try {
+                            let r = await fetch('/api/discord_stats?t=' + Date.now());
+                            if (!r.ok) {
+                                r = await fetch('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true');
+                            }
+                            if (r.ok) return await r.json();
+                        } catch (e) {}
+                        return null;
+                    })(),
+                    (async () => {
+                        try {
+                            let r = await fetch('/api/bot_data?t=' + Date.now());
+                            if (r.ok) return await r.json();
+                        } catch (e) {}
+                        try {
+                            const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
+                            if (r2.ok) return await r2.json();
+                        } catch (e) {}
+                        return null;
+                    })()
+                ]);
 
-                if (!d) {
-                    try {
-                        const r2 = await fetch('http://157.90.181.183:23063/api/public_stats?t=' + Date.now());
-                        if (r2.ok) d = await r2.json();
-                    } catch(e) {}
+                const disc = discordData.status === 'fulfilled' ? discordData.value : null;
+                const d = botData.status === 'fulfilled' ? botData.value : null;
+
+                const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
+
+                // Extract exact Ninja Nexus member count
+                if (disc && (disc.approximate_member_count || (disc.guild && disc.guild.member_count))) {
+                    currentNinjaNexusMembers = disc.approximate_member_count || disc.guild.member_count;
+                } else if (d && d.ninja_nexus_members) {
+                    currentNinjaNexusMembers = d.ninja_nexus_members;
                 }
 
-                if (!d) return;
-                const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
-                
-                // ALWAYS 1 SERVER
+                // ALWAYS 1 SERVER FOR NINJA NEXUS
                 const displayServers = 1;
-                // REAL-TIME MEMBER COUNT
-                const displayUsers = d.total_users || 50;
+                // ONLY NINJA NEXUS MEMBERS
+                const displayUsers = currentNinjaNexusMembers;
                 
                 const hs = document.getElementById('hero-servers');
                 const hm = document.getElementById('hero-members');
                 const hp = document.getElementById('hero-ping');
                 if (hs) hs.textContent = '1';
                 if (hm) hm.textContent = fmt(displayUsers);
-                if (hp) hp.textContent = (d.ping || 106) + ' ms';
+                if (d && hp) hp.textContent = (d.ping || 106) + ' ms';
 
-                if (d.uptime_seconds !== undefined) {
-                    window.heroUptimeSec = d.uptime_seconds;
-                } else if (d.uptime) {
-                    const hu = document.getElementById('hero-uptime');
-                    if (hu) hu.textContent = d.uptime;
+                if (d) {
+                    if (d.uptime_seconds !== undefined) {
+                        window.heroUptimeSec = d.uptime_seconds;
+                    } else if (d.uptime) {
+                        const hu = document.getElementById('hero-uptime');
+                        if (hu) hu.textContent = d.uptime;
+                    }
                 }
 
                 const aServ = document.getElementById('about-servers');
@@ -1182,21 +1685,29 @@
                 const aPing = document.getElementById('about-ping');
                 if (aServ) aServ.textContent = '1';
                 if (aUsers) aUsers.textContent = fmt(displayUsers);
-                if (aPing) aPing.textContent = (d.ping || 106) + 'ms';
+                if (d && aPing) aPing.textContent = (d.ping || 106) + 'ms';
 
                 const sc = document.getElementById('server-count-stat');
                 const uc = document.getElementById('user-count-stat');
                 if (sc) { sc.textContent = '1'; }
                 if (uc) { uc.textContent = fmt(displayUsers); }
                 
-                if (typeof activities !== 'undefined') {
-                    activities[0] = '1 SERVER';
-                    activities[1] = `${fmt(displayUsers)} MEMBERS`;
+                activities[0] = '1 SERVER';
+                activities[1] = `${fmt(displayUsers)} MEMBERS`;
+                if (activityIdx === 1 && dpTexts.length > 0) {
+                    dpTexts.forEach(el => el.textContent = activities[1]);
                 }
-            } catch(e) {}
+                if (d && d.top_played_games && Array.isArray(d.top_played_games)) {
+                    renderLiveGames(d.top_played_games);
+                } else if (!window.hasRenderedLiveGames) {
+                    renderLiveGames([]);
+                }
+            } catch(e) {
+                console.warn('fetchPublicStats notice:', e);
+            }
         }
         fetchPublicStats();
-        setInterval(fetchPublicStats, 10000);
+        startStatsPolling();
 
         // ── Real-time Uptime Counter ──
         window.heroUptimeSec = 3131;
@@ -1216,10 +1727,6 @@
         }, 1000);
 
         // ── Real-time Discord Presence Update ──
-        const activities = ["1 SERVER", "50 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
-        let activityIdx = 0;
-        const dpTexts = document.querySelectorAll('.dp-dynamic-text');
-        
         if (dpTexts.length > 0) {
             setInterval(() => {
                 activityIdx = (activityIdx + 1) % activities.length;
@@ -1232,6 +1739,247 @@
                 }, 300);
             }, 3500);
         }
+
+        // ── LIVE GAMES LOUNGE ENGINE ─────────────────────────
+        const GAME_IMAGE_OVERRIDES = {
+            "valorant": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg",
+            "minecraft": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1x7d.jpg",
+            "roblox": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kch.jpg",
+            "fortnite": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2767.jpg",
+            "genshin": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2040.jpg",
+            "wuthering waves": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6m58.jpg",
+            "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
+            "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+            "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+            "ceylon": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
+            "counter-strike": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
+            "cs2": "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",
+            "pubg": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
+            "battlegrounds": "https://steamcdn-a.akamaihd.net/steam/apps/578080/library_600x900_2x.jpg",
+            "forza": "https://steamcdn-a.akamaihd.net/steam/apps/1551360/library_600x900_2x.jpg",
+            "apex": "https://steamcdn-a.akamaihd.net/steam/apps/1172470/library_600x900_2x.jpg",
+            "red dead": "https://steamcdn-a.akamaihd.net/steam/apps/1174180/library_600x900_2x.jpg",
+            "rdr": "https://steamcdn-a.akamaihd.net/steam/apps/1174180/library_600x900_2x.jpg",
+            "ea sports fc": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8j9u.jpg",
+            "fifa": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8j9u.jpg",
+            "rocket league": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2097.jpg",
+            "cyberpunk": "https://steamcdn-a.akamaihd.net/steam/apps/1091500/library_600x900_2x.jpg",
+            "rust": "https://steamcdn-a.akamaihd.net/steam/apps/252490/library_600x900_2x.jpg",
+            "dota": "https://steamcdn-a.akamaihd.net/steam/apps/570/library_600x900_2x.jpg",
+            "wukong": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/library_600x900_2x.jpg"
+        };
+
+        const DEFAULT_COMMUNITY_GAMES = [
+            { name: "Grand Theft Auto V", count: 1, is_live: false, sample_detail: "Los Santos Street Racing", players: ["N3WB"], player_details: [{ name: "N3WB", avatar: "https://cdn.discordapp.com/embed/avatars/0.png", details: "Exploring Los Santos" }] },
+            { name: "VALORANT", count: 1, is_live: false, sample_detail: "Competitive 5v5", players: ["kiri putha"], player_details: [{ name: "kiri putha", avatar: "https://cdn.discordapp.com/embed/avatars/1.png", details: "In Match" }] },
+            { name: "Minecraft", count: 1, is_live: false, sample_detail: "Survival Realm", players: ["Pegging Boy"], player_details: [{ name: "Pegging Boy", avatar: "https://cdn.discordapp.com/embed/avatars/2.png", details: "Building Megabase" }] },
+            { name: "PUBG: BATTLEGROUNDS", count: 1, is_live: false, sample_detail: "Battle Royale Squads", players: ["Haaaaaalan"], player_details: [{ name: "Haaaaaalan", avatar: "https://cdn.discordapp.com/embed/avatars/3.png", details: "Squad Match" }] }
+        ];
+
+        function getGameImageUrl(game) {
+            if (typeof game === 'string') {
+                const lower = game.toLowerCase();
+                for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+                    if (lower.includes(k)) return url;
+                }
+                return 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';
+            }
+            if (game && game.rich_cover) return game.rich_cover;
+            if (game && game.player_details && game.player_details[0] && game.player_details[0].rich_cover) {
+                return game.player_details[0].rich_cover;
+            }
+            const gameName = game && game.name ? game.name : '';
+            return getGameImageUrl(gameName);
+        }
+
+        let lastGamesDigest = '';
+
+        function renderLiveGames(gamesList) {
+            window.hasRenderedLiveGames = true;
+            const grid = document.getElementById('live-games-grid');
+            if (!grid) return;
+
+            const isRealData = Array.isArray(gamesList) && gamesList.length > 0;
+            const games = isRealData ? gamesList : DEFAULT_COMMUNITY_GAMES;
+
+            // Compute digest to prevent DOM churn/flicker if unchanged
+            const digest = JSON.stringify(games.map(g => ({
+                name: g.name,
+                count: g.count,
+                players: g.players,
+                details: g.player_details ? g.player_details.map(p => p.details) : []
+            })));
+            if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
+                return; // Nothing changed
+            }
+            lastGamesDigest = digest;
+
+            // Total in-game players counter
+            let totalPlayersCount = 0;
+            games.forEach(g => {
+                totalPlayersCount += (g.count || (g.players ? g.players.length : 1));
+            });
+            const totalPlayersEl = document.getElementById('lounge-total-players');
+            if (totalPlayersEl) {
+                totalPlayersEl.textContent = isRealData 
+                    ? `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`
+                    : 'Community Roster';
+            }
+
+            grid.innerHTML = '';
+
+            games.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card reveal visible';
+                const isLive = isRealData || (game.is_live === true);
+                const count = game.count || (game.players ? game.players.length : 1);
+                const matchDetail = game.sample_detail || (game.player_details && game.player_details[0] && game.player_details[0].details) || 'Active Discord Session';
+
+                // Live status badge
+                const liveBadgeHtml = isLive
+                    ? `<div class="game-live-badge"><span class="lounge-live-dot"></span> LIVE</div>`
+                    : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
+
+                // Player count badge
+                const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-user-friends" style="color: var(--p400);"></i> ${count} ${count === 1 ? 'Player' : 'Players'}</div>`;
+
+                // Avatar stack with interactive tooltips
+                const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: p, avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: matchDetail })) : []);
+                const maxVisible = 4;
+                const visiblePlayers = playerDetails.slice(0, maxVisible);
+                const overflowCount = playerDetails.length - maxVisible;
+
+                let avatarsHtml = '<div class="avatar-stack">';
+                visiblePlayers.forEach(p => {
+                    const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+                    const detailStr = p.details ? escapeHtml(p.details) : 'Playing';
+                    avatarsHtml += `
+                        <div class="interactive-avatar-wrap">
+                            <img src="${avatarUrl}" alt="${escapeHtml(p.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                            <div class="player-tooltip">
+                                <span class="tooltip-name">${escapeHtml(p.name)}</span>
+                                <span class="tooltip-status">${detailStr}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (overflowCount > 0) {
+                    avatarsHtml += `<div class="avatar-overflow">+${overflowCount}</div>`;
+                }
+                avatarsHtml += '</div>';
+
+                const coverUrl = getGameImageUrl(game);
+
+                card.innerHTML = `
+                    <div class="game-card-img-wrap">
+                        ${liveBadgeHtml}
+                        ${countBadgeHtml}
+                        <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg';">
+                    </div>
+                    <div class="game-card-body">
+                        <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
+                        <div class="game-match-detail" title="${escapeHtml(matchDetail)}">${escapeHtml(matchDetail)}</div>
+                        <div class="game-players-strip">
+                            ${avatarsHtml}
+                            <span class="game-action-btn">
+                                <i class="fas fa-expand-alt"></i> View Squad
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => {
+                    openGameModal(game, coverUrl, matchDetail);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Initial zero-delay render so community cards appear immediately without skeleton delay
+        renderLiveGames([]);
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // ── GAME SESSION MODAL LOGIC ─────────────────────────
+        const gameModal = document.getElementById('game-session-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalBackdrop = document.getElementById('modal-backdrop-close');
+
+        function openGameModal(game, coverUrl, matchDetail) {
+            if (!gameModal) return;
+            const coverEl = document.getElementById('modal-game-cover');
+            const titleEl = document.getElementById('modal-game-title');
+            const countEl = document.getElementById('modal-game-count');
+            const listEl = document.getElementById('modal-players-list');
+
+            const count = game.count || (game.players ? game.players.length : 1);
+            if (coverEl) coverEl.src = coverUrl || getGameImageUrl(game);
+            if (titleEl) titleEl.textContent = game.name;
+            if (countEl) countEl.textContent = `${count} ${count === 1 ? 'Member' : 'Members'} Active in Session`;
+
+            const players = game.player_details || (game.players ? game.players.map(p => ({ name: p, avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: matchDetail })) : []);
+
+            if (listEl) {
+                listEl.innerHTML = '';
+                players.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'modal-player-item';
+                    item.innerHTML = `
+                        <img class="modal-player-avatar" src="${p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${escapeHtml(p.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                        <div class="modal-player-info">
+                            <div class="modal-player-name">${escapeHtml(p.name)}</div>
+                            <div class="modal-player-detail">${p.details ? escapeHtml(p.details) : 'In Discord Gaming Session'}</div>
+                        </div>
+                        <span style="font-size: 0.72rem; color: #2ecc71; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                            <span class="lounge-live-dot" style="width: 5px; height: 5px;"></span> Playing
+                        </span>
+                    `;
+                    listEl.appendChild(item);
+                });
+            }
+
+            gameModal.classList.add('active');
+            gameModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGameModal() {
+            if (!gameModal) return;
+            gameModal.classList.remove('active');
+            gameModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeGameModal);
+        if (modalBackdrop) modalBackdrop.addEventListener('click', closeGameModal);
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeGameModal();
+        });
+
+        // ── Visibility Change Awareness ──
+        let statsInterval = null;
+        function startStatsPolling() {
+            if (statsInterval) clearInterval(statsInterval);
+            statsInterval = setInterval(fetchPublicStats, 12000);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (statsInterval) clearInterval(statsInterval);
+            } else {
+                fetchPublicStats();
+                startStatsPolling();
+            }
+        });
     </script>
 </body>
 </html>
