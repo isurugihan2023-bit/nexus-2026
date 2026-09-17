@@ -835,25 +835,6 @@
             margin-left: -10px;
             z-index: 5;
         }
-        .game-action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.76rem;
-            font-weight: 750;
-            color: #c084fc;
-            background: rgba(147, 51, 234, 0.12);
-            padding: 6px 14px;
-            border-radius: 9px;
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .game-card:hover .game-action-btn {
-            background: linear-gradient(135deg, var(--p600), var(--p500));
-            color: #fff;
-            border-color: var(--p400);
-            transform: translateY(-1px);
-        }
         /* ── Tooltips ── */
         .interactive-avatar-wrap {
             position: relative;
@@ -1196,7 +1177,6 @@
                                     <div class="player-tooltip"><span class="tooltip-name">Dodam</span><span class="tooltip-status">In Lobby</span></div>
                                 </div>
                             </div>
-                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
                         </div>
                     </div>
                 </div>
@@ -1219,7 +1199,6 @@
                                     <div class="player-tooltip"><span class="tooltip-name">Animo</span><span class="tooltip-status">Playing</span></div>
                                 </div>
                             </div>
-                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
                         </div>
                     </div>
                 </div>
@@ -1242,7 +1221,6 @@
                                     <div class="player-tooltip"><span class="tooltip-name">! DINGDONG GAMING</span><span class="tooltip-status">Editing targeting.lua</span></div>
                                 </div>
                             </div>
-                            <span class="game-action-btn"><i class="fas fa-expand-alt"></i> View Squad</span>
                         </div>
                     </div>
                 </div>
@@ -2105,9 +2083,6 @@
                         <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
                         <div class="game-players-strip">
                             ${avatarsHtml}
-                            <span class="game-action-btn">
-                                <i class="fas fa-expand-alt"></i> View Squad
-                            </span>
                         </div>
                     </div>
                 `;

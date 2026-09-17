@@ -488,9 +488,6 @@ function renderLiveGames(gamesList) {
                 <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
                 <div class="game-players-strip">
                     ${avatarsHtml}
-                    <span class="game-action-btn">
-                        <i class="fas fa-expand-alt"></i> View Squad
-                    </span>
                 </div>
             </div>
         `;
