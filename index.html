@@ -586,20 +586,15 @@
         .lounge-live-dot {
             width: 7px;
             height: 7px;
-            background: #2ecc71;
+            background: #c084fc;
             border-radius: 50%;
-            box-shadow: 0 0 10px #2ecc71;
-            animation: liveGlow 1.8s ease-in-out infinite;
-        }
-        @keyframes liveGlow {
-            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px #2ecc71; }
-            50% { opacity: 0.4; transform: scale(1.3); box-shadow: 0 0 14px #2ecc71; }
         }
         .lounge-count-tag {
-            background: rgba(0,0,0,0.4);
-            padding: 2px 7px;
+            background: rgba(147, 51, 234, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 2px 8px;
             border-radius: 6px;
-            color: #fff;
+            color: #e9d5ff;
             font-weight: 800;
             font-size: 0.72rem;
             margin-left: 4px;
@@ -611,35 +606,28 @@
             margin-top: 36px;
         }
         .game-card {
-            --game-accent: #8b5cf6;
-            --game-accent-glow: rgba(139, 92, 246, 0.35);
-            --game-accent-border: rgba(139, 92, 246, 0.45);
-            background: rgba(16, 14, 28, 0.84);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            --game-accent: #a855f7;
+            --game-accent-border: rgba(168, 85, 247, 0.3);
+            background: rgba(16, 14, 28, 0.88);
+            border: 1px solid rgba(168, 85, 247, 0.22);
             border-radius: 22px;
             overflow: hidden;
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             display: flex;
             flex-direction: column;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.4s ease;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.35s ease;
             cursor: pointer;
             position: relative;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.5);
         }
         .game-card:hover {
-            transform: translateY(-8px) scale(1.012);
-            border-color: var(--game-accent-border);
-            box-shadow: 0 24px 48px -12px var(--game-accent-glow), 0 0 32px -4px var(--game-accent-glow), 0 0 0 1px var(--game-accent-border);
+            transform: translateY(-6px);
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.65);
         }
         .game-card.is-hot {
-            border-color: rgba(245, 158, 11, 0.4);
-            box-shadow: 0 14px 36px -10px rgba(245, 158, 11, 0.25);
-            animation: hotPulse 3s ease-in-out infinite;
-        }
-        @keyframes hotPulse {
-            0%, 100% { border-color: rgba(245, 158, 11, 0.35); box-shadow: 0 12px 30px -10px rgba(245, 158, 11, 0.2); }
-            50% { border-color: rgba(245, 158, 11, 0.7); box-shadow: 0 16px 40px -8px rgba(245, 158, 11, 0.4); }
+            border-color: rgba(168, 85, 247, 0.4);
         }
         .game-card-img-wrap {
             position: relative;
@@ -655,8 +643,8 @@
             transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
         }
         .game-card:hover .game-card-img-wrap img {
-            transform: scale(1.1);
-            filter: brightness(1.08);
+            transform: scale(1.08);
+            filter: brightness(1.05);
         }
         /* Seamless dissolved gradient bleed */
         .game-card-img-wrap::after {
@@ -674,25 +662,23 @@
             align-items: center;
             gap: 7px;
             padding: 5px 12px;
-            background: rgba(10, 10, 16, 0.88);
+            background: rgba(16, 14, 28, 0.92);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(46, 204, 113, 0.45);
+            border: 1px solid rgba(168, 85, 247, 0.35);
             border-radius: 100px;
             font-size: 0.7rem;
             font-weight: 850;
-            color: #2ecc71;
+            color: #c084fc;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             z-index: 3;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .game-live-dot-pulse {
             width: 7px;
             height: 7px;
-            background: #2ecc71;
+            background: #c084fc;
             border-radius: 50%;
-            box-shadow: 0 0 10px #2ecc71;
-            animation: liveGlow 1.6s ease-in-out infinite;
         }
         .game-hot-badge {
             position: absolute;
@@ -702,13 +688,13 @@
             align-items: center;
             gap: 5px;
             padding: 5px 11px;
-            background: rgba(245, 158, 11, 0.16);
+            background: rgba(147, 51, 234, 0.16);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(245, 158, 11, 0.5);
+            border: 1px solid rgba(168, 85, 247, 0.35);
             border-radius: 100px;
             font-size: 0.68rem;
             font-weight: 850;
-            color: #fbbf24;
+            color: #c084fc;
             letter-spacing: 0.06em;
             text-transform: uppercase;
             z-index: 3;
@@ -721,18 +707,18 @@
             align-items: center;
             gap: 6px;
             padding: 5px 12px;
-            background: rgba(10, 10, 16, 0.88);
+            background: rgba(16, 14, 28, 0.92);
             backdrop-filter: blur(10px);
-            border: 1px solid var(--game-accent-border);
+            border: 1px solid rgba(168, 85, 247, 0.3);
             border-radius: 100px;
             font-size: 0.74rem;
             font-weight: 800;
-            color: #fff;
+            color: #f1f5f9;
             z-index: 3;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .game-player-badge i {
-            color: var(--game-accent);
+            color: #c084fc;
         }
         .game-card-body {
             padding: 18px 22px 20px;
@@ -855,19 +841,18 @@
             gap: 6px;
             font-size: 0.76rem;
             font-weight: 750;
-            color: var(--game-accent);
-            background: rgba(255, 255, 255, 0.04);
+            color: #c084fc;
+            background: rgba(147, 51, 234, 0.12);
             padding: 6px 14px;
             border-radius: 9px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .game-card:hover .game-action-btn {
-            background: var(--game-accent);
+            background: linear-gradient(135deg, var(--p600), var(--p500));
             color: #fff;
-            border-color: var(--game-accent);
-            box-shadow: 0 4px 16px var(--game-accent-glow);
-            transform: translateX(2px);
+            border-color: var(--p400);
+            transform: translateY(-1px);
         }
         /* ── Tooltips ── */
         .interactive-avatar-wrap {
@@ -1188,7 +1173,7 @@
             
             <div id="live-games-grid" class="live-games-grid reveal">
                 <!-- Pre-rendered active gaming sessions (dynamically synchronized with bot API) -->
-                <div class="game-card reveal visible is-hot" style="--game-accent: #38bdf8; --game-accent-glow: rgba(56, 189, 248, 0.35); --game-accent-border: rgba(56, 189, 248, 0.5);">
+                <div class="game-card reveal visible">
                     <div class="game-card-img-wrap">
                         <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
                         <div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>
@@ -1216,7 +1201,7 @@
                     </div>
                 </div>
 
-                <div class="game-card reveal visible" style="--game-accent: #f97316; --game-accent-glow: rgba(249, 115, 22, 0.35); --game-accent-border: rgba(249, 115, 22, 0.5);">
+                <div class="game-card reveal visible">
                     <div class="game-card-img-wrap">
                         <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
                         <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
@@ -1239,7 +1224,7 @@
                     </div>
                 </div>
 
-                <div class="game-card reveal visible" style="--game-accent: #3b82f6; --game-accent-glow: rgba(59, 130, 246, 0.35); --game-accent-border: rgba(59, 130, 246, 0.5);">
+                <div class="game-card reveal visible">
                     <div class="game-card-img-wrap">
                         <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
                         <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
@@ -1876,43 +1861,55 @@
             "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
         };
 
-        const GAME_THEMES = {
-            "brawlhalla": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Platform Fighter", icon: "fa-fist-raised" },
-            "visual studio code": { accent: "#3b82f6", glow: "rgba(59, 130, 246, 0.35)", border: "rgba(59, 130, 246, 0.5)", tag: "Development", icon: "fa-code" },
-            "vscode": { accent: "#3b82f6", glow: "rgba(59, 130, 246, 0.35)", border: "rgba(59, 130, 246, 0.5)", tag: "Development", icon: "fa-code" },
-            "ceylon": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
-            "dream creation": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Studio", icon: "fa-code" },
-            "fivem": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
-            "grand theft auto": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "GTA V / FiveM", icon: "fa-car" },
-            "gta": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "GTA V / FiveM", icon: "fa-car" },
-            "valorant": { accent: "#ff4655", glow: "rgba(255, 70, 85, 0.38)", border: "rgba(255, 70, 85, 0.55)", tag: "Tactical FPS", icon: "fa-crosshairs" },
-            "pubg": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.35)", border: "rgba(245, 158, 11, 0.5)", tag: "Battle Royale", icon: "fa-crosshairs" },
-            "battlegrounds": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.35)", border: "rgba(245, 158, 11, 0.5)", tag: "Battle Royale", icon: "fa-crosshairs" },
-            "minecraft": { accent: "#22c55e", glow: "rgba(34, 197, 94, 0.35)", border: "rgba(34, 197, 94, 0.5)", tag: "Sandbox Survival", icon: "fa-cube" },
-            "counter-strike": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Competitive FPS", icon: "fa-bullseye" },
-            "cs2": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Competitive FPS", icon: "fa-bullseye" },
-            "forza": { accent: "#ec4899", glow: "rgba(236, 72, 153, 0.35)", border: "rgba(236, 72, 153, 0.5)", tag: "Sim Racing", icon: "fa-flag-checkered" },
-            "apex": { accent: "#ef4444", glow: "rgba(239, 68, 68, 0.35)", border: "rgba(239, 68, 68, 0.5)", tag: "Battle Royale", icon: "fa-shield-halved" },
-            "roblox": { accent: "#ef4444", glow: "rgba(239, 68, 68, 0.35)", border: "rgba(239, 68, 68, 0.5)", tag: "Platform Sandbox", icon: "fa-shapes" },
-            "red dead": { accent: "#dc2626", glow: "rgba(220, 38, 38, 0.35)", border: "rgba(220, 38, 38, 0.5)", tag: "Open World RPG", icon: "fa-hat-cowboy" },
-            "rdr": { accent: "#dc2626", glow: "rgba(220, 38, 38, 0.35)", border: "rgba(220, 38, 38, 0.5)", tag: "Open World RPG", icon: "fa-hat-cowboy" },
-            "cyberpunk": { accent: "#06b6d4", glow: "rgba(6, 182, 212, 0.35)", border: "rgba(6, 182, 212, 0.5)", tag: "Cyber RPG", icon: "fa-microchip" },
-            "rust": { accent: "#ea580c", glow: "rgba(234, 88, 12, 0.35)", border: "rgba(234, 88, 12, 0.5)", tag: "Survival", icon: "fa-hammer" },
-            "dota": { accent: "#f43f5e", glow: "rgba(244, 63, 94, 0.35)", border: "rgba(244, 63, 94, 0.5)", tag: "MOBA Strategy", icon: "fa-chess-knight" },
-            "wukong": { accent: "#d97706", glow: "rgba(217, 119, 6, 0.35)", border: "rgba(217, 119, 6, 0.5)", tag: "Action RPG", icon: "fa-dragon" },
-            "wuthering waves": { accent: "#6366f1", glow: "rgba(99, 102, 241, 0.35)", border: "rgba(99, 102, 241, 0.5)", tag: "Action RPG", icon: "fa-bolt" },
-            "league of legends": { accent: "#eab308", glow: "rgba(234, 179, 8, 0.35)", border: "rgba(234, 179, 8, 0.5)", tag: "MOBA Arena", icon: "fa-shield" },
-            "arc raiders": { accent: "#f97316", glow: "rgba(249, 115, 22, 0.35)", border: "rgba(249, 115, 22, 0.5)", tag: "Extraction Shooter", icon: "fa-crosshairs" },
-            "arc": { accent: "#f97316", glow: "rgba(249, 115, 22, 0.35)", border: "rgba(249, 115, 22, 0.5)", tag: "Extraction Shooter", icon: "fa-crosshairs" }
+        const GAME_METADATA = {
+            "brawlhalla": { tag: "Platform Fighter", icon: "fa-fist-raised" },
+            "visual studio code": { tag: "Development", icon: "fa-code" },
+            "vscode": { tag: "Development", icon: "fa-code" },
+            "ceylon": { tag: "FiveM Roleplay", icon: "fa-car" },
+            "dream creation": { tag: "FiveM Studio", icon: "fa-code" },
+            "fivem": { tag: "FiveM Roleplay", icon: "fa-car" },
+            "grand theft auto": { tag: "GTA V / FiveM", icon: "fa-car" },
+            "gta": { tag: "GTA V / FiveM", icon: "fa-car" },
+            "valorant": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "pubg": { tag: "Battle Royale", icon: "fa-crosshairs" },
+            "battlegrounds": { tag: "Battle Royale", icon: "fa-crosshairs" },
+            "minecraft": { tag: "Sandbox Survival", icon: "fa-cube" },
+            "counter-strike": { tag: "Competitive FPS", icon: "fa-bullseye" },
+            "cs2": { tag: "Competitive FPS", icon: "fa-bullseye" },
+            "forza": { tag: "Sim Racing", icon: "fa-flag-checkered" },
+            "apex": { tag: "Battle Royale", icon: "fa-shield-halved" },
+            "roblox": { tag: "Platform Sandbox", icon: "fa-shapes" },
+            "red dead": { tag: "Open World RPG", icon: "fa-hat-cowboy" },
+            "rdr": { tag: "Open World RPG", icon: "fa-hat-cowboy" },
+            "cyberpunk": { tag: "Cyber RPG", icon: "fa-microchip" },
+            "rust": { tag: "Survival", icon: "fa-hammer" },
+            "dota": { tag: "MOBA Strategy", icon: "fa-chess-knight" },
+            "wukong": { tag: "Action RPG", icon: "fa-dragon" },
+            "wuthering waves": { tag: "Action RPG", icon: "fa-bolt" },
+            "league of legends": { tag: "MOBA Arena", icon: "fa-shield" },
+            "arc raiders": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
+            "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" }
         };
 
         function getGameTheme(gameName) {
-            if (!gameName) return { accent: "#a855f7", glow: "rgba(168, 85, 247, 0.35)", border: "rgba(168, 85, 247, 0.5)", tag: "Multiplayer", icon: "fa-gamepad" };
-            const lower = gameName.toLowerCase();
-            for (const [k, theme] of Object.entries(GAME_THEMES)) {
-                if (lower.includes(k)) return theme;
+            let tag = "Live Gaming";
+            let icon = "fa-gamepad";
+            if (gameName) {
+                const lower = gameName.toLowerCase();
+                for (const [k, meta] of Object.entries(GAME_METADATA)) {
+                    if (lower.includes(k)) {
+                        tag = meta.tag;
+                        icon = meta.icon;
+                        break;
+                    }
+                }
             }
-            return { accent: "#a855f7", glow: "rgba(168, 85, 247, 0.35)", border: "rgba(168, 85, 247, 0.5)", tag: "Live Gaming", icon: "fa-gamepad" };
+            return {
+                accent: "#a855f7",
+                border: "rgba(168, 85, 247, 0.35)",
+                tag: tag,
+                icon: icon
+            };
         }
 
         const DEFAULT_COMMUNITY_GAMES = [
@@ -2021,7 +2018,6 @@
 
                 card.className = `game-card reveal visible ${isHot ? 'is-hot' : ''}`;
                 card.style.setProperty('--game-accent', theme.accent);
-                card.style.setProperty('--game-accent-glow', theme.glow);
                 card.style.setProperty('--game-accent-border', theme.border);
 
                 let matchDetail = game.sample_detail || (game.player_details && game.player_details[0] && game.player_details[0].details) || 'Active Discord Session';

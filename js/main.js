@@ -251,43 +251,55 @@ const GAME_IMAGE_OVERRIDES = {
     "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
 };
 
-const GAME_THEMES = {
-    "brawlhalla": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Platform Fighter", icon: "fa-fist-raised" },
-    "visual studio code": { accent: "#3b82f6", glow: "rgba(59, 130, 246, 0.35)", border: "rgba(59, 130, 246, 0.5)", tag: "Development", icon: "fa-code" },
-    "vscode": { accent: "#3b82f6", glow: "rgba(59, 130, 246, 0.35)", border: "rgba(59, 130, 246, 0.5)", tag: "Development", icon: "fa-code" },
-    "ceylon": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
-    "dream creation": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Studio", icon: "fa-code" },
-    "fivem": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "FiveM Roleplay", icon: "fa-car" },
-    "grand theft auto": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "GTA V / FiveM", icon: "fa-car" },
-    "gta": { accent: "#10b981", glow: "rgba(16, 185, 129, 0.35)", border: "rgba(16, 185, 129, 0.5)", tag: "GTA V / FiveM", icon: "fa-car" },
-    "valorant": { accent: "#ff4655", glow: "rgba(255, 70, 85, 0.38)", border: "rgba(255, 70, 85, 0.55)", tag: "Tactical FPS", icon: "fa-crosshairs" },
-    "pubg": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.35)", border: "rgba(245, 158, 11, 0.5)", tag: "Battle Royale", icon: "fa-crosshairs" },
-    "battlegrounds": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.35)", border: "rgba(245, 158, 11, 0.5)", tag: "Battle Royale", icon: "fa-crosshairs" },
-    "minecraft": { accent: "#22c55e", glow: "rgba(34, 197, 94, 0.35)", border: "rgba(34, 197, 94, 0.5)", tag: "Sandbox Survival", icon: "fa-cube" },
-    "counter-strike": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Competitive FPS", icon: "fa-bullseye" },
-    "cs2": { accent: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)", border: "rgba(56, 189, 248, 0.5)", tag: "Competitive FPS", icon: "fa-bullseye" },
-    "forza": { accent: "#ec4899", glow: "rgba(236, 72, 153, 0.35)", border: "rgba(236, 72, 153, 0.5)", tag: "Sim Racing", icon: "fa-flag-checkered" },
-    "apex": { accent: "#ef4444", glow: "rgba(239, 68, 68, 0.35)", border: "rgba(239, 68, 68, 0.5)", tag: "Battle Royale", icon: "fa-shield-halved" },
-    "roblox": { accent: "#ef4444", glow: "rgba(239, 68, 68, 0.35)", border: "rgba(239, 68, 68, 0.5)", tag: "Platform Sandbox", icon: "fa-shapes" },
-    "red dead": { accent: "#dc2626", glow: "rgba(220, 38, 38, 0.35)", border: "rgba(220, 38, 38, 0.5)", tag: "Open World RPG", icon: "fa-hat-cowboy" },
-    "rdr": { accent: "#dc2626", glow: "rgba(220, 38, 38, 0.35)", border: "rgba(220, 38, 38, 0.5)", tag: "Open World RPG", icon: "fa-hat-cowboy" },
-    "cyberpunk": { accent: "#06b6d4", glow: "rgba(6, 182, 212, 0.35)", border: "rgba(6, 182, 212, 0.5)", tag: "Cyber RPG", icon: "fa-microchip" },
-    "rust": { accent: "#ea580c", glow: "rgba(234, 88, 12, 0.35)", border: "rgba(234, 88, 12, 0.5)", tag: "Survival", icon: "fa-hammer" },
-    "dota": { accent: "#f43f5e", glow: "rgba(244, 63, 94, 0.35)", border: "rgba(244, 63, 94, 0.5)", tag: "MOBA Strategy", icon: "fa-chess-knight" },
-    "wukong": { accent: "#d97706", glow: "rgba(217, 119, 6, 0.35)", border: "rgba(217, 119, 6, 0.5)", tag: "Action RPG", icon: "fa-dragon" },
-    "wuthering waves": { accent: "#6366f1", glow: "rgba(99, 102, 241, 0.35)", border: "rgba(99, 102, 241, 0.5)", tag: "Action RPG", icon: "fa-bolt" },
-    "league of legends": { accent: "#eab308", glow: "rgba(234, 179, 8, 0.35)", border: "rgba(234, 179, 8, 0.5)", tag: "MOBA Arena", icon: "fa-shield" },
-    "arc raiders": { accent: "#f97316", glow: "rgba(249, 115, 22, 0.35)", border: "rgba(249, 115, 22, 0.5)", tag: "Extraction Shooter", icon: "fa-crosshairs" },
-    "arc": { accent: "#f97316", glow: "rgba(249, 115, 22, 0.35)", border: "rgba(249, 115, 22, 0.5)", tag: "Extraction Shooter", icon: "fa-crosshairs" }
+const GAME_METADATA = {
+    "brawlhalla": { tag: "Platform Fighter", icon: "fa-fist-raised" },
+    "visual studio code": { tag: "Development", icon: "fa-code" },
+    "vscode": { tag: "Development", icon: "fa-code" },
+    "ceylon": { tag: "FiveM Roleplay", icon: "fa-car" },
+    "dream creation": { tag: "FiveM Studio", icon: "fa-code" },
+    "fivem": { tag: "FiveM Roleplay", icon: "fa-car" },
+    "grand theft auto": { tag: "GTA V / FiveM", icon: "fa-car" },
+    "gta": { tag: "GTA V / FiveM", icon: "fa-car" },
+    "valorant": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+    "pubg": { tag: "Battle Royale", icon: "fa-crosshairs" },
+    "battlegrounds": { tag: "Battle Royale", icon: "fa-crosshairs" },
+    "minecraft": { tag: "Sandbox Survival", icon: "fa-cube" },
+    "counter-strike": { tag: "Competitive FPS", icon: "fa-bullseye" },
+    "cs2": { tag: "Competitive FPS", icon: "fa-bullseye" },
+    "forza": { tag: "Sim Racing", icon: "fa-flag-checkered" },
+    "apex": { tag: "Battle Royale", icon: "fa-shield-halved" },
+    "roblox": { tag: "Platform Sandbox", icon: "fa-shapes" },
+    "red dead": { tag: "Open World RPG", icon: "fa-hat-cowboy" },
+    "rdr": { tag: "Open World RPG", icon: "fa-hat-cowboy" },
+    "cyberpunk": { tag: "Cyber RPG", icon: "fa-microchip" },
+    "rust": { tag: "Survival", icon: "fa-hammer" },
+    "dota": { tag: "MOBA Strategy", icon: "fa-chess-knight" },
+    "wukong": { tag: "Action RPG", icon: "fa-dragon" },
+    "wuthering waves": { tag: "Action RPG", icon: "fa-bolt" },
+    "league of legends": { tag: "MOBA Arena", icon: "fa-shield" },
+    "arc raiders": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
+    "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" }
 };
 
 function getGameTheme(gameName) {
-    if (!gameName) return { accent: "#a855f7", glow: "rgba(168, 85, 247, 0.35)", border: "rgba(168, 85, 247, 0.5)", tag: "Multiplayer", icon: "fa-gamepad" };
-    const lower = gameName.toLowerCase();
-    for (const [k, theme] of Object.entries(GAME_THEMES)) {
-        if (lower.includes(k)) return theme;
+    let tag = "Live Gaming";
+    let icon = "fa-gamepad";
+    if (gameName) {
+        const lower = gameName.toLowerCase();
+        for (const [k, meta] of Object.entries(GAME_METADATA)) {
+            if (lower.includes(k)) {
+                tag = meta.tag;
+                icon = meta.icon;
+                break;
+            }
+        }
     }
-    return { accent: "#a855f7", glow: "rgba(168, 85, 247, 0.35)", border: "rgba(168, 85, 247, 0.5)", tag: "Live Gaming", icon: "fa-gamepad" };
+    return {
+        accent: "#a855f7",
+        border: "rgba(168, 85, 247, 0.35)",
+        tag: tag,
+        icon: icon
+    };
 }
 
 const DEFAULT_COMMUNITY_GAMES = [
@@ -395,7 +407,6 @@ function renderLiveGames(gamesList) {
 
         card.className = `game-card reveal visible ${isHot ? 'is-hot' : ''}`;
         card.style.setProperty('--game-accent', theme.accent);
-        card.style.setProperty('--game-accent-glow', theme.glow);
         card.style.setProperty('--game-accent-border', theme.border);
 
         let matchDetail = game.sample_detail || (game.player_details && game.player_details[0] && game.player_details[0].details) || 'Active Discord Session';
