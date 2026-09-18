@@ -1006,7 +1006,6 @@ function renderMostPlayedCard(g, idx) {
             <div class="game-card-body">
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-gamepad'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                 <div class="game-name" title="${escapeHtml(gameName)}">${escapeHtml(gameName)}</div>
-                <div class="game-match-detail" title="${totalHours} Hours Logged"><i class="fas fa-trophy"></i> Top Played This Week</div>
                 <div class="game-players-strip">
                     <div class="game-player-headline" style="margin-bottom: 0;">
                         <i class="fas fa-users"></i>
