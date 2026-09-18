@@ -1032,11 +1032,11 @@ async function fetchMostPlayedStats() {
 
 // ── Top 5 Voice Time Leaderboard Loader ──
 const FALLBACK_VOICE_LEADERBOARD = [
-    { username: 'Dodam', total_hours: '26.4' },
-    { username: 'PaMuJiThA', total_hours: '18.2' },
-    { username: 'Animo', total_hours: '12.5' },
-    { username: 'Hirusha', total_hours: '9.8' },
-    { username: 'Gineth', total_hours: '7.4' }
+    { username: 'Thivina', total_hours: '135.9' },
+    { username: 'N3WB', total_hours: '81.0' },
+    { username: 'IndiGO', total_hours: '49.3' },
+    { username: 'TrackPanda', total_hours: '44.1' },
+    { username: 'RL STREAMING', total_hours: '26.7' }
 ];
 
 function renderVoiceLeaderboardCard(u, idx) {
