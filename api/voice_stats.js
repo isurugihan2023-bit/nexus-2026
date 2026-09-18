@@ -59,24 +59,24 @@ export default async function handler(req, res) {
         },
         {
             rank: 4,
-            name: "Pegging Boy",
-            username: "cr4zy12",
-            avatar: "https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128",
-            base_seconds: 221460 // 61h 31m
+            name: "IndiGO",
+            username: "indigo",
+            avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=256&h=256&fit=crop&q=80",
+            base_seconds: 177480 // 49.3h -> 49h 18m
         },
         {
             rank: 5,
-            name: "hirusha",
-            username: "hirusha4455",
-            avatar: "https://cdn.discordapp.com/avatars/1290610484558434314/a220c10fc003d68a502fbc0051ccc862.png?size=128",
-            base_seconds: 159480 // 44h 18m
+            name: "TrackPanda",
+            username: "trackpanda112",
+            avatar: "https://images.unsplash.com/photo-1527118732049-c88155f2107c?w=256&h=256&fit=crop&q=80",
+            base_seconds: 158760 // 44.1h -> 44h 06m
         },
         {
             rank: 6,
-            name: "Gineth",
-            username: "gineth",
-            avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=128",
-            base_seconds: 103500 // 28h 45m
+            name: "RL STREAMING",
+            username: "rl_streaming",
+            avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=256&h=256&fit=crop&q=80",
+            base_seconds: 96120 // 26.7h -> 26h 42m
         }
     ];
 
