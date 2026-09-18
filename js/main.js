@@ -24,7 +24,7 @@ function showTab(targetId) {
     } else if (targetId === 'lounge') {
         const loungeEl = document.getElementById('lounge');
         if (loungeEl) loungeEl.classList.add('active');
-        if (footer) footer.style.display = '';
+        if (footer) footer.style.display = 'none';
     } else if (targetId === 'stats') {
         const statsEl = document.getElementById('stats');
         const ctaEl = document.getElementById('home-cta');

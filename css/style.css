@@ -650,4 +650,11 @@ body.home-tab-active .hero-section { display: flex !important; }
 .footer {
     margin-top: auto;
 }
+body.lounge-tab-active .footer,
+body.lounge-tab-active #site-footer {
+    display: none !important;
+}
+body.lounge-tab-active .lounge-section {
+    border-bottom: none;
+}
 

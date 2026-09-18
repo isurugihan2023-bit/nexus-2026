@@ -498,12 +498,18 @@
         .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
         .cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 
-        /* ── FOOTER ─────────────────────── */
         .footer {
             border-top: 1px solid var(--border);
             background: var(--bg2);
             padding: 72px 0 36px;
             margin-top: auto;
+        }
+        body.lounge-tab-active .footer,
+        body.lounge-tab-active #site-footer {
+            display: none !important;
+        }
+        body.lounge-tab-active .lounge-section {
+            border-bottom: none;
         }
         .footer-grid {
             display: grid;
@@ -1817,7 +1823,7 @@
             } else if (targetId === 'lounge') {
                 const loungeEl = document.getElementById('lounge');
                 if (loungeEl) loungeEl.classList.add('active');
-                if (footer) footer.style.display = '';
+                if (footer) footer.style.display = 'none';
             } else if (targetId === 'stats') {
                 const statsEl = document.getElementById('stats');
                 const ctaEl = document.getElementById('home-cta');
