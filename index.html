@@ -783,6 +783,8 @@
             padding: 18px 22px 20px;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            text-align: center;
             flex-grow: 1;
             position: relative;
             z-index: 3;
@@ -799,6 +801,7 @@
             margin-bottom: 5px;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 5px;
         }
         .game-name {
@@ -811,6 +814,8 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: center;
+            width: 100%;
         }
         .game-player-headline {
             font-size: 0.88rem;
@@ -819,6 +824,7 @@
             margin-bottom: 6px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 7px;
             white-space: nowrap;
             overflow: hidden;
@@ -844,7 +850,9 @@
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
+            width: 100%;
         }
         .game-match-detail i {
             font-size: 0.72rem;
@@ -854,15 +862,18 @@
         .game-players-strip {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
             margin-top: auto;
             padding-top: 14px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
         }
         .game-players-strip .avatar-stack {
             flex-shrink: 0;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
         .avatar-stack {
             display: flex;
@@ -904,14 +915,13 @@
         }
         .game-players-strip .game-player-headline {
             margin-bottom: 0;
-            flex: 1;
+            flex: 0 1 auto;
             min-width: 0;
         }
 
         /* ── Squad Size Prompt & Subnav ── */
         .game-squad-prompt {
-            margin-top: 6px;
-            margin-bottom: 8px;
+            margin: 6px auto 8px auto;
             padding: 4px 10px;
             background: rgba(168, 85, 247, 0.12);
             border: 1px dashed rgba(168, 85, 247, 0.35);
@@ -922,6 +932,7 @@
             font-family: var(--font);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
         }
         .lounge-subnav {

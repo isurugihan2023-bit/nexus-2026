@@ -643,6 +643,34 @@ body.home-tab-active .hero-section { display: flex !important; }
     max-width: 100%;
     flex: 0 1 350px;
 }
+.game-card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.game-genre-tag {
+    justify-content: center;
+}
+.game-name {
+    text-align: center;
+    width: 100%;
+}
+.game-match-detail {
+    justify-content: center;
+    width: 100%;
+}
+.game-players-strip {
+    justify-content: center;
+    width: 100%;
+}
+.game-players-strip .avatar-stack {
+    justify-content: center;
+}
+.game-players-strip .game-player-headline {
+    flex: 0 1 auto;
+    justify-content: center;
+}
 .live-games-grid .empty-lounge-state {
     width: 100%;
     flex: 1 1 100%;
