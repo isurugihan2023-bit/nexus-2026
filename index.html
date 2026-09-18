@@ -953,62 +953,6 @@
             margin-bottom: 24px;
             font-family: var(--font);
         }
-        /* ── Live Stats Strip ── */
-        .lounge-stats-strip {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            max-width: 580px;
-            width: 100%;
-            margin: 0 auto 32px auto;
-            background: #100e1c;
-            border: 1px solid rgba(168, 85, 247, 0.25);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        .lounge-stat-col {
-            padding: 16px 14px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-        .lounge-stat-col:not(:last-child) {
-            border-right: 1px solid rgba(168, 85, 247, 0.18);
-        }
-        .lounge-stat-num {
-            font-size: clamp(1.4rem, 2.5vw, 1.85rem);
-            font-weight: 850;
-            color: #ffffff;
-            line-height: 1.2;
-            letter-spacing: -0.02em;
-            font-family: var(--font);
-        }
-        .lounge-stat-label {
-            font-size: 0.68rem;
-            font-weight: 750;
-            color: #a78bfa;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-top: 5px;
-            line-height: 1.2;
-        }
-        @media (max-width: 480px) {
-            .lounge-stats-strip {
-                margin-bottom: 24px;
-            }
-            .lounge-stat-col {
-                padding: 12px 6px;
-            }
-            .lounge-stat-num {
-                font-size: 1.3rem;
-            }
-            .lounge-stat-label {
-                font-size: 0.62rem;
-            }
-        }
         .lounge-tab-btn {
             background: #120f22;
             border: 1px solid rgba(139, 92, 246, 0.2);
@@ -1437,22 +1381,6 @@
                 </div>
             </div>
             
-            <!-- Live Stats Strip -->
-            <div class="lounge-stats-strip reveal" id="lounge-stats-strip">
-                <div class="lounge-stat-col">
-                    <div class="lounge-stat-num" id="lounge-stat-total">47</div>
-                    <div class="lounge-stat-label">Total Members</div>
-                </div>
-                <div class="lounge-stat-col">
-                    <div class="lounge-stat-num" id="lounge-stat-online">0</div>
-                    <div class="lounge-stat-label">Online Now</div>
-                </div>
-                <div class="lounge-stat-col">
-                    <div class="lounge-stat-num" id="lounge-stat-playing">0</div>
-                    <div class="lounge-stat-label">Playing a Game</div>
-                </div>
-            </div>
-
             <div id="live-games-grid" class="live-games-grid reveal"></div>
 
             <!-- Sub-containers for Most Played & Leaderboard -->
