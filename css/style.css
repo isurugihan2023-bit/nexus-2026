@@ -131,7 +131,6 @@ ul { list-style: none; }
     font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em;
 }
 .nav-logo img { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; }
-.nav-logo-dot { width: 7px; height: 7px; background: var(--p500); border-radius: 50%; }
 
 .nav-links { display: flex; align-items: center; gap: 32px; position: relative; }
 .nav-links a {
