@@ -798,91 +798,128 @@ footer {
     border-bottom: none;
 }
 
-/* ── Top 5 Voice Time Section ── */
+/* ── Top Voice Time Card Layout ── */
 .voice-leaderboard-wrap {
-    margin-top: 56px;
-    padding-top: 44px;
+    margin-top: 50px;
+    padding-top: 36px;
     border-top: 1px solid rgba(139, 92, 246, 0.12);
     width: 100%;
+    display: flex;
+    justify-content: center;
 }
-.voice-leaderboard-head {
-    text-align: center;
-    margin-bottom: 24px;
+.voice-leaderboard-card-box {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(13, 16, 28, 0.85);
+    border: 1px solid rgba(139, 92, 246, 0.22);
+    border-radius: 20px;
+    padding: 22px 24px;
+    box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6), 0 0 30px -10px rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(16px);
 }
-.voice-lead-badge {
+.voice-leaderboard-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.voice-leaderboard-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+    font-family: var(--font);
+    margin: 0;
+}
+.voice-leaderboard-header-title .trophy {
+    font-size: 1.25rem;
+}
+.voice-live-badge {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 5px 14px;
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    border-radius: 999px;
-    color: #c084fc;
-    font-size: 0.74rem;
+    gap: 6px;
+    padding: 3px 10px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-radius: 100px;
+    color: #34d399;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    letter-spacing: 0.06em;
 }
-.voice-lead-title {
-    font-size: 1.45rem;
-    font-weight: 850;
-    color: #fff;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-}
-.voice-lead-sub {
-    font-size: 0.86rem;
-    color: var(--muted);
-    max-width: 500px;
-    margin: 0 auto;
-}
-.voice-leaderboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-}
-.voice-user-card {
-    background: rgba(16, 14, 28, 0.9);
-    border: 1px solid rgba(168, 85, 247, 0.22);
-    border-radius: 18px;
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-family: var(--font);
-    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-}
-.voice-user-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(168, 85, 247, 0.5);
-    box-shadow: 0 10px 24px -6px rgba(139, 92, 246, 0.2);
-    background: rgba(22, 19, 38, 0.95);
-}
-.voice-user-rank {
-    width: 40px;
-    height: 40px;
+.voice-live-badge .live-dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: rgba(139, 92, 246, 0.12);
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    color: #c084fc;
-    font-weight: 850;
-    font-size: 0.88rem;
-    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', var(--font), sans-serif;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    animation: pulse-live 2s infinite;
+}
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+.voice-leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+.voice-row-item {
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding: 10px 16px;
+    background: rgba(22, 26, 44, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--font);
+}
+.voice-row-item:hover {
+    background: rgba(30, 36, 62, 0.85);
+    border-color: rgba(168, 85, 247, 0.35);
+    transform: translateX(4px);
+}
+.voice-row-rank {
+    font-size: 0.92rem;
+    font-weight: 750;
+    color: #60a5fa;
+    width: 28px;
     flex-shrink: 0;
-    transition: transform 0.25s ease;
+    font-family: var(--font);
 }
-.voice-user-card:hover .voice-user-rank {
-    transform: scale(1.08);
-    border-color: rgba(168, 85, 247, 0.6);
-    background: rgba(124, 58, 237, 0.2);
+.voice-row-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: #151828;
+    flex-shrink: 0;
 }
-.voice-user-info { flex-grow: 1; overflow: hidden; font-family: var(--font); }
-.voice-user-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 4px; font-family: var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.voice-user-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; display: flex; align-items: center; gap: 6px; }
-.voice-user-hours i { color: var(--p400); font-size: 0.76rem; }
+.voice-row-name {
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: #f8fafc;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--font);
+}
+.voice-row-time {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-left: 12px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font);
+}
+
 

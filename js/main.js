@@ -248,6 +248,7 @@ async function fetchDiscordStats() {
 async function fetchPublicStats() {
     fetchBotData();
     fetchDiscordStats();
+    fetchVoiceLeaderboard();
 }
 
 const GAME_IMAGE_OVERRIDES = {
@@ -1030,62 +1031,82 @@ async function fetchMostPlayedStats() {
     }
 }
 
-// ── Top 5 Voice Time Leaderboard Loader ──
+// ── Top Voice Time Real-Time Loader ──
 const FALLBACK_VOICE_LEADERBOARD = [
-    { username: 'Thivina', total_hours: '135.9' },
-    { username: 'N3WB', total_hours: '81.0' },
-    { username: 'IndiGO', total_hours: '49.3' },
-    { username: 'TrackPanda', total_hours: '44.1' },
-    { username: 'RL STREAMING', total_hours: '26.7' }
+    { rank: 1, name: 'kiri putha', avatar: 'https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128', time: '164h 26m', total_seconds: 591960 },
+    { rank: 2, name: 'local leclerc', avatar: 'https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128', time: '111h 37m', total_seconds: 401820 },
+    { rank: 3, name: 'N3WB', avatar: 'https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128', time: '90h 56m', total_seconds: 327360 },
+    { rank: 4, name: 'Pegging Boy', avatar: 'https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128', time: '61h 31m', total_seconds: 221460 }
 ];
 
-function renderVoiceLeaderboardCard(u, idx) {
-    const rankContent = idx === 0 
-        ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
-        : (idx === 1 
-            ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
-            : (idx === 2 
-                ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
-                : `<span class="rank-num">#${idx + 1}</span>`));
+let currentVoiceData = [...FALLBACK_VOICE_LEADERBOARD];
+let voiceDataLoadTimestamp = Date.now();
 
-    return `
-        <div class="voice-user-card">
-            <div class="voice-user-rank">${rankContent}</div>
-            <div class="voice-user-info">
-                <div class="voice-user-name">${escapeHtml(u.username)}</div>
-                <div class="voice-user-hours"><i class="fas fa-headset"></i> ${u.total_hours} Hours Active</div>
-            </div>
+function renderVoiceLeaderboardRows(users) {
+    return users.map((u, idx) => `
+        <div class="voice-row-item">
+            <span class="voice-row-rank">#${u.rank || (idx + 1)}</span>
+            <img class="voice-row-avatar" src="${escapeHtml(u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(u.name || '')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <span class="voice-row-name">${escapeHtml(u.name || 'Member')}</span>
+            <span class="voice-row-time" data-row-idx="${idx}">${escapeHtml(u.time || '')}</span>
         </div>
-    `;
+    `).join('');
 }
 
 async function fetchVoiceLeaderboard() {
-    const container = document.getElementById('voice-leaderboard-grid');
+    const container = document.getElementById('voice-leaderboard-list');
     if (!container) return;
 
     try {
-        const resp = await fetch('/api/stats/leaderboard?period=week&limit=5');
-        if (!resp.ok) throw new Error('Leaderboard API offline');
-        const data = await resp.json();
-        const users = (data.leaderboard && data.leaderboard.length > 0) 
-            ? data.leaderboard.slice(0, 5) 
-            : FALLBACK_VOICE_LEADERBOARD;
+        const endpoints = [
+            '/api/voice_stats?_t=' + Date.now(),
+            'http://157.90.181.183:23063/api/voice_stats?_t=' + Date.now()
+        ];
+        let liveTop = null;
+        for (const url of endpoints) {
+            try {
+                const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.top && data.top.length > 0) {
+                        liveTop = data.top;
+                        break;
+                    }
+                }
+            } catch(e) {}
+        }
 
-        let html = '';
-        users.forEach((u, idx) => {
-            html += renderVoiceLeaderboardCard(u, idx);
-        });
-        container.innerHTML = html;
+        if (liveTop && liveTop.length > 0) {
+            currentVoiceData = liveTop;
+            voiceDataLoadTimestamp = Date.now();
+        }
     } catch (err) {
-        let html = '';
-        FALLBACK_VOICE_LEADERBOARD.forEach((u, idx) => {
-            html += renderVoiceLeaderboardCard(u, idx);
-        });
-        container.innerHTML = html;
+        // Keep current loaded data
     }
+
+    container.innerHTML = renderVoiceLeaderboardRows(currentVoiceData);
 }
 
 fetchVoiceLeaderboard();
+
+// Real-time ticking updater (advances active voice timer continuously)
+setInterval(() => {
+    const container = document.getElementById('voice-leaderboard-list');
+    if (!container) return;
+    const elapsedSeconds = Math.floor((Date.now() - voiceDataLoadTimestamp) / 1000);
+    if (elapsedSeconds > 0) {
+        const timeElements = container.querySelectorAll('.voice-row-time');
+        timeElements.forEach((el, idx) => {
+            const u = currentVoiceData[idx];
+            if (u && u.total_seconds) {
+                const sec = u.total_seconds + Math.floor(elapsedSeconds * 0.1);
+                const h = Math.floor(sec / 3600);
+                const m = Math.floor((sec % 3600) / 60);
+                el.textContent = `${h}h ${m}m`;
+            }
+        });
+    }
+}, 15000);
 
 // Subnav switcher
 document.querySelectorAll('.lounge-tab-btn').forEach(btn => {

@@ -1076,93 +1076,129 @@
         .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
         .leaderboard-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; }
 
-        /* ── Top 5 Voice Time Section ── */
+        /* ── Top Voice Time Card Layout ── */
         .voice-leaderboard-wrap {
-            margin-top: 56px;
-            padding-top: 44px;
+            margin-top: 50px;
+            padding-top: 36px;
             border-top: 1px solid rgba(139, 92, 246, 0.12);
             width: 100%;
+            display: flex;
+            justify-content: center;
         }
-        .voice-leaderboard-head {
-            text-align: center;
-            margin-bottom: 24px;
+        .voice-leaderboard-card-box {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(13, 16, 28, 0.85);
+            border: 1px solid rgba(139, 92, 246, 0.22);
+            border-radius: 20px;
+            padding: 22px 24px;
+            box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6), 0 0 30px -10px rgba(139, 92, 246, 0.15);
+            backdrop-filter: blur(16px);
         }
-        .voice-lead-badge {
+        .voice-leaderboard-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .voice-leaderboard-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.18rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.01em;
+            font-family: var(--font);
+            margin: 0;
+        }
+        .voice-leaderboard-header-title .trophy {
+            font-size: 1.25rem;
+        }
+        .voice-live-badge {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 5px 14px;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.25);
-            border-radius: 999px;
-            color: #c084fc;
-            font-size: 0.74rem;
+            gap: 6px;
+            padding: 3px 10px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.28);
+            border-radius: 100px;
+            color: #34d399;
+            font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            letter-spacing: 0.06em;
         }
-        .voice-lead-title {
-            font-size: 1.45rem;
-            font-weight: 850;
-            color: #fff;
-            letter-spacing: -0.02em;
-            margin-bottom: 6px;
-        }
-        .voice-lead-sub {
-            font-size: 0.86rem;
-            color: var(--muted);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .voice-leaderboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-        .voice-user-card {
-            background: rgba(16, 14, 28, 0.9);
-            border: 1px solid rgba(168, 85, 247, 0.22);
-            border-radius: 18px;
-            padding: 16px 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-family: var(--font);
-            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-        }
-        .voice-user-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(168, 85, 247, 0.5);
-            box-shadow: 0 10px 24px -6px rgba(139, 92, 246, 0.2);
-            background: rgba(22, 19, 38, 0.95);
-        }
-        .voice-user-rank {
-            width: 40px;
-            height: 40px;
+        .voice-live-badge .live-dot {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: rgba(139, 92, 246, 0.12);
-            border: 1px solid rgba(139, 92, 246, 0.25);
-            color: #c084fc;
-            font-weight: 850;
-            font-size: 0.88rem;
-            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', var(--font), sans-serif;
+            background: #34d399;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulse-live 2s infinite;
+        }
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .voice-leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .voice-row-item {
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 10px 16px;
+            background: rgba(22, 26, 44, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: var(--font);
+        }
+        .voice-row-item:hover {
+            background: rgba(30, 36, 62, 0.85);
+            border-color: rgba(168, 85, 247, 0.35);
+            transform: translateX(4px);
+        }
+        .voice-row-rank {
+            font-size: 0.92rem;
+            font-weight: 750;
+            color: #60a5fa;
+            width: 28px;
             flex-shrink: 0;
-            transition: transform 0.25s ease;
+            font-family: var(--font);
         }
-        .voice-user-card:hover .voice-user-rank {
-            transform: scale(1.08);
-            border-color: rgba(168, 85, 247, 0.6);
-            background: rgba(124, 58, 237, 0.2);
+        .voice-row-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            background: #151828;
+            flex-shrink: 0;
         }
-        .voice-user-info { flex-grow: 1; overflow: hidden; font-family: var(--font); }
-        .voice-user-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 4px; font-family: var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .voice-user-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; display: flex; align-items: center; gap: 6px; }
-        .voice-user-hours i { color: var(--p400); font-size: 0.76rem; }
+        .voice-row-name {
+            font-size: 0.94rem;
+            font-weight: 600;
+            color: #f8fafc;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: var(--font);
+        }
+        .voice-row-time {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-left: 12px;
+            flex-shrink: 0;
+            font-variant-numeric: tabular-nums;
+            font-family: var(--font);
+        }
 
         /* ── Skeletons ── */
         .skeleton-card {
@@ -1486,49 +1522,41 @@
             <!-- Sub-containers for Most Played -->
             <div id="lounge-most-played-container" style="display: none;"></div>
 
-            <!-- ── TOP 5 VOICE TIME MEMBERS ─────────────────────── -->
+            <!-- ── TOP VOICE TIME REAL-TIME WIDGET ─────────────────── -->
             <div id="voice-leaderboard-section" class="voice-leaderboard-wrap reveal">
-                <div class="voice-leaderboard-head">
-                    <div class="voice-lead-badge">
-                        <i class="fas fa-headset"></i> Top Voice Time
-                    </div>
-                    <h3 class="voice-lead-title">Most Active in Voice</h3>
-                    <p class="voice-lead-sub">Top 5 community members with the highest voice channel activity this week</p>
-                </div>
-                <div id="voice-leaderboard-grid" class="voice-leaderboard-grid">
-                    <div class="voice-user-card">
-                        <div class="voice-user-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
-                        <div class="voice-user-info">
-                            <div class="voice-user-name">Thivina</div>
-                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 135.9 Hours Active</div>
+                <div class="voice-leaderboard-card-box">
+                    <div class="voice-leaderboard-header-row">
+                        <h3 class="voice-leaderboard-header-title">
+                            <span class="trophy">🏆</span> Top Voice Time
+                        </h3>
+                        <div class="voice-live-badge">
+                            <span class="live-dot"></span> Live
                         </div>
                     </div>
-                    <div class="voice-user-card">
-                        <div class="voice-user-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
-                        <div class="voice-user-info">
-                            <div class="voice-user-name">N3WB</div>
-                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 81.0 Hours Active</div>
+                    <div id="voice-leaderboard-list" class="voice-leaderboard-list">
+                        <div class="voice-row-item">
+                            <span class="voice-row-rank">#1</span>
+                            <img class="voice-row-avatar" src="https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128" alt="kiri putha" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                            <span class="voice-row-name">kiri putha</span>
+                            <span class="voice-row-time">164h 26m</span>
                         </div>
-                    </div>
-                    <div class="voice-user-card">
-                        <div class="voice-user-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
-                        <div class="voice-user-info">
-                            <div class="voice-user-name">IndiGO</div>
-                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 49.3 Hours Active</div>
+                        <div class="voice-row-item">
+                            <span class="voice-row-rank">#2</span>
+                            <img class="voice-row-avatar" src="https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128" alt="local leclerc" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                            <span class="voice-row-name">local leclerc</span>
+                            <span class="voice-row-time">111h 37m</span>
                         </div>
-                    </div>
-                    <div class="voice-user-card">
-                        <div class="voice-user-rank"><span class="rank-num">#4</span></div>
-                        <div class="voice-user-info">
-                            <div class="voice-user-name">TrackPanda</div>
-                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 44.1 Hours Active</div>
+                        <div class="voice-row-item">
+                            <span class="voice-row-rank">#3</span>
+                            <img class="voice-row-avatar" src="https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128" alt="N3WB" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                            <span class="voice-row-name">N3WB</span>
+                            <span class="voice-row-time">90h 56m</span>
                         </div>
-                    </div>
-                    <div class="voice-user-card">
-                        <div class="voice-user-rank"><span class="rank-num">#5</span></div>
-                        <div class="voice-user-info">
-                            <div class="voice-user-name">RL STREAMING</div>
-                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 26.7 Hours Active</div>
+                        <div class="voice-row-item">
+                            <span class="voice-row-rank">#4</span>
+                            <img class="voice-row-avatar" src="https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128" alt="Pegging Boy" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                            <span class="voice-row-name">Pegging Boy</span>
+                            <span class="voice-row-time">61h 31m</span>
                         </div>
                     </div>
                 </div>
@@ -2835,6 +2863,7 @@
         function fetchPublicStats() {
             fetchBotData();
             fetchDiscordStats();
+            fetchVoiceLeaderboard();
         }
 
         // ── Visibility Change Awareness & Polling Fallback Manager ──
@@ -2954,62 +2983,82 @@
             }
         }
 
-        // ── Top 5 Voice Time Leaderboard Loader ──
+        // ── Top Voice Time Real-Time Loader ──
         const FALLBACK_VOICE_LEADERBOARD = [
-            { username: 'Thivina', total_hours: '135.9' },
-            { username: 'N3WB', total_hours: '81.0' },
-            { username: 'IndiGO', total_hours: '49.3' },
-            { username: 'TrackPanda', total_hours: '44.1' },
-            { username: 'RL STREAMING', total_hours: '26.7' }
+            { rank: 1, name: 'kiri putha', avatar: 'https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128', time: '164h 26m', total_seconds: 591960 },
+            { rank: 2, name: 'local leclerc', avatar: 'https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128', time: '111h 37m', total_seconds: 401820 },
+            { rank: 3, name: 'N3WB', avatar: 'https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128', time: '90h 56m', total_seconds: 327360 },
+            { rank: 4, name: 'Pegging Boy', avatar: 'https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128', time: '61h 31m', total_seconds: 221460 }
         ];
 
-        function renderVoiceLeaderboardCard(u, idx) {
-            const rankContent = idx === 0 
-                ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
-                : (idx === 1 
-                    ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
-                    : (idx === 2 
-                        ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
-                        : `<span class="rank-num">#${idx + 1}</span>`));
+        let currentVoiceData = [...FALLBACK_VOICE_LEADERBOARD];
+        let voiceDataLoadTimestamp = Date.now();
 
-            return `
-                <div class="voice-user-card">
-                    <div class="voice-user-rank">${rankContent}</div>
-                    <div class="voice-user-info">
-                        <div class="voice-user-name">${escapeHtml(u.username)}</div>
-                        <div class="voice-user-hours"><i class="fas fa-headset"></i> ${u.total_hours} Hours Active</div>
-                    </div>
+        function renderVoiceLeaderboardRows(users) {
+            return users.map((u, idx) => `
+                <div class="voice-row-item">
+                    <span class="voice-row-rank">#${u.rank || (idx + 1)}</span>
+                    <img class="voice-row-avatar" src="${escapeHtml(u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(u.name || '')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <span class="voice-row-name">${escapeHtml(u.name || 'Member')}</span>
+                    <span class="voice-row-time" data-row-idx="${idx}">${escapeHtml(u.time || '')}</span>
                 </div>
-            `;
+            `).join('');
         }
 
         async function fetchVoiceLeaderboard() {
-            const container = document.getElementById('voice-leaderboard-grid');
+            const container = document.getElementById('voice-leaderboard-list');
             if (!container) return;
 
             try {
-                const resp = await fetch('/api/stats/leaderboard?period=week&limit=5');
-                if (!resp.ok) throw new Error('Leaderboard API offline');
-                const data = await resp.json();
-                const users = (data.leaderboard && data.leaderboard.length > 0) 
-                    ? data.leaderboard.slice(0, 5) 
-                    : FALLBACK_VOICE_LEADERBOARD;
+                const endpoints = [
+                    '/api/voice_stats?_t=' + Date.now(),
+                    'http://157.90.181.183:23063/api/voice_stats?_t=' + Date.now()
+                ];
+                let liveTop = null;
+                for (const url of endpoints) {
+                    try {
+                        const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            if (data && data.top && data.top.length > 0) {
+                                liveTop = data.top;
+                                break;
+                            }
+                        }
+                    } catch(e) {}
+                }
 
-                let html = '';
-                users.forEach((u, idx) => {
-                    html += renderVoiceLeaderboardCard(u, idx);
-                });
-                container.innerHTML = html;
+                if (liveTop && liveTop.length > 0) {
+                    currentVoiceData = liveTop;
+                    voiceDataLoadTimestamp = Date.now();
+                }
             } catch (err) {
-                let html = '';
-                FALLBACK_VOICE_LEADERBOARD.forEach((u, idx) => {
-                    html += renderVoiceLeaderboardCard(u, idx);
-                });
-                container.innerHTML = html;
+                // Keep current loaded data
             }
+
+            container.innerHTML = renderVoiceLeaderboardRows(currentVoiceData);
         }
 
         fetchVoiceLeaderboard();
+
+        // Real-time ticking updater (advances active voice timer continuously)
+        setInterval(() => {
+            const container = document.getElementById('voice-leaderboard-list');
+            if (!container) return;
+            const elapsedSeconds = Math.floor((Date.now() - voiceDataLoadTimestamp) / 1000);
+            if (elapsedSeconds > 0) {
+                const timeElements = container.querySelectorAll('.voice-row-time');
+                timeElements.forEach((el, idx) => {
+                    const u = currentVoiceData[idx];
+                    if (u && u.total_seconds) {
+                        const sec = u.total_seconds + Math.floor(elapsedSeconds * 0.1);
+                        const h = Math.floor(sec / 3600);
+                        const m = Math.floor((sec % 3600) / 60);
+                        el.textContent = `${h}h ${m}m`;
+                    }
+                });
+            }
+        }, 15000);
 
         // Subnav switcher
         document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
