@@ -1031,30 +1031,98 @@ async function fetchMostPlayedStats() {
     }
 }
 
-// ── Top Voice Time Real-Time Loader ──
+// ── Top Voice Time Real-Time Loader (Game Card Window Style) ──
 const FALLBACK_VOICE_LEADERBOARD = [
-    { rank: 1, name: 'kiri putha', avatar: 'https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128', time: '164h 26m', total_seconds: 591960 },
-    { rank: 2, name: 'local leclerc', avatar: 'https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128', time: '111h 37m', total_seconds: 401820 },
-    { rank: 3, name: 'N3WB', avatar: 'https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128', time: '90h 56m', total_seconds: 327360 },
-    { rank: 4, name: 'Pegging Boy', avatar: 'https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128', time: '61h 31m', total_seconds: 221460 }
+    {
+        rank: 1,
+        name: 'kiri putha',
+        username: 'thivinasamarakkody',
+        avatar: 'https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128',
+        cover: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
+        time: '164h 26m',
+        total_seconds: 591960
+    },
+    {
+        rank: 2,
+        name: 'local leclerc',
+        username: 'leda6605',
+        avatar: 'https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128',
+        cover: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
+        time: '111h 37m',
+        total_seconds: 401820
+    },
+    {
+        rank: 3,
+        name: 'N3WB',
+        username: 'newb0000',
+        avatar: 'https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128',
+        cover: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
+        time: '90h 56m',
+        total_seconds: 327360
+    },
+    {
+        rank: 4,
+        name: 'Pegging Boy',
+        username: 'cr4zy12',
+        avatar: 'https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128',
+        cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
+        time: '61h 31m',
+        total_seconds: 221460
+    }
 ];
 
 let currentVoiceData = [...FALLBACK_VOICE_LEADERBOARD];
 let voiceDataLoadTimestamp = Date.now();
 
-function renderVoiceLeaderboardRows(users) {
-    return users.map((u, idx) => `
-        <div class="voice-row-item">
-            <span class="voice-row-rank">#${u.rank || (idx + 1)}</span>
-            <img class="voice-row-avatar" src="${escapeHtml(u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(u.name || '')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-            <span class="voice-row-name">${escapeHtml(u.name || 'Member')}</span>
-            <span class="voice-row-time" data-row-idx="${idx}">${escapeHtml(u.time || '')}</span>
+function renderVoiceWindowCard(u, idx) {
+    const rankNum = u.rank || (idx + 1);
+    const rankMedal = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : '🏅'));
+    const isHot = rankNum === 1;
+
+    const rankBadgeHtml = `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> ${rankMedal} #${rankNum} RANK</div>`;
+    const timeBadgeHtml = `<div class="game-player-badge"><i class="fas fa-headset"></i> <span class="voice-card-time" data-row-idx="${idx}">${escapeHtml(u.time || '')}</span></div>`;
+
+    const coverUrl = u.cover || (
+        rankNum === 1 ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80' :
+        rankNum === 2 ? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80' :
+        rankNum === 3 ? 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80' :
+        'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80'
+    );
+
+    const tagIcon = rankNum === 1 ? 'fa-crown' : (rankNum === 2 ? 'fa-tachometer-alt' : (rankNum === 3 ? 'fa-bolt' : 'fa-fire'));
+    const tagText = `TOP VOICE #${rankNum}`;
+    const handle = u.username ? `@${u.username}` : (u.name || 'Member');
+
+    return `
+        <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-voice-rank="${rankNum}">
+            <div class="game-card-img-wrap">
+                <div class="game-card-top-badges">
+                    <div class="game-top-badges-left">
+                        ${rankBadgeHtml}
+                    </div>
+                    ${timeBadgeHtml}
+                </div>
+                <img src="${escapeHtml(coverUrl)}" alt="${escapeHtml(u.name || '')}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';">
+            </div>
+            <div class="game-card-body">
+                <div class="game-genre-tag"><i class="fas ${tagIcon}" style="font-size: 0.65rem;"></i> ${tagText}</div>
+                <div class="game-name" title="${escapeHtml(u.name || '')}">${escapeHtml(u.name || '')}</div>
+                <div class="game-match-detail" title="Active Discord Voice Session"><i class="fas fa-headset"></i> Active Voice Session</div>
+                <div class="game-players-strip">
+                    <div class="avatar-stack">
+                        <img src="${escapeHtml(u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(u.name || '')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    </div>
+                    <div class="game-player-headline" title="${escapeHtml(handle)}">
+                        <span class="game-player-name">${escapeHtml(handle)}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-    `).join('');
+    `;
 }
 
 async function fetchVoiceLeaderboard() {
-    const container = document.getElementById('voice-leaderboard-list');
+    const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
 
     try {
@@ -1077,26 +1145,27 @@ async function fetchVoiceLeaderboard() {
         }
 
         if (liveTop && liveTop.length > 0) {
-            currentVoiceData = liveTop;
+            currentVoiceData = liveTop.map((u, i) => ({
+                ...u,
+                cover: FALLBACK_VOICE_LEADERBOARD[i]?.cover || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80'
+            }));
             voiceDataLoadTimestamp = Date.now();
         }
-    } catch (err) {
-        // Keep current loaded data
-    }
+    } catch (err) {}
 
-    container.innerHTML = renderVoiceLeaderboardRows(currentVoiceData);
+    container.innerHTML = currentVoiceData.map((u, idx) => renderVoiceWindowCard(u, idx)).join('');
 }
 
 fetchVoiceLeaderboard();
 
 // Real-time ticking updater (advances active voice timer continuously)
 setInterval(() => {
-    const container = document.getElementById('voice-leaderboard-list');
+    const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
     const elapsedSeconds = Math.floor((Date.now() - voiceDataLoadTimestamp) / 1000);
     if (elapsedSeconds > 0) {
-        const timeElements = container.querySelectorAll('.voice-row-time');
-        timeElements.forEach((el, idx) => {
+        const timeBadges = container.querySelectorAll('.voice-card-time');
+        timeBadges.forEach((el, idx) => {
             const u = currentVoiceData[idx];
             if (u && u.total_seconds) {
                 const sec = u.total_seconds + Math.floor(elapsedSeconds * 0.1);
@@ -1117,11 +1186,31 @@ document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
         const tab = btn.getAttribute('data-lounge-tab');
         const liveGrid = document.getElementById('live-games-grid');
         const mostPlayed = document.getElementById('lounge-most-played-container');
+        const voiceSec = document.getElementById('voice-leaderboard-section');
 
-        if (liveGrid) liveGrid.style.display = tab === 'live' ? '' : 'none';
-        if (mostPlayed) mostPlayed.style.display = tab === 'most-played' ? '' : 'none';
-
-        if (tab === 'most-played') fetchMostPlayedStats();
+        if (tab === 'live') {
+            if (liveGrid) liveGrid.style.display = '';
+            if (mostPlayed) mostPlayed.style.display = 'none';
+            if (voiceSec) {
+                voiceSec.style.display = '';
+                voiceSec.classList.remove('tab-focused');
+            }
+        } else if (tab === 'most-played') {
+            if (liveGrid) liveGrid.style.display = 'none';
+            if (mostPlayed) {
+                mostPlayed.style.display = '';
+                fetchMostPlayedStats();
+            }
+            if (voiceSec) voiceSec.style.display = 'none';
+        } else if (tab === 'voice') {
+            if (liveGrid) liveGrid.style.display = 'none';
+            if (mostPlayed) mostPlayed.style.display = 'none';
+            if (voiceSec) {
+                voiceSec.style.display = '';
+                voiceSec.classList.add('tab-focused');
+                fetchVoiceLeaderboard();
+            }
+        }
     });
 });
 

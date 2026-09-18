@@ -798,128 +798,55 @@ footer {
     border-bottom: none;
 }
 
-/* ── Top Voice Time Card Layout ── */
+/* ── Top Voice Time Card Windows ── */
 .voice-leaderboard-wrap {
-    margin-top: 50px;
-    padding-top: 36px;
+    margin-top: 56px;
+    padding-top: 40px;
     border-top: 1px solid rgba(139, 92, 246, 0.12);
     width: 100%;
-    display: flex;
-    justify-content: center;
 }
-.voice-leaderboard-card-box {
-    width: 100%;
-    max-width: 600px;
-    background: rgba(13, 16, 28, 0.85);
-    border: 1px solid rgba(139, 92, 246, 0.22);
-    border-radius: 20px;
-    padding: 22px 24px;
-    box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6), 0 0 30px -10px rgba(139, 92, 246, 0.15);
-    backdrop-filter: blur(16px);
+.voice-leaderboard-wrap.tab-focused {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
 }
-.voice-leaderboard-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
+.voice-leaderboard-wrap.tab-focused .voice-leaderboard-head {
+    display: none;
 }
-.voice-leaderboard-header-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.18rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.01em;
-    font-family: var(--font);
-    margin: 0;
+.voice-leaderboard-head {
+    text-align: center;
+    margin-bottom: 24px;
 }
-.voice-leaderboard-header-title .trophy {
-    font-size: 1.25rem;
-}
-.voice-live-badge {
+.voice-lead-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(16, 185, 129, 0.28);
-    border-radius: 100px;
-    color: #34d399;
-    font-size: 0.7rem;
+    gap: 7px;
+    padding: 5px 14px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 999px;
+    color: #c084fc;
+    font-size: 0.74rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    margin-bottom: 12px;
 }
-.voice-live-badge .live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #34d399;
-    box-shadow: 0 0 8px #34d399;
-    animation: pulse-live 2s infinite;
+.voice-lead-title {
+    font-size: 1.45rem;
+    font-weight: 850;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
 }
-@keyframes pulse-live {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.85); }
-}
-.voice-leaderboard-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-}
-.voice-row-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    background: rgba(22, 26, 44, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: var(--font);
-}
-.voice-row-item:hover {
-    background: rgba(30, 36, 62, 0.85);
-    border-color: rgba(168, 85, 247, 0.35);
-    transform: translateX(4px);
-}
-.voice-row-rank {
-    font-size: 0.92rem;
-    font-weight: 750;
-    color: #60a5fa;
-    width: 28px;
-    flex-shrink: 0;
-    font-family: var(--font);
-}
-.voice-row-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 12px;
-    border: 1.5px solid rgba(255, 255, 255, 0.1);
-    background: #151828;
-    flex-shrink: 0;
-}
-.voice-row-name {
-    font-size: 0.94rem;
-    font-weight: 600;
-    color: #f8fafc;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-family: var(--font);
-}
-.voice-row-time {
+.voice-lead-sub {
     font-size: 0.88rem;
-    font-weight: 500;
-    color: #94a3b8;
-    margin-left: 12px;
-    flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
-    font-family: var(--font);
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto;
+}
+#voice-leaderboard-grid .game-card {
+    cursor: default;
 }
 
 
