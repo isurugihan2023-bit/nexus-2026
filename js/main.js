@@ -961,23 +961,10 @@ function renderMostPlayedCard(g, idx) {
     const coverUrl = getGameImageUrl(gameName);
 
     const rankMedal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : ''));
-    const rankTitle = idx === 0 ? '1st Place' : (idx === 1 ? '2nd Place' : (idx === 2 ? '3rd Place' : `#${idx + 1}`));
-    const rankBadgeText = rankMedal ? `${rankMedal} #${idx + 1}` : `#${idx + 1}`;
-
-    const rankBadgeHtml = `<div class="game-live-badge" title="${rankTitle}"><span class="game-live-dot-pulse"></span> ${rankBadgeText} RANK</div>`;
-    const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> TOP 1</div>` : '';
-    const hoursBadgeHtml = `<div class="game-player-badge"><i class="fas fa-clock"></i> ${totalHours} Hours</div>`;
 
     return `
         <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-game-name="${escapeHtml(gameName)}" style="--game-accent: ${theme.accent}; --game-accent-border: ${theme.border};">
             <div class="game-card-img-wrap">
-                <div class="game-card-top-badges">
-                    <div class="game-top-badges-left">
-                        ${rankBadgeHtml}
-                        ${hotBadgeHtml}
-                    </div>
-                    ${hoursBadgeHtml}
-                </div>
                 <img src="${coverUrl}" alt="${escapeHtml(gameName)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
             </div>
             <div class="game-card-body">
