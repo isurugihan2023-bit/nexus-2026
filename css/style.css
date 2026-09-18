@@ -641,6 +641,10 @@ body.home-tab-active .hero-section { display: flex !important; }
     width: 350px;
     max-width: 100%;
     flex: 0 1 350px;
+    border: none !important;
+}
+.live-games-grid .game-card:hover {
+    border: none !important;
 }
 .live-games-grid.single-game {
     display: flex;
