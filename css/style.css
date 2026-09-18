@@ -614,3 +614,22 @@ body.home-tab-active .hero-section { display: flex !important; }
 .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
 .leaderboard-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; }
 
+/* ── Live Games Lounge Grid (Centered Layout) ── */
+.live-games-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 26px;
+    margin-top: 36px;
+}
+.live-games-grid .game-card,
+.live-games-grid .skeleton-card {
+    width: 350px;
+    max-width: 100%;
+    flex: 0 1 350px;
+}
+.live-games-grid .empty-lounge-state {
+    width: 100%;
+    flex: 1 1 100%;
+}
+

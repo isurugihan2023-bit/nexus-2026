@@ -257,10 +257,14 @@ const GAME_IMAGE_OVERRIDES = {
     "brawlhalla": "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg",
     "visual studio code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
     "vscode": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
-    "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
+    "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
+    "wallpaper engine": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
+    "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg"
 };
 
 const GAME_METADATA = {
+    "wallpaper engine": { tag: "Utility", icon: "fa-desktop" },
+    "wallpaper": { tag: "Utility", icon: "fa-desktop" },
     "brawlhalla": { tag: "Platform Fighter", icon: "fa-fist-raised" },
     "visual studio code": { tag: "Development", icon: "fa-code" },
     "vscode": { tag: "Development", icon: "fa-code" },

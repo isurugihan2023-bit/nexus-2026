@@ -628,10 +628,21 @@
             margin-left: 4px;
         }
         .live-games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 26px;
             margin-top: 36px;
+        }
+        .live-games-grid .game-card,
+        .live-games-grid .skeleton-card {
+            width: 350px;
+            max-width: 100%;
+            flex: 0 1 350px;
+        }
+        .live-games-grid .empty-lounge-state {
+            width: 100%;
+            flex: 1 1 100%;
         }
         .game-card {
             --game-accent: #a855f7;
@@ -668,6 +679,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center center;
             filter: grayscale(100%) contrast(1.1);
             transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
         }
@@ -1971,10 +1983,14 @@
             "brawlhalla": "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg",
             "visual studio code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
             "vscode": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
-            "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
+            "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
+            "wallpaper engine": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
+            "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg"
         };
 
         const GAME_METADATA = {
+            "wallpaper engine": { tag: "Utility", icon: "fa-desktop" },
+            "wallpaper": { tag: "Utility", icon: "fa-desktop" },
             "brawlhalla": { tag: "Platform Fighter", icon: "fa-fist-raised" },
             "visual studio code": { tag: "Development", icon: "fa-code" },
             "vscode": { tag: "Development", icon: "fa-code" },
