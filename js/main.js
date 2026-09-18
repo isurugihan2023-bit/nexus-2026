@@ -1084,96 +1084,67 @@ async function fetchMostPlayedStats() {
     }
 }
 
-// ── Top Voice Time Real-Time Loader ──
-const VOICE_BASELINE_TIMESTAMP = 1789733576000;
+// ── Voice System v2 ("Strava for Gamers") Frontend Engine ──
+let currentVoiceRange = 'week';
+let currentVoiceData = [];
+let voiceFetchTimestamp = Date.now();
 
-function computeLiveVoiceData(baseList) {
-    const elapsed = Math.max(0, Math.floor((Date.now() - VOICE_BASELINE_TIMESTAMP) / 1000));
-    const addedSec = elapsed;
-    return baseList.map(u => {
-        const base = (u.base_seconds !== undefined) ? u.base_seconds : (u.total_seconds || 0);
-        const totalSec = base + addedSec;
-        const h = Math.floor(totalSec / 3600);
-        const m = Math.floor((totalSec % 3600) / 60);
-        const s = totalSec % 60;
-        return {
-            ...u,
-            base_seconds: base,
-            total_seconds: totalSec,
-            time: `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`
-        };
-    });
+// Signature Member Thematic Covers (moves with member regardless of rank)
+const SIGNATURE_MEMBER_COVERS = {
+    '718472993873068155': 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80', // kiri putha (cat)
+    '706113392167092276': 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80', // local leclerc (racing / sports car)
+    '928546532037394453': 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80', // N3WB (white supercar)
+    '909069118349639751': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80', // Pegging Boy (gaming battle station)
+    '1226896502216069130': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80', // Animo (retro workstation)
+    '1334780362731294812': 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80'  // SL_LIDDA (command center)
+};
+
+const SLOT_FALLBACK_COVERS = {
+    1: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
+    2: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
+    3: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
+    4: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
+    5: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
+    6: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80'
+};
+
+function formatDurationHms(totalSec) {
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`;
 }
 
-const FALLBACK_VOICE_LEADERBOARD = [
-    {
-        rank: 1,
-        name: 'kiri putha',
-        username: 'thivinasamarakkody',
-        avatar: 'https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128',
-        cover: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
-        base_seconds: 591960
-    },
-    {
-        rank: 2,
-        name: 'local leclerc',
-        username: 'leda6605',
-        avatar: 'https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128',
-        cover: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
-        base_seconds: 401820
-    },
-    {
-        rank: 3,
-        name: 'N3WB',
-        username: 'newb0000',
-        avatar: 'https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128',
-        cover: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
-        base_seconds: 327360
-    },
-    {
-        rank: 4,
-        name: 'Pegging Boy',
-        username: 'cr4zy12',
-        avatar: 'https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128',
-        cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
-        base_seconds: 221460
-    },
-    {
-        rank: 5,
-        name: 'Animo',
-        username: '4nimo.',
-        avatar: 'https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=128',
-        cover: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
-        base_seconds: 159480
-    },
-    {
-        rank: 6,
-        name: 'SL_LIDDA',
-        username: 'sl_lidda',
-        avatar: 'https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=128',
-        cover: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80',
-        base_seconds: 103500
+function renderRankDeltaBadge(prevRank, currRank) {
+    if (prevRank === undefined || prevRank === null) {
+        return `<span class="rank-delta-badge rank-delta-new">NEW</span>`;
     }
-];
-
-let currentVoiceData = computeLiveVoiceData(FALLBACK_VOICE_LEADERBOARD);
+    if (prevRank > currRank) {
+        return `<span class="rank-delta-badge rank-delta-up" title="Up ${prevRank - currRank} spot(s)"><i class="fas fa-caret-up"></i> ${prevRank - currRank}</span>`;
+    }
+    if (prevRank < currRank) {
+        return `<span class="rank-delta-badge rank-delta-down" title="Down ${currRank - prevRank} spot(s)"><i class="fas fa-caret-down"></i> ${currRank - prevRank}</span>`;
+    }
+    return `<span class="rank-delta-badge rank-delta-same" title="No change">—</span>`;
+}
 
 function renderVoiceWindowCard(u, idx) {
     const rankNum = u.rank || (idx + 1);
     const isHot = rankNum === 1;
+    const deltaBadge = renderRankDeltaBadge(u.prev_rank, rankNum);
 
-    const rankBadgeHtml = `<div class="game-live-badge">#${rankNum} RANK</div>`;
-    const timeBadgeHtml = `<div class="game-player-badge"><i class="fas fa-headset"></i> <span class="voice-card-time" data-row-idx="${idx}">${escapeHtml(u.time || '')}</span></div>`;
+    const isLive = Boolean(u.is_live);
+    const timeFormatted = formatDurationHms(u.total_seconds || 0);
 
-    const defaultCovers = {
-        1: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
-        2: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
-        3: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
-        4: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
-        5: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
-        6: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80'
-    };
-    const coverUrl = u.cover || defaultCovers[rankNum] || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';
+    const rankBadgeHtml = `
+        <div class="game-live-badge">#${rankNum} RANK ${deltaBadge}</div>
+    `;
+
+    const timeBadgeHtml = isLive
+        ? `<div class="game-player-badge is-live-badge"><span class="live-pulse-dot" style="width: 6px; height: 6px;"></span> <i class="fas fa-headset"></i> <span class="voice-card-time is-live-timer" data-user-id="${escapeHtml(String(u.user_id || ''))}" data-base-sec="${u.total_seconds || 0}">${timeFormatted}</span></div>`
+        : `<div class="game-player-badge"><i class="fas fa-headset"></i> <span class="voice-card-time">${timeFormatted}</span></div>`;
+
+    const coverUrl = SIGNATURE_MEMBER_COVERS[String(u.user_id)] || u.cover || SLOT_FALLBACK_COVERS[rankNum] || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';
 
     const tagIcons = {
         1: 'fa-crown',
@@ -1185,7 +1156,9 @@ function renderVoiceWindowCard(u, idx) {
     };
     const tagIcon = tagIcons[rankNum] || 'fa-headset';
     const tagText = `TOP VOICE #${rankNum}`;
-    const handle = u.username ? `@${u.username}` : (u.name || 'Member');
+    const handle = u.handle ? `@${u.handle}` : (u.username ? `@${u.username}` : (u.display_name || u.name || 'Member'));
+    const dispName = u.display_name || u.name || 'Member';
+    const statusDetail = isLive ? '🟢 In Active Voice Channel' : 'Recorded Voice Session';
 
     return `
         <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-voice-rank="${rankNum}">
@@ -1196,15 +1169,15 @@ function renderVoiceWindowCard(u, idx) {
                     </div>
                     ${timeBadgeHtml}
                 </div>
-                <img src="${escapeHtml(coverUrl)}" alt="${escapeHtml(u.name || '')}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';">
+                <img src="${escapeHtml(coverUrl)}" alt="${escapeHtml(dispName)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';">
             </div>
             <div class="game-card-body">
                 <div class="game-genre-tag"><i class="fas ${tagIcon}" style="font-size: 0.65rem;"></i> ${tagText}</div>
-                <div class="game-name" title="${escapeHtml(u.name || '')}">${escapeHtml(u.name || '')}</div>
-                <div class="game-match-detail" title="Active Discord Voice Session"><i class="fas fa-headset"></i> Active Voice Session</div>
+                <div class="game-name" title="${escapeHtml(dispName)}">${escapeHtml(dispName)}</div>
+                <div class="game-match-detail" title="${escapeHtml(statusDetail)}"><i class="fas fa-headset"></i> ${escapeHtml(statusDetail)}</div>
                 <div class="game-players-strip">
                     <div class="avatar-stack">
-                        <img src="${escapeHtml(u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(u.name || '')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <img src="${escapeHtml(u.avatar_url || u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(dispName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                     </div>
                     <div class="game-player-headline" title="${escapeHtml(handle)}">
                         <span class="game-player-name">${escapeHtml(handle)}</span>
@@ -1215,61 +1188,138 @@ function renderVoiceWindowCard(u, idx) {
     `;
 }
 
-async function fetchVoiceLeaderboard() {
+async function fetchLiveVoiceStrip() {
+    const strip = document.getElementById('voice-live-strip');
+    const textEl = document.getElementById('voice-live-text');
+    if (!strip || !textEl) return;
+
+    try {
+        const endpoints = [
+            '/api/voice_live?_t=' + Date.now(),
+            'http://157.90.181.183:23063/api/voice_live?_t=' + Date.now()
+        ];
+        let liveData = null;
+        for (const url of endpoints) {
+            try {
+                const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                if (resp.ok) {
+                    liveData = await resp.json();
+                    break;
+                }
+            } catch(e) {}
+        }
+
+        if (liveData && liveData.count > 0 && liveData.members && liveData.members.length > 0) {
+            strip.style.display = 'flex';
+            const names = liveData.members.map(m => escapeHtml(m.display_name));
+            let preview = '';
+            if (names.length <= 3) {
+                preview = names.join(', ');
+            } else {
+                preview = `${names.slice(0, 3).join(', ')} +${names.length - 3}`;
+            }
+            textEl.innerHTML = `<i class="fas fa-headset"></i> <strong>${liveData.count} in voice now:</strong> ${preview}`;
+        } else {
+            strip.style.display = 'none';
+        }
+    } catch(err) {
+        strip.style.display = 'none';
+    }
+}
+
+async function fetchVoiceLeaderboard(range = currentVoiceRange) {
     const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
 
     try {
         const endpoints = [
-            '/api/voice_stats?_t=' + Date.now(),
-            'http://157.90.181.183:23063/api/voice_stats?_t=' + Date.now()
+            `/api/voice_stats?range=${encodeURIComponent(range)}&limit=6&_t=${Date.now()}`,
+            `http://157.90.181.183:23063/api/voice_stats?range=${encodeURIComponent(range)}&limit=6&_t=${Date.now()}`
         ];
-        let liveTop = null;
+        let liveData = null;
         for (const url of endpoints) {
             try {
                 const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
                 if (resp.ok) {
                     const data = await resp.json();
-                    if (data && data.top && data.top.length > 0) {
-                        liveTop = data.top;
+                    if (data && (data.leaderboard || data.top)) {
+                        liveData = data;
                         break;
                     }
                 }
             } catch(e) {}
         }
 
-        if (liveTop && liveTop.length > 0) {
-            currentVoiceData = liveTop.map((u, i) => ({
-                ...u,
-                base_seconds: (u.base_seconds !== undefined) ? u.base_seconds : (FALLBACK_VOICE_LEADERBOARD[i]?.base_seconds || u.total_seconds),
-                cover: FALLBACK_VOICE_LEADERBOARD[i]?.cover || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80'
-            }));
+        if (liveData) {
+            voiceFetchTimestamp = Date.now();
+            if (liveData.leaderboard && Array.isArray(liveData.leaderboard)) {
+                currentVoiceData = liveData.leaderboard;
+            } else if (liveData.top && Array.isArray(liveData.top)) {
+                currentVoiceData = liveData.top.map((u, i) => ({
+                    rank: i + 1,
+                    user_id: u.user_id || `legacy_${i}`,
+                    display_name: u.name,
+                    handle: u.username || u.name,
+                    avatar_url: u.avatar,
+                    total_seconds: u.total_seconds || 0,
+                    is_live: false,
+                    prev_rank: null
+                }));
+            }
         }
     } catch (err) {}
 
-    container.innerHTML = currentVoiceData.map((u, idx) => renderVoiceWindowCard(u, idx)).join('');
+    if (!currentVoiceData || currentVoiceData.length === 0) {
+        container.innerHTML = `
+            <div class="voice-empty-state">
+                <i class="fas fa-headset"></i>
+                <h3>No voice activity yet this ${range === 'week' ? 'week' : (range === 'month' ? 'month' : 'period')}</h3>
+                <p>Jump in any voice channel to log your squad time and claim the #1 ranking!</p>
+            </div>
+        `;
+    } else {
+        container.innerHTML = currentVoiceData.map((u, idx) => renderVoiceWindowCard(u, idx)).join('');
+    }
 }
 
-fetchVoiceLeaderboard();
+// Segmented Switcher click handling
+document.querySelectorAll('.voice-range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.voice-range-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentVoiceRange = btn.getAttribute('data-voice-range') || 'week';
+        
+        const container = document.getElementById('voice-leaderboard-grid');
+        if (container) {
+            container.innerHTML = `
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+            `;
+        }
+        fetchVoiceLeaderboard(currentVoiceRange);
+    });
+});
 
-// Real-time ticking updater (advances active voice timer continuously every second)
+fetchLiveVoiceStrip();
+fetchVoiceLeaderboard('week');
+setInterval(fetchLiveVoiceStrip, 30000);
+
 setInterval(() => {
     const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
-    const elapsed = Math.max(0, Math.floor((Date.now() - VOICE_BASELINE_TIMESTAMP) / 1000));
-    const addedSec = elapsed;
 
-    const timeBadges = container.querySelectorAll('.voice-card-time');
-    timeBadges.forEach((el, idx) => {
-        const u = currentVoiceData[idx];
-        const base = u ? ((u.base_seconds !== undefined) ? u.base_seconds : u.total_seconds) : null;
-        if (base !== null && base !== undefined) {
-            const sec = base + addedSec;
-            const h = Math.floor(sec / 3600);
-            const m = Math.floor((sec % 3600) / 60);
-            const s = sec % 60;
-            el.textContent = `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`;
-        }
+    const liveBadges = container.querySelectorAll('.voice-card-time.is-live-timer');
+    if (liveBadges.length === 0) return;
+
+    const elapsedSinceFetch = Math.max(0, Math.floor((Date.now() - voiceFetchTimestamp) / 1000));
+    liveBadges.forEach(el => {
+        const baseSec = parseInt(el.getAttribute('data-base-sec'), 10) || 0;
+        const totalSec = baseSec + elapsedSinceFetch;
+        el.textContent = formatDurationHms(totalSec);
     });
 }, 1000);
 
