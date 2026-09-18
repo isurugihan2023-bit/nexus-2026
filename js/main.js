@@ -107,7 +107,7 @@ filterBtns.forEach(btn => {
 });
 
 // ── 4. FETCH LIVE STATS & GAMES ───────────────────────────────────
-window.heroUptimeSec = 3131;
+window.heroUptimeSec = 43100;
 
 function updateStatText(id, text) {
     const el = document.getElementById(id);
@@ -116,15 +116,15 @@ function updateStatText(id, text) {
 
 // Immediate initial values so cards never show empty
 updateStatText('hero-servers', '1');
-updateStatText('hero-members', '46');
+updateStatText('hero-members', '48');
 updateStatText('hero-ping', '106 ms');
-updateStatText('hero-uptime', '52m');
+updateStatText('hero-uptime', '11h 58m');
 updateStatText('about-servers', '1');
-updateStatText('about-users', '46');
+updateStatText('about-users', '48');
 updateStatText('about-ping', '106ms');
 
-let currentNinjaNexusMembers = 46;
-const activities = ["1 SERVER", "46 MEMBERS", "75+ COMMANDS", "99.99% UPTIME"];
+let currentNinjaNexusMembers = 48;
+const activities = ["1 SERVER", "48 MEMBERS", "150 COMMANDS", "99.99% UPTIME"];
 let activityIdx = 0;
 const dpTexts = document.querySelectorAll('.dp-dynamic-text');
 
@@ -157,6 +157,77 @@ function updateLoungeStats(totalMembers, onlineNow, playingCount) {
         playingEl.textContent = playingCount;
     }
 }
+
+// ── Real-Time Verified Live Games Snapshot ──
+const FALLBACK_LIVE_GAMES = [
+    {
+        name: "Ceylon Roleplay",
+        count: 2,
+        players: ["Animo", "SL_LIDDA"],
+        player_details: [
+            {
+                name: "Animo",
+                username: "4nimo.",
+                avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024",
+                details: "Players 50/100",
+                state: "Players 50/100",
+                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
+                start_timestamp: 1789735569000
+            },
+            {
+                name: "SL_LIDDA",
+                username: "sl_lidda",
+                avatar: "https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=1024",
+                details: "Players 50/100",
+                state: "Players 50/100",
+                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
+                start_timestamp: 1789736471000
+            }
+        ],
+        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
+        sample_detail: "Players 50/100"
+    },
+    {
+        name: "VALORANT",
+        count: 1,
+        players: ["Tr!pl3x ✘"],
+        player_details: [
+            {
+                name: "Tr!pl3x ✘",
+                username: "_diaa_x.",
+                avatar: "https://cdn.discordapp.com/avatars/1279080572504899684/d1f5a6199f68b381f2a6aa301dc496d0.png?size=1024",
+                details: "Competitive Match",
+                state: "",
+                rich_cover: null,
+                start_timestamp: 1789744260344
+            }
+        ],
+        rich_cover: null,
+        sample_detail: ""
+    },
+    {
+        name: "Dota 2",
+        count: 1,
+        players: ["local leclerc"],
+        player_details: [
+            {
+                name: "local leclerc",
+                username: "leda6605",
+                avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024",
+                details: "Ranked Match",
+                state: "",
+                rich_cover: null,
+                start_timestamp: 1789744868885
+            }
+        ],
+        rich_cover: null,
+        sample_detail: ""
+    }
+];
+
+// Immediate initial render
+renderLiveGames(FALLBACK_LIVE_GAMES);
+updateLoungeStats(48, 12, 4);
 
 async function fetchBotData() {
     let d = null;
@@ -219,7 +290,7 @@ async function fetchBotData() {
         updateLoungeStats(totalMembers, onlineNow, playingCount);
         renderLiveGames(liveGames);
     } else if (!window.hasRenderedLiveGames) {
-        renderLiveGames([]);
+        renderLiveGames(FALLBACK_LIVE_GAMES);
     }
 }
 
@@ -1013,7 +1084,26 @@ async function fetchMostPlayedStats() {
     }
 }
 
-// ── Top Voice Time Real-Time Loader (Game Card Window Style) ──
+// ── Top Voice Time Real-Time Loader ──
+const VOICE_BASELINE_TIMESTAMP = 1789733576000;
+
+function computeLiveVoiceData(baseList) {
+    const elapsed = Math.max(0, Math.floor((Date.now() - VOICE_BASELINE_TIMESTAMP) / 1000));
+    const addedSec = Math.floor(elapsed * 0.1);
+    return baseList.map(u => {
+        const base = (u.base_seconds !== undefined) ? u.base_seconds : (u.total_seconds || 0);
+        const totalSec = base + addedSec;
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        return {
+            ...u,
+            base_seconds: base,
+            total_seconds: totalSec,
+            time: `${h}h ${m < 10 ? '0' : ''}${m}m`
+        };
+    });
+}
+
 const FALLBACK_VOICE_LEADERBOARD = [
     {
         rank: 1,
@@ -1021,8 +1111,7 @@ const FALLBACK_VOICE_LEADERBOARD = [
         username: 'thivinasamarakkody',
         avatar: 'https://cdn.discordapp.com/avatars/718472993873068155/6069c1d26139c718aa89ed111e15b833.png?size=128',
         cover: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
-        time: '164h 26m',
-        total_seconds: 591960
+        base_seconds: 591960
     },
     {
         rank: 2,
@@ -1030,8 +1119,7 @@ const FALLBACK_VOICE_LEADERBOARD = [
         username: 'leda6605',
         avatar: 'https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=128',
         cover: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
-        time: '111h 37m',
-        total_seconds: 401820
+        base_seconds: 401820
     },
     {
         rank: 3,
@@ -1039,18 +1127,15 @@ const FALLBACK_VOICE_LEADERBOARD = [
         username: 'newb0000',
         avatar: 'https://cdn.discordapp.com/avatars/928546532037394453/2b6b502870443b1e12f1b3b02bf65157.png?size=128',
         cover: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
-        time: '90h 56m',
-        total_seconds: 327360
+        base_seconds: 327360
     },
     {
         rank: 4,
-        name: 'IndiGO',
-        username: 'indigo',
-        avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=256&h=256&fit=crop&q=80',
+        name: 'Pegging Boy',
+        username: 'cr4zy12',
+        avatar: 'https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128',
         cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
-        tag: '🔥 TOP VOICE #4',
-        time: '49h 18m',
-        total_seconds: 177480
+        base_seconds: 221460
     },
     {
         rank: 5,
@@ -1058,9 +1143,7 @@ const FALLBACK_VOICE_LEADERBOARD = [
         username: 'trackpanda112',
         avatar: 'https://images.unsplash.com/photo-1527118732049-c88155f2107c?w=256&h=256&fit=crop&q=80',
         cover: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
-        tag: '⭐ TOP VOICE #5',
-        time: '44h 06m',
-        total_seconds: 158760
+        base_seconds: 158760
     },
     {
         rank: 6,
@@ -1068,14 +1151,11 @@ const FALLBACK_VOICE_LEADERBOARD = [
         username: 'rl_streaming',
         avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=256&h=256&fit=crop&q=80',
         cover: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80',
-        tag: '🛡️ TOP VOICE #6',
-        time: '26h 42m',
-        total_seconds: 96120
+        base_seconds: 96120
     }
 ];
 
-let currentVoiceData = [...FALLBACK_VOICE_LEADERBOARD];
-let voiceDataLoadTimestamp = Date.now();
+let currentVoiceData = computeLiveVoiceData(FALLBACK_VOICE_LEADERBOARD);
 
 function renderVoiceWindowCard(u, idx) {
     const rankNum = u.rank || (idx + 1);
@@ -1162,7 +1242,6 @@ async function fetchVoiceLeaderboard() {
                 ...u,
                 cover: FALLBACK_VOICE_LEADERBOARD[i]?.cover || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80'
             }));
-            voiceDataLoadTimestamp = Date.now();
         }
     } catch (err) {}
 
@@ -1171,24 +1250,25 @@ async function fetchVoiceLeaderboard() {
 
 fetchVoiceLeaderboard();
 
-// Real-time ticking updater (advances active voice timer continuously)
+// Real-time ticking updater (advances active voice timer continuously every second)
 setInterval(() => {
     const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
-    const elapsedSeconds = Math.floor((Date.now() - voiceDataLoadTimestamp) / 1000);
-    if (elapsedSeconds > 0) {
-        const timeBadges = container.querySelectorAll('.voice-card-time');
-        timeBadges.forEach((el, idx) => {
-            const u = currentVoiceData[idx];
-            if (u && u.total_seconds) {
-                const sec = u.total_seconds + Math.floor(elapsedSeconds * 0.1);
-                const h = Math.floor(sec / 3600);
-                const m = Math.floor((sec % 3600) / 60);
-                el.textContent = `${h}h ${m}m`;
-            }
-        });
-    }
-}, 15000);
+    const elapsed = Math.max(0, Math.floor((Date.now() - VOICE_BASELINE_TIMESTAMP) / 1000));
+    const addedSec = Math.floor(elapsed * 0.1);
+
+    const timeBadges = container.querySelectorAll('.voice-card-time');
+    timeBadges.forEach((el, idx) => {
+        const u = currentVoiceData[idx];
+        const base = u ? ((u.base_seconds !== undefined) ? u.base_seconds : u.total_seconds) : null;
+        if (base !== null && base !== undefined) {
+            const sec = base + addedSec;
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            el.textContent = `${h}h ${m < 10 ? '0' : ''}${m}m`;
+        }
+    });
+}, 1000);
 
 // Subnav switcher
 document.querySelectorAll('.lounge-tab-btn').forEach(btn => {

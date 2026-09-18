@@ -59,10 +59,10 @@ export default async function handler(req, res) {
         },
         {
             rank: 4,
-            name: "IndiGO",
-            username: "indigo",
-            avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=256&h=256&fit=crop&q=80",
-            base_seconds: 177480 // 49.3h -> 49h 18m
+            name: "Pegging Boy",
+            username: "cr4zy12",
+            avatar: "https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128",
+            base_seconds: 221460 // 61h 31m
         },
         {
             rank: 5,
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
             name: u.name,
             username: u.username,
             avatar: u.avatar,
-            time: `${h}h ${m}m`,
+            time: `${h}h ${m < 10 ? '0' : ''}${m}m`,
             total_seconds: totalSec
         };
     });
