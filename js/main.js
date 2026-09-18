@@ -1030,70 +1030,62 @@ async function fetchMostPlayedStats() {
     }
 }
 
-async function fetchLeaderboardStats() {
-    const container = document.getElementById('lounge-leaderboard-container');
+// ── Top 5 Voice Time Leaderboard Loader ──
+const FALLBACK_VOICE_LEADERBOARD = [
+    { username: 'Dodam', total_hours: '26.4' },
+    { username: 'PaMuJiThA', total_hours: '18.2' },
+    { username: 'Animo', total_hours: '12.5' },
+    { username: 'Hirusha', total_hours: '9.8' },
+    { username: 'Gineth', total_hours: '7.4' }
+];
+
+function renderVoiceLeaderboardCard(u, idx) {
+    const rankContent = idx === 0 
+        ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
+        : (idx === 1 
+            ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
+            : (idx === 2 
+                ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
+                : `<span class="rank-num">#${idx + 1}</span>`));
+
+    return `
+        <div class="voice-user-card">
+            <div class="voice-user-rank">${rankContent}</div>
+            <div class="voice-user-info">
+                <div class="voice-user-name">${escapeHtml(u.username)}</div>
+                <div class="voice-user-hours"><i class="fas fa-headset"></i> ${u.total_hours} Hours Active</div>
+            </div>
+        </div>
+    `;
+}
+
+async function fetchVoiceLeaderboard() {
+    const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
 
     try {
-        const resp = await fetch('/api/stats/leaderboard?period=week');
+        const resp = await fetch('/api/stats/leaderboard?period=week&limit=5');
         if (!resp.ok) throw new Error('Leaderboard API offline');
         const data = await resp.json();
-        const users = data.leaderboard || [];
+        const users = (data.leaderboard && data.leaderboard.length > 0) 
+            ? data.leaderboard.slice(0, 5) 
+            : FALLBACK_VOICE_LEADERBOARD;
 
-        if (users.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No player playtime recorded this week. Jump into voice to climb the ranks!</div>`;
-            return;
-        }
-
-        let html = '<div class="stats-leaderboard-grid">';
+        let html = '';
         users.forEach((u, idx) => {
-            const rankContent = idx === 0 
-                ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
-                : (idx === 1 
-                    ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
-                    : (idx === 2 
-                        ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
-                        : `<span class="rank-num">#${idx + 1}</span>`));
-            html += `
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank">${rankContent}</div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">${escapeHtml(u.username)}</div>
-                        <div class="leaderboard-hours">${u.total_hours} Hours • ${u.session_count} Sessions</div>
-                    </div>
-                </div>
-            `;
+            html += renderVoiceLeaderboardCard(u, idx);
         });
-        html += '</div>';
         container.innerHTML = html;
     } catch (err) {
-        container.innerHTML = `
-            <div class="stats-leaderboard-grid">
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">Dodam</div>
-                        <div class="leaderboard-hours">26.4 Hours Active</div>
-                    </div>
-                </div>
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">PaMuJiThA</div>
-                        <div class="leaderboard-hours">18.2 Hours Active</div>
-                    </div>
-                </div>
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">Animo</div>
-                        <div class="leaderboard-hours">12.5 Hours Active</div>
-                    </div>
-                </div>
-            </div>
-        `;
+        let html = '';
+        FALLBACK_VOICE_LEADERBOARD.forEach((u, idx) => {
+            html += renderVoiceLeaderboardCard(u, idx);
+        });
+        container.innerHTML = html;
     }
 }
+
+fetchVoiceLeaderboard();
 
 // Subnav switcher
 document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
@@ -1104,14 +1096,11 @@ document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
         const tab = btn.getAttribute('data-lounge-tab');
         const liveGrid = document.getElementById('live-games-grid');
         const mostPlayed = document.getElementById('lounge-most-played-container');
-        const leaderboard = document.getElementById('lounge-leaderboard-container');
 
         if (liveGrid) liveGrid.style.display = tab === 'live' ? '' : 'none';
         if (mostPlayed) mostPlayed.style.display = tab === 'most-played' ? '' : 'none';
-        if (leaderboard) leaderboard.style.display = tab === 'leaderboard' ? '' : 'none';
 
         if (tab === 'most-played') fetchMostPlayedStats();
-        if (tab === 'leaderboard') fetchLeaderboardStats();
     });
 });
 

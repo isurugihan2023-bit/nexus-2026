@@ -1076,6 +1076,94 @@
         .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
         .leaderboard-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; }
 
+        /* ── Top 5 Voice Time Section ── */
+        .voice-leaderboard-wrap {
+            margin-top: 56px;
+            padding-top: 44px;
+            border-top: 1px solid rgba(139, 92, 246, 0.12);
+            width: 100%;
+        }
+        .voice-leaderboard-head {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .voice-lead-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 999px;
+            color: #c084fc;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .voice-lead-title {
+            font-size: 1.45rem;
+            font-weight: 850;
+            color: #fff;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+        .voice-lead-sub {
+            font-size: 0.86rem;
+            color: var(--muted);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .voice-leaderboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .voice-user-card {
+            background: rgba(16, 14, 28, 0.9);
+            border: 1px solid rgba(168, 85, 247, 0.22);
+            border-radius: 18px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-family: var(--font);
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+        .voice-user-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(168, 85, 247, 0.5);
+            box-shadow: 0 10px 24px -6px rgba(139, 92, 246, 0.2);
+            background: rgba(22, 19, 38, 0.95);
+        }
+        .voice-user-rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: #c084fc;
+            font-weight: 850;
+            font-size: 0.88rem;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', var(--font), sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.25s ease;
+        }
+        .voice-user-card:hover .voice-user-rank {
+            transform: scale(1.08);
+            border-color: rgba(168, 85, 247, 0.6);
+            background: rgba(124, 58, 237, 0.2);
+        }
+        .voice-user-info { flex-grow: 1; overflow: hidden; font-family: var(--font); }
+        .voice-user-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 4px; font-family: var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .voice-user-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; display: flex; align-items: center; gap: 6px; }
+        .voice-user-hours i { color: var(--p400); font-size: 0.76rem; }
+
         /* ── Skeletons ── */
         .skeleton-card {
             background: rgba(18, 15, 34, 0.5);
@@ -1390,15 +1478,61 @@
                 <div class="lounge-subnav">
                     <button class="lounge-tab-btn active" data-lounge-tab="live"><i class="fas fa-bolt"></i> Live Sessions</button>
                     <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played This Week</button>
-                    <button class="lounge-tab-btn" data-lounge-tab="leaderboard"><i class="fas fa-trophy"></i> Nexus Legends</button>
                 </div>
             </div>
             
             <div id="live-games-grid" class="live-games-grid reveal"></div>
 
-            <!-- Sub-containers for Most Played & Leaderboard -->
+            <!-- Sub-containers for Most Played -->
             <div id="lounge-most-played-container" style="display: none;"></div>
-            <div id="lounge-leaderboard-container" style="display: none;"></div>
+
+            <!-- ── TOP 5 VOICE TIME MEMBERS ─────────────────────── -->
+            <div id="voice-leaderboard-section" class="voice-leaderboard-wrap reveal">
+                <div class="voice-leaderboard-head">
+                    <div class="voice-lead-badge">
+                        <i class="fas fa-headset"></i> Top Voice Time
+                    </div>
+                    <h3 class="voice-lead-title">Most Active in Voice</h3>
+                    <p class="voice-lead-sub">Top 5 community members with the highest voice channel activity this week</p>
+                </div>
+                <div id="voice-leaderboard-grid" class="voice-leaderboard-grid">
+                    <div class="voice-user-card">
+                        <div class="voice-user-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
+                        <div class="voice-user-info">
+                            <div class="voice-user-name">Dodam</div>
+                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 26.4 Hours Active</div>
+                        </div>
+                    </div>
+                    <div class="voice-user-card">
+                        <div class="voice-user-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
+                        <div class="voice-user-info">
+                            <div class="voice-user-name">PaMuJiThA</div>
+                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 18.2 Hours Active</div>
+                        </div>
+                    </div>
+                    <div class="voice-user-card">
+                        <div class="voice-user-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
+                        <div class="voice-user-info">
+                            <div class="voice-user-name">Animo</div>
+                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 12.5 Hours Active</div>
+                        </div>
+                    </div>
+                    <div class="voice-user-card">
+                        <div class="voice-user-rank"><span class="rank-num">#4</span></div>
+                        <div class="voice-user-info">
+                            <div class="voice-user-name">Hirusha</div>
+                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 9.8 Hours Active</div>
+                        </div>
+                    </div>
+                    <div class="voice-user-card">
+                        <div class="voice-user-rank"><span class="rank-num">#5</span></div>
+                        <div class="voice-user-info">
+                            <div class="voice-user-name">Gineth</div>
+                            <div class="voice-user-hours"><i class="fas fa-headset"></i> 7.4 Hours Active</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -2820,70 +2954,62 @@
             }
         }
 
-        async function fetchLeaderboardStats() {
-            const container = document.getElementById('lounge-leaderboard-container');
+        // ── Top 5 Voice Time Leaderboard Loader ──
+        const FALLBACK_VOICE_LEADERBOARD = [
+            { username: 'Dodam', total_hours: '26.4' },
+            { username: 'PaMuJiThA', total_hours: '18.2' },
+            { username: 'Animo', total_hours: '12.5' },
+            { username: 'Hirusha', total_hours: '9.8' },
+            { username: 'Gineth', total_hours: '7.4' }
+        ];
+
+        function renderVoiceLeaderboardCard(u, idx) {
+            const rankContent = idx === 0 
+                ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
+                : (idx === 1 
+                    ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
+                    : (idx === 2 
+                        ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
+                        : `<span class="rank-num">#${idx + 1}</span>`));
+
+            return `
+                <div class="voice-user-card">
+                    <div class="voice-user-rank">${rankContent}</div>
+                    <div class="voice-user-info">
+                        <div class="voice-user-name">${escapeHtml(u.username)}</div>
+                        <div class="voice-user-hours"><i class="fas fa-headset"></i> ${u.total_hours} Hours Active</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function fetchVoiceLeaderboard() {
+            const container = document.getElementById('voice-leaderboard-grid');
             if (!container) return;
 
             try {
-                const resp = await fetch('/api/stats/leaderboard?period=week');
+                const resp = await fetch('/api/stats/leaderboard?period=week&limit=5');
                 if (!resp.ok) throw new Error('Leaderboard API offline');
                 const data = await resp.json();
-                const users = data.leaderboard || [];
+                const users = (data.leaderboard && data.leaderboard.length > 0) 
+                    ? data.leaderboard.slice(0, 5) 
+                    : FALLBACK_VOICE_LEADERBOARD;
 
-                if (users.length === 0) {
-                    container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No player playtime recorded this week. Jump into voice to climb the ranks!</div>`;
-                    return;
-                }
-
-                let html = '<div class="stats-leaderboard-grid">';
+                let html = '';
                 users.forEach((u, idx) => {
-                    const rankContent = idx === 0 
-                        ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
-                        : (idx === 1 
-                            ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
-                            : (idx === 2 
-                                ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
-                                : `<span class="rank-num">#${idx + 1}</span>`));
-                    html += `
-                        <div class="leaderboard-card">
-                            <div class="leaderboard-rank">${rankContent}</div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">${escapeHtml(u.username)}</div>
-                                <div class="leaderboard-hours">${u.total_hours} Hours • ${u.session_count} Sessions</div>
-                            </div>
-                        </div>
-                    `;
+                    html += renderVoiceLeaderboardCard(u, idx);
                 });
-                html += '</div>';
                 container.innerHTML = html;
             } catch (err) {
-                container.innerHTML = `
-                    <div class="stats-leaderboard-grid">
-                        <div class="leaderboard-card">
-                            <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">Dodam</div>
-                                <div class="leaderboard-hours">26.4 Hours Active</div>
-                            </div>
-                        </div>
-                        <div class="leaderboard-card">
-                            <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">PaMuJiThA</div>
-                                <div class="leaderboard-hours">18.2 Hours Active</div>
-                            </div>
-                        </div>
-                        <div class="leaderboard-card">
-                            <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">Animo</div>
-                                <div class="leaderboard-hours">12.5 Hours Active</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                let html = '';
+                FALLBACK_VOICE_LEADERBOARD.forEach((u, idx) => {
+                    html += renderVoiceLeaderboardCard(u, idx);
+                });
+                container.innerHTML = html;
             }
         }
+
+        fetchVoiceLeaderboard();
 
         // Subnav switcher
         document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
@@ -2894,14 +3020,11 @@
                 const tab = btn.getAttribute('data-lounge-tab');
                 const liveGrid = document.getElementById('live-games-grid');
                 const mostPlayed = document.getElementById('lounge-most-played-container');
-                const leaderboard = document.getElementById('lounge-leaderboard-container');
 
                 if (liveGrid) liveGrid.style.display = tab === 'live' ? '' : 'none';
                 if (mostPlayed) mostPlayed.style.display = tab === 'most-played' ? '' : 'none';
-                if (leaderboard) leaderboard.style.display = tab === 'leaderboard' ? '' : 'none';
 
                 if (tab === 'most-played') fetchMostPlayedStats();
-                if (tab === 'leaderboard') fetchLeaderboardStats();
             });
         });
     </script>

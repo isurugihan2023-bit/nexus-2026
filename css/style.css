@@ -627,6 +627,94 @@ body.home-tab-active .hero-section { display: flex !important; }
 .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
 .leaderboard-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; }
 
+/* ── Top 5 Voice Time Section ── */
+.voice-leaderboard-wrap {
+    margin-top: 56px;
+    padding-top: 44px;
+    border-top: 1px solid rgba(139, 92, 246, 0.12);
+    width: 100%;
+}
+.voice-leaderboard-head {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.voice-lead-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 999px;
+    color: #c084fc;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.voice-lead-title {
+    font-size: 1.45rem;
+    font-weight: 850;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+}
+.voice-lead-sub {
+    font-size: 0.86rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+}
+.voice-leaderboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+.voice-user-card {
+    background: rgba(16, 14, 28, 0.9);
+    border: 1px solid rgba(168, 85, 247, 0.22);
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--font);
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.voice-user-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 10px 24px -6px rgba(139, 92, 246, 0.2);
+    background: rgba(22, 19, 38, 0.95);
+}
+.voice-user-rank {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    color: #c084fc;
+    font-weight: 850;
+    font-size: 0.88rem;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', var(--font), sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+.voice-user-card:hover .voice-user-rank {
+    transform: scale(1.08);
+    border-color: rgba(168, 85, 247, 0.6);
+    background: rgba(124, 58, 237, 0.2);
+}
+.voice-user-info { flex-grow: 1; overflow: hidden; font-family: var(--font); }
+.voice-user-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 4px; font-family: var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.voice-user-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; display: flex; align-items: center; gap: 6px; }
+.voice-user-hours i { color: var(--p400); font-size: 0.76rem; }
+
 /* ── Live Games Lounge Grid (Centered Layout) ── */
 .lounge-section {
     flex: 1 0 auto;
