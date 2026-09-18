@@ -491,21 +491,6 @@ footer {
 body.home-tab-active .hero-section { display: flex !important; }
 
 /* ── LIVE GAMING LOUNGE & REAL-TIME PLATFORM ──────── */
-.game-squad-prompt {
-    margin-top: 6px;
-    margin-bottom: 8px;
-    padding: 4px 10px;
-    background: rgba(168, 85, 247, 0.12);
-    border: 1px dashed rgba(168, 85, 247, 0.35);
-    border-radius: 8px;
-    font-size: 0.72rem;
-    color: #c084fc;
-    font-weight: 700;
-    font-family: var(--font);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
 .lounge-subnav {
     display: flex;
     align-items: center;

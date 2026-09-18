@@ -510,21 +510,6 @@ function renderLiveGames(gamesList) {
         const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
         const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
 
-        // Squad size prompt calculation
-        let squadPromptHtml = '';
-        if (game.name) {
-            const lowerName = game.name.toLowerCase();
-            for (const [k, standardSize] of Object.entries(TYPICAL_SQUAD_SIZES)) {
-                if (lowerName.includes(k)) {
-                    const needed = standardSize - count;
-                    if (needed > 0) {
-                        squadPromptHtml = `<div class="game-squad-prompt"><i class="fas fa-user-plus"></i> ${needed} needed for squad</div>`;
-                    }
-                    break;
-                }
-            }
-        }
-
         const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
         const maxVisible = 4;
         const visiblePlayers = playerDetails.slice(0, maxVisible);
@@ -576,7 +561,6 @@ function renderLiveGames(gamesList) {
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
                 <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
                 <div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>
-                ${squadPromptHtml}
                 <div class="game-players-strip">
                     ${avatarsHtml}
                     <div class="game-player-headline" title="${escapeHtml(playerNamesList.join(', '))}">
