@@ -392,17 +392,11 @@ function renderLiveGames(gamesList) {
         if (totalPlayersEl) {
             totalPlayersEl.textContent = '0 Players In-Game';
         }
-        if (lastGamesDigest === 'EMPTY' && grid.querySelector('.empty-lounge-state')) {
+        if (lastGamesDigest === 'EMPTY' && grid.children.length === 0) {
             return;
         }
         lastGamesDigest = 'EMPTY';
-        grid.innerHTML = `
-            <div class="empty-lounge-state" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">
-                <div style="font-size: 2.5rem; color: var(--muted, #64748b); margin-bottom: 12px;"><i class="fas fa-gamepad"></i></div>
-                <div style="font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin-bottom: 6px;">No Active Squads Right Now</div>
-                <div style="font-size: 0.85rem; color: #94a3b8;">Launch a game or jump into voice in Discord to start a live squad session!</div>
-            </div>
-        `;
+        grid.innerHTML = '';
         return;
     }
 
@@ -417,7 +411,7 @@ function renderLiveGames(gamesList) {
         avatars: g.player_details ? g.player_details.map(p => p.avatar) : [],
         details: g.player_details ? g.player_details.map(p => p.details) : []
     })));
-    if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card') && !grid.querySelector('.empty-lounge-state')) {
+    if (digest === lastGamesDigest && grid.children.length > 0) {
         return;
     }
     lastGamesDigest = digest;
