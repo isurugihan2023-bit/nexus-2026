@@ -1025,8 +1025,8 @@ function renderMostPlayedCard(g, idx) {
                 <div class="game-name" title="${escapeHtml(gameName)}">${escapeHtml(gameName)}</div>
                 <div class="game-match-detail" title="${totalHours} Hours Logged"><i class="fas fa-trophy"></i> Top Played This Week</div>
                 <div class="game-players-strip">
-                    <div class="leaderboard-rank" style="width: 32px; height: 32px; font-size: 0.82rem; margin-right: 2px;"><span class="rank-num">#${idx+1}</span></div>
                     <div class="game-player-headline" style="margin-bottom: 0;">
+                        <i class="fas fa-users"></i>
                         <span class="game-player-name">${escapeHtml(playersText)}</span>
                     </div>
                 </div>

@@ -1112,9 +1112,9 @@
             width: 100%;
             max-width: 540px;
             background: #131024;
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
-            box-shadow: 0 25px 60px -10px rgba(0,0,0,0.8), 0 0 35px rgba(124, 58, 237, 0.2);
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85);
             overflow: hidden;
             transform: scale(0.92) translateY(20px);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2802,8 +2802,8 @@
                         <div class="game-name" title="${escapeHtml(gameName)}">${escapeHtml(gameName)}</div>
                         <div class="game-match-detail" title="${totalHours} Hours Logged"><i class="fas fa-trophy"></i> Top Played This Week</div>
                         <div class="game-players-strip">
-                            <div class="leaderboard-rank" style="width: 32px; height: 32px; font-size: 0.82rem; margin-right: 2px;"><span class="rank-num">#${idx+1}</span></div>
                             <div class="game-player-headline" style="margin-bottom: 0;">
+                                <i class="fas fa-users"></i>
                                 <span class="game-player-name">${escapeHtml(playersText)}</span>
                             </div>
                         </div>
