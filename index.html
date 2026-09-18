@@ -282,11 +282,13 @@
         .chip-val { font-size: 1.1rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
         .chip-label { color: var(--muted); font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* Hero Since Badge */
+        /* Hero Since Badge & Copyright */
         .hero-since {
             margin-top: 38px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
         }
         .hero-since-pill {
             display: inline-flex;
@@ -307,6 +309,14 @@
         .hero-since-pill:hover {
             background: rgba(26, 20, 48, 0.85);
             transform: translateY(-2px);
+        }
+        .hero-copyright {
+            font-size: 0.82rem;
+            color: var(--muted);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-align: center;
+            user-select: none;
         }
 
         /* ── STATS STRIP ─────────────────────── */
@@ -1360,6 +1370,9 @@
                 <div class="hero-since fade-up" style="animation-delay:0.5s">
                     <div class="hero-since-pill">
                         <span>Since March 2026</span>
+                    </div>
+                    <div class="hero-copyright">
+                        &copy; 2026 Ninja Nexus. All rights reserved.
                     </div>
                 </div>
             </div>
