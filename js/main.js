@@ -12,29 +12,23 @@ function showTab(targetId) {
         if (el) el.classList.remove('active');
     });
 
-    const footer = document.getElementById('site-footer');
-
     if (targetId === 'home') {
         HOME_TABS.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('active');
         });
-        if (footer) footer.style.display = '';
         document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
     } else if (targetId === 'lounge') {
         const loungeEl = document.getElementById('lounge');
         if (loungeEl) loungeEl.classList.add('active');
-        if (footer) footer.style.display = 'none';
     } else if (targetId === 'stats') {
         const statsEl = document.getElementById('stats');
         const ctaEl = document.getElementById('home-cta');
         if (statsEl) statsEl.classList.add('active');
         if (ctaEl) ctaEl.classList.add('active');
-        if (footer) footer.style.display = '';
     } else {
         const el = document.getElementById(targetId);
         if (el) el.classList.add('active');
-        if (footer) footer.style.display = 'none';
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });

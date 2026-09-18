@@ -647,14 +647,12 @@ body.home-tab-active .hero-section { display: flex !important; }
     width: 100%;
     flex: 1 1 100%;
 }
-.footer {
-    margin-top: auto;
-}
-body.lounge-tab-active .footer,
-body.lounge-tab-active #site-footer {
+.footer,
+#site-footer,
+footer {
     display: none !important;
 }
-body.lounge-tab-active .lounge-section {
+.lounge-section {
     border-bottom: none;
 }
 

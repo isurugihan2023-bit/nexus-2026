@@ -498,18 +498,9 @@
         .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
         .cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 
-        .footer {
-            border-top: 1px solid var(--border);
-            background: var(--bg2);
-            padding: 72px 0 36px;
-            margin-top: auto;
-        }
-        body.lounge-tab-active .footer,
-        body.lounge-tab-active #site-footer {
+        .footer,
+        #site-footer {
             display: none !important;
-        }
-        body.lounge-tab-active .lounge-section {
-            border-bottom: none;
         }
         .footer-grid {
             display: grid;
@@ -1725,47 +1716,7 @@
         </div>
     </section>
 
-    <!-- ── FOOTER ─────────────────────── -->
-    <footer class="footer" id="site-footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <div class="footer-brand-logo">
-                        <img src="images/nexus_logo.png" alt="Nexus" onerror="this.style.display='none'">
-                        <span>Ninja Nexus</span>
-                    </div>
-                    <p class="footer-brand-desc">The ultimate anime and gaming community discord server. Fast, friendly, and fun.</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Community</h4>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#commands">Commands</a></li>
-                        <li><a href="#stats">Stats</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="#commands">Commands Guide</a></li>
-                        <li><a href="https://discord.gg/fZNDG5sfhf">Discord Server</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Connect</h4>
-                    <ul>
-                        <li><a href="https://discord.gg/fZNDG5sfhf">Join Discord</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <span class="footer-copy">© 2026 Ninja Nexus. All rights reserved.</span>
-                <div class="footer-socials">
-                    <a href="https://discord.gg/fZNDG5sfhf" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
+
 
     <!-- ── GAME SESSION MODAL ─────────────────────── -->
     <div id="game-session-modal" class="game-modal" aria-hidden="true">
@@ -1811,29 +1762,23 @@
                 if (el) el.classList.remove('active');
             });
 
-            const footer = document.getElementById('site-footer');
-
             if (targetId === 'home') {
                 HOME_TABS.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.classList.add('active');
                 });
-                if (footer) footer.style.display = '';
                 document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
             } else if (targetId === 'lounge') {
                 const loungeEl = document.getElementById('lounge');
                 if (loungeEl) loungeEl.classList.add('active');
-                if (footer) footer.style.display = 'none';
             } else if (targetId === 'stats') {
                 const statsEl = document.getElementById('stats');
                 const ctaEl = document.getElementById('home-cta');
                 if (statsEl) statsEl.classList.add('active');
                 if (ctaEl) ctaEl.classList.add('active');
-                if (footer) footer.style.display = '';
             } else {
                 const el = document.getElementById(targetId);
                 if (el) el.classList.add('active');
-                if (footer) footer.style.display = 'none';
             }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
