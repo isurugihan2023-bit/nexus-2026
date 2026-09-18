@@ -618,13 +618,6 @@ function renderLiveGames(gamesList) {
 
         card.innerHTML = `
             <div class="game-card-img-wrap">
-                <div class="game-card-top-badges">
-                    <div class="game-top-badges-left">
-                        ${liveBadgeHtml}
-                        ${hotBadgeHtml}
-                    </div>
-                    ${countBadgeHtml}
-                </div>
                 <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
             </div>
             <div class="game-card-body">
