@@ -1063,157 +1063,6 @@
         .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
         .leaderboard-hours { font-size: 0.82rem; color: #94a3b8; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; }
 
-        /* ── Top Voice Time Card Windows & Live Strip (Voice System v2) ── */
-        .voice-leaderboard-wrap {
-            width: 100%;
-        }
-        #voice-leaderboard-grid .game-card {
-            cursor: default;
-        }
-        .voice-live-strip {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 22px;
-        }
-        .voice-live-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 18px;
-            border-radius: 9999px;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: #ecfdf5;
-            font-size: 0.86rem;
-            font-weight: 650;
-            letter-spacing: -0.01em;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
-            transition: all 0.3s ease;
-        }
-        .voice-live-pill:hover {
-            border-color: rgba(16, 185, 129, 0.45);
-            box-shadow: 0 4px 25px rgba(16, 185, 129, 0.2);
-        }
-        .live-pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 10px #10b981;
-            display: inline-block;
-            animation: pulse-live 1.6s infinite ease-in-out;
-            flex-shrink: 0;
-        }
-        @keyframes pulse-live {
-            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px #10b981; }
-            50% { opacity: 0.35; transform: scale(0.8); box-shadow: 0 0 4px #10b981; }
-        }
-
-        /* ── Voice Time Switcher (Segmented Control) ── */
-        .voice-time-switcher {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 26px;
-            flex-wrap: wrap;
-        }
-        .voice-range-btn {
-            background: rgba(18, 15, 34, 0.65);
-            border: 1px solid rgba(139, 92, 246, 0.18);
-            color: #94a3b8;
-            padding: 8px 18px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-        .voice-range-btn:hover {
-            color: #ffffff;
-            border-color: rgba(139, 92, 246, 0.4);
-            background: rgba(139, 92, 246, 0.12);
-            transform: translateY(-1px);
-        }
-        .voice-range-btn.active {
-            color: #ffffff;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(99, 102, 241, 0.25));
-            border-color: rgba(168, 85, 247, 0.6);
-            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.25);
-        }
-
-        /* ── Rank Delta Movement Badges ── */
-        .rank-delta-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 0.68rem;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 6px;
-            line-height: 1;
-            margin-left: 4px;
-        }
-        .rank-delta-up {
-            color: #34d399;
-            background: rgba(16, 185, 129, 0.18);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .rank-delta-down {
-            color: #fb7185;
-            background: rgba(244, 63, 94, 0.18);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-        }
-        .rank-delta-new {
-            color: #fbbf24;
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            letter-spacing: 0.04em;
-        }
-        .rank-delta-same {
-            color: #94a3b8;
-            background: rgba(148, 163, 184, 0.1);
-        }
-
-        /* ── Live Active Voice Card Indicators ── */
-        .game-player-badge.is-live-badge {
-            background: rgba(16, 185, 129, 0.22);
-            border-color: rgba(16, 185, 129, 0.5);
-            color: #34d399;
-        }
-        .voice-empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 48px 24px;
-            background: rgba(18, 15, 34, 0.4);
-            border: 1px dashed rgba(139, 92, 246, 0.25);
-            border-radius: 20px;
-            color: #94a3b8;
-        }
-        .voice-empty-state i {
-            font-size: 2.2rem;
-            color: var(--accent);
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-        .voice-empty-state h3 {
-            color: #fff;
-            font-size: 1.15rem;
-            font-weight: 750;
-            margin-bottom: 6px;
-        }
-        .voice-empty-state p {
-            font-size: 0.88rem;
-            max-width: 420px;
-            margin: 0 auto;
-        }
-
         /* ── Skeletons ── */
         .skeleton-card {
             background: rgba(18, 15, 34, 0.5);
@@ -1528,7 +1377,6 @@
                 <div class="lounge-subnav">
                     <button class="lounge-tab-btn active" data-lounge-tab="live"><i class="fas fa-bolt"></i> Live Sessions</button>
                     <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played This Week</button>
-                    <button class="lounge-tab-btn" data-lounge-tab="voice"><i class="fas fa-headset"></i> Top Voice Time</button>
                 </div>
             </div>
             
@@ -1537,33 +1385,6 @@
             <!-- Sub-containers for Most Played -->
             <div id="lounge-most-played-container" style="display: none;"></div>
 
-            <!-- ── TOP VOICE TIME WINDOWS (GAME CARD STYLE) ─────────── -->
-            <div id="voice-leaderboard-section" class="voice-leaderboard-wrap" style="display: none;">
-                <!-- Live Presence Banner Strip -->
-                <div id="voice-live-strip" class="voice-live-strip" style="display: none;">
-                    <div class="voice-live-pill">
-                        <span class="live-pulse-dot"></span>
-                        <span id="voice-live-text"><i class="fas fa-headset"></i> Loading live voice activity...</span>
-                    </div>
-                </div>
-
-                <!-- Window Switcher Toggle -->
-                <div class="voice-time-switcher">
-                    <button class="voice-range-btn active" data-voice-range="week"><i class="fas fa-calendar-week"></i> This Week</button>
-                    <button class="voice-range-btn" data-voice-range="month"><i class="fas fa-calendar-alt"></i> This Month</button>
-                    <button class="voice-range-btn" data-voice-range="all"><i class="fas fa-infinity"></i> All-Time</button>
-                </div>
-
-                <div id="voice-leaderboard-grid" class="live-games-grid">
-                    <!-- Skeletons rendered initially -->
-                    <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                    <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                    <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                    <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                    <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                    <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -2922,7 +2743,6 @@
         function fetchPublicStats() {
             fetchBotData();
             fetchDiscordStats();
-            fetchVoiceLeaderboard();
         }
 
         // ── Visibility Change Awareness & Polling Fallback Manager ──
@@ -3040,250 +2860,6 @@
             }
         }
 
-        // ── Voice System v2 ("Strava for Gamers") Frontend Engine ──
-        let currentVoiceRange = 'week';
-        let currentVoiceData = [];
-        let voiceFetchTimestamp = Date.now();
-
-        // Signature Member Thematic Covers (moves with member regardless of rank)
-        const SIGNATURE_MEMBER_COVERS = {
-            '718472993873068155': 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80', // kiri putha (cat)
-            '706113392167092276': 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80', // local leclerc (racing / sports car)
-            '928546532037394453': 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80', // N3WB (white supercar)
-            '909069118349639751': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80', // Pegging Boy (gaming battle station)
-            '1226896502216069130': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80', // Animo (retro workstation)
-            '1334780362731294812': 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80'  // SL_LIDDA (command center)
-        };
-
-        const SLOT_FALLBACK_COVERS = {
-            1: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
-            2: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
-            3: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
-            4: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
-            5: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
-            6: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80'
-        };
-
-        function formatDurationHms(totalSec) {
-            const h = Math.floor(totalSec / 3600);
-            const m = Math.floor((totalSec % 3600) / 60);
-            const s = totalSec % 60;
-            return `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`;
-        }
-
-        function renderRankDeltaBadge(prevRank, currRank) {
-            if (prevRank === undefined || prevRank === null) {
-                return `<span class="rank-delta-badge rank-delta-new">NEW</span>`;
-            }
-            if (prevRank > currRank) {
-                return `<span class="rank-delta-badge rank-delta-up" title="Up ${prevRank - currRank} spot(s)"><i class="fas fa-caret-up"></i> ${prevRank - currRank}</span>`;
-            }
-            if (prevRank < currRank) {
-                return `<span class="rank-delta-badge rank-delta-down" title="Down ${currRank - prevRank} spot(s)"><i class="fas fa-caret-down"></i> ${currRank - prevRank}</span>`;
-            }
-            return `<span class="rank-delta-badge rank-delta-same" title="No change">—</span>`;
-        }
-
-        function renderVoiceWindowCard(u, idx) {
-            const rankNum = u.rank || (idx + 1);
-            const isHot = rankNum === 1;
-            const deltaBadge = renderRankDeltaBadge(u.prev_rank, rankNum);
-
-            const isLive = Boolean(u.is_live);
-            const timeFormatted = formatDurationHms(u.total_seconds || 0);
-
-            const rankBadgeHtml = `
-                <div class="game-live-badge">#${rankNum} RANK ${deltaBadge}</div>
-            `;
-
-            const timeBadgeHtml = isLive
-                ? `<div class="game-player-badge is-live-badge"><span class="live-pulse-dot" style="width: 6px; height: 6px;"></span> <i class="fas fa-headset"></i> <span class="voice-card-time is-live-timer" data-user-id="${escapeHtml(String(u.user_id || ''))}" data-base-sec="${u.total_seconds || 0}">${timeFormatted}</span></div>`
-                : `<div class="game-player-badge"><i class="fas fa-headset"></i> <span class="voice-card-time">${timeFormatted}</span></div>`;
-
-            const coverUrl = SIGNATURE_MEMBER_COVERS[String(u.user_id)] || u.cover || SLOT_FALLBACK_COVERS[rankNum] || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';
-
-            const tagIcons = {
-                1: 'fa-crown',
-                2: 'fa-tachometer-alt',
-                3: 'fa-bolt',
-                4: 'fa-fire',
-                5: 'fa-star',
-                6: 'fa-shield-halved'
-            };
-            const tagIcon = tagIcons[rankNum] || 'fa-headset';
-            const tagText = `TOP VOICE #${rankNum}`;
-            const handle = u.handle ? `@${u.handle}` : (u.username ? `@${u.username}` : (u.display_name || u.name || 'Member'));
-            const dispName = u.display_name || u.name || 'Member';
-            const statusDetail = isLive ? '🟢 In Active Voice Channel' : 'Recorded Voice Session';
-
-            return `
-                <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-voice-rank="${rankNum}">
-                    <div class="game-card-img-wrap">
-                        <div class="game-card-top-badges">
-                            <div class="game-top-badges-left">
-                                ${rankBadgeHtml}
-                            </div>
-                            ${timeBadgeHtml}
-                        </div>
-                        <img src="${escapeHtml(coverUrl)}" alt="${escapeHtml(dispName)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';">
-                    </div>
-                    <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas ${tagIcon}" style="font-size: 0.65rem;"></i> ${tagText}</div>
-                        <div class="game-name" title="${escapeHtml(dispName)}">${escapeHtml(dispName)}</div>
-                        <div class="game-match-detail" title="${escapeHtml(statusDetail)}"><i class="fas fa-headset"></i> ${escapeHtml(statusDetail)}</div>
-                        <div class="game-players-strip">
-                            <div class="avatar-stack">
-                                <img src="${escapeHtml(u.avatar_url || u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="${escapeHtml(dispName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                            </div>
-                            <div class="game-player-headline" title="${escapeHtml(handle)}">
-                                <span class="game-player-name">${escapeHtml(handle)}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        async function fetchLiveVoiceStrip() {
-            const strip = document.getElementById('voice-live-strip');
-            const textEl = document.getElementById('voice-live-text');
-            if (!strip || !textEl) return;
-
-            try {
-                const endpoints = [
-                    '/api/voice_live?_t=' + Date.now(),
-                    'http://157.90.181.183:23063/api/voice_live?_t=' + Date.now()
-                ];
-                let liveData = null;
-                for (const url of endpoints) {
-                    try {
-                        const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-                        if (resp.ok) {
-                            liveData = await resp.json();
-                            break;
-                        }
-                    } catch(e) {}
-                }
-
-                if (liveData && liveData.count > 0 && liveData.members && liveData.members.length > 0) {
-                    strip.style.display = 'flex';
-                    const names = liveData.members.map(m => escapeHtml(m.display_name));
-                    let preview = '';
-                    if (names.length <= 3) {
-                        preview = names.join(', ');
-                    } else {
-                        preview = `${names.slice(0, 3).join(', ')} +${names.length - 3}`;
-                    }
-                    textEl.innerHTML = `<i class="fas fa-headset"></i> <strong>${liveData.count} in voice now:</strong> ${preview}`;
-                } else {
-                    strip.style.display = 'none';
-                }
-            } catch(err) {
-                strip.style.display = 'none';
-            }
-        }
-
-        async function fetchVoiceLeaderboard(range = currentVoiceRange) {
-            const container = document.getElementById('voice-leaderboard-grid');
-            if (!container) return;
-
-            try {
-                const endpoints = [
-                    `/api/voice_stats?range=${encodeURIComponent(range)}&limit=6&_t=${Date.now()}`,
-                    `http://157.90.181.183:23063/api/voice_stats?range=${encodeURIComponent(range)}&limit=6&_t=${Date.now()}`
-                ];
-                let liveData = null;
-                for (const url of endpoints) {
-                    try {
-                        const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            if (data && (data.leaderboard || data.top)) {
-                                liveData = data;
-                                break;
-                            }
-                        }
-                    } catch(e) {}
-                }
-
-                if (liveData) {
-                    voiceFetchTimestamp = Date.now();
-                    if (liveData.leaderboard && Array.isArray(liveData.leaderboard)) {
-                        currentVoiceData = liveData.leaderboard;
-                    } else if (liveData.top && Array.isArray(liveData.top)) {
-                        currentVoiceData = liveData.top.map((u, i) => ({
-                            rank: i + 1,
-                            user_id: u.user_id || `legacy_${i}`,
-                            display_name: u.name,
-                            handle: u.username || u.name,
-                            avatar_url: u.avatar,
-                            total_seconds: u.total_seconds || 0,
-                            is_live: false,
-                            prev_rank: null
-                        }));
-                    }
-                }
-            } catch (err) {}
-
-            if (!currentVoiceData || currentVoiceData.length === 0) {
-                container.innerHTML = `
-                    <div class="voice-empty-state">
-                        <i class="fas fa-headset"></i>
-                        <h3>No voice activity yet this ${range === 'week' ? 'week' : (range === 'month' ? 'month' : 'period')}</h3>
-                        <p>Jump in any voice channel to log your squad time and claim the #1 ranking!</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = currentVoiceData.map((u, idx) => renderVoiceWindowCard(u, idx)).join('');
-            }
-        }
-
-        // Segmented Switcher click handling
-        document.querySelectorAll('.voice-range-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.voice-range-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentVoiceRange = btn.getAttribute('data-voice-range') || 'week';
-                
-                // Show skeletons while loading
-                const container = document.getElementById('voice-leaderboard-grid');
-                if (container) {
-                    container.innerHTML = `
-                        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
-                    `;
-                }
-                fetchVoiceLeaderboard(currentVoiceRange);
-            });
-        });
-
-        // Initialize voice data & live strip
-        fetchLiveVoiceStrip();
-        fetchVoiceLeaderboard('week');
-
-        // Polling live strip every 30s
-        setInterval(fetchLiveVoiceStrip, 30000);
-
-        // Real-time ticking updater (ticks ONLY for members with is_live === true)
-        setInterval(() => {
-            const container = document.getElementById('voice-leaderboard-grid');
-            if (!container) return;
-
-            const liveBadges = container.querySelectorAll('.voice-card-time.is-live-timer');
-            if (liveBadges.length === 0) return;
-
-            const elapsedSinceFetch = Math.max(0, Math.floor((Date.now() - voiceFetchTimestamp) / 1000));
-            liveBadges.forEach(el => {
-                const baseSec = parseInt(el.getAttribute('data-base-sec'), 10) || 0;
-                const totalSec = baseSec + elapsedSinceFetch;
-                el.textContent = formatDurationHms(totalSec);
-            });
-        }, 1000);
-
         // Subnav switcher
         document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -3293,25 +2869,15 @@
                 const tab = btn.getAttribute('data-lounge-tab');
                 const liveGrid = document.getElementById('live-games-grid');
                 const mostPlayed = document.getElementById('lounge-most-played-container');
-                const voiceSec = document.getElementById('voice-leaderboard-section');
 
                 if (tab === 'live') {
                     if (liveGrid) liveGrid.style.display = '';
                     if (mostPlayed) mostPlayed.style.display = 'none';
-                    if (voiceSec) voiceSec.style.display = 'none';
                 } else if (tab === 'most-played') {
                     if (liveGrid) liveGrid.style.display = 'none';
                     if (mostPlayed) {
                         mostPlayed.style.display = '';
                         fetchMostPlayedStats();
-                    }
-                    if (voiceSec) voiceSec.style.display = 'none';
-                } else if (tab === 'voice') {
-                    if (liveGrid) liveGrid.style.display = 'none';
-                    if (mostPlayed) mostPlayed.style.display = 'none';
-                    if (voiceSec) {
-                        voiceSec.style.display = '';
-                        fetchVoiceLeaderboard();
                     }
                 }
             });
