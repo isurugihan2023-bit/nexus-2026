@@ -198,6 +198,8 @@ async function fetchBotData() {
             ? d.top_played_games
             : (d.playing_games && d.playing_games.length > 0 ? d.playing_games : []);
         renderLiveGames(liveGames);
+    } else if (!window.hasRenderedLiveGames) {
+        renderLiveGames([]);
     }
 }
 
@@ -309,42 +311,7 @@ function getGameTheme(gameName) {
     };
 }
 
-const DEFAULT_COMMUNITY_GAMES = [
-    {
-        name: "Brawlhalla",
-        count: 2,
-        is_live: true,
-        sample_detail: "Active Discord Session",
-        players: ["PaMuJiThA", "Dodam"],
-        player_details: [
-            { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "Playing" },
-            { name: "Dodam", avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024", details: "In Lobby" }
-        ],
-        rich_cover: "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg"
-    },
-    {
-        name: "ARC Raiders",
-        count: 1,
-        is_live: true,
-        sample_detail: "Active Discord Session",
-        players: ["Animo"],
-        player_details: [
-            { name: "Animo", avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024", details: "Playing" }
-        ],
-        rich_cover: "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg"
-    },
-    {
-        name: "Visual Studio Code",
-        count: 1,
-        is_live: true,
-        sample_detail: "Editing targeting.lua",
-        players: ["! DINGDONG GAMING"],
-        player_details: [
-            { name: "! DINGDONG GAMING", avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024", details: "Editing targeting.lua" }
-        ],
-        rich_cover: "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
-    }
-];
+const DEFAULT_COMMUNITY_GAMES = [];
 
 // ── Phase 5: Typical squad sizes per game ──
 const TYPICAL_SQUAD_SIZES = {
@@ -415,8 +382,27 @@ function renderLiveGames(gamesList) {
     const grid = document.getElementById('live-games-grid');
     if (!grid) return;
 
-    const isRealData = Array.isArray(gamesList) && gamesList.length > 0;
-    const games = isRealData ? gamesList : DEFAULT_COMMUNITY_GAMES;
+    if (!Array.isArray(gamesList) || gamesList.length === 0) {
+        window.currentLiveGamesState = [];
+        const totalPlayersEl = document.getElementById('lounge-total-players');
+        if (totalPlayersEl) {
+            totalPlayersEl.textContent = '0 Players In-Game';
+        }
+        if (lastGamesDigest === 'EMPTY' && grid.querySelector('.empty-lounge-state')) {
+            return;
+        }
+        lastGamesDigest = 'EMPTY';
+        grid.innerHTML = `
+            <div class="empty-lounge-state" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">
+                <div style="font-size: 2.5rem; color: var(--muted, #64748b); margin-bottom: 12px;"><i class="fas fa-gamepad"></i></div>
+                <div style="font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin-bottom: 6px;">No Active Squads Right Now</div>
+                <div style="font-size: 0.85rem; color: #94a3b8;">Launch a game or jump into voice in Discord to start a live squad session!</div>
+            </div>
+        `;
+        return;
+    }
+
+    const games = gamesList;
     window.currentLiveGamesState = games;
 
     const digest = JSON.stringify(games.map(g => ({
@@ -427,7 +413,7 @@ function renderLiveGames(gamesList) {
         avatars: g.player_details ? g.player_details.map(p => p.avatar) : [],
         details: g.player_details ? g.player_details.map(p => p.details) : []
     })));
-    if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
+    if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card') && !grid.querySelector('.empty-lounge-state')) {
         return;
     }
     lastGamesDigest = digest;
@@ -452,7 +438,7 @@ function renderLiveGames(gamesList) {
     games.forEach((game, idx) => {
         const card = document.createElement('div');
         const count = game.count || (game.players ? game.players.length : 1);
-        const isLive = isRealData || (game.is_live === true);
+        const isLive = true;
         const isHot = maxPlayers >= 2 && count === maxPlayers;
 
         const theme = getGameTheme(game.name);

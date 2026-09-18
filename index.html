@@ -1363,84 +1363,10 @@
             </div>
             
             <div id="live-games-grid" class="live-games-grid reveal">
-                <!-- Pre-rendered active gaming sessions (dynamically synchronized with bot API) -->
-                <div class="game-card reveal visible" data-game-name="Brawlhalla">
-                    <div class="game-card-img-wrap">
-                        <div class="game-card-top-badges">
-                            <div class="game-top-badges-left">
-                                <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                                <div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>
-                            </div>
-                            <div class="game-player-badge"><i class="fas fa-users"></i> 2 In Session</div>
-                        </div>
-                        <img src="https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg" alt="Brawlhalla" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
-                    </div>
-                    <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas fa-fist-raised" style="font-size: 0.65rem;"></i> Platform Fighter</div>
-                        <div class="game-name" title="Brawlhalla">Brawlhalla</div>
-                        <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
-                        <div class="game-players-strip">
-                            <div class="avatar-stack">
-                                <img src="https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024" alt="PaMuJiThA" title="PaMuJiThA - Playing" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                                <img src="https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024" alt="Dodam" title="Dodam - In Lobby" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png';">
-                            </div>
-                            <div class="game-player-headline" title="PaMuJiThA &amp; Dodam">
-                                <span class="game-player-name">PaMuJiThA &amp; Dodam</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card reveal visible" data-game-name="ARC Raiders">
-                    <div class="game-card-img-wrap">
-                        <div class="game-card-top-badges">
-                            <div class="game-top-badges-left">
-                                <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                            </div>
-                            <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
-                        </div>
-                        <img src="https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg" alt="ARC Raiders" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
-                    </div>
-                    <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas fa-crosshairs" style="font-size: 0.65rem;"></i> Extraction Shooter</div>
-                        <div class="game-name" title="ARC Raiders">ARC Raiders</div>
-                        <div class="game-match-detail" title="Active Discord Session"><i class="fas fa-gamepad"></i> Active Discord Session</div>
-                        <div class="game-squad-prompt"><i class="fas fa-user-plus"></i> 2 needed for squad</div>
-                        <div class="game-players-strip">
-                            <div class="avatar-stack">
-                                <img src="https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024" alt="Animo" title="Animo - Playing" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png';">
-                            </div>
-                            <div class="game-player-headline" title="Animo">
-                                <span class="game-player-name">Animo</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card reveal visible" data-game-name="Visual Studio Code">
-                    <div class="game-card-img-wrap">
-                        <div class="game-card-top-badges">
-                            <div class="game-top-badges-left">
-                                <div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>
-                            </div>
-                            <div class="game-player-badge"><i class="fas fa-users"></i> 1 In Session</div>
-                        </div>
-                        <img src="https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png" alt="Visual Studio Code" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
-                    </div>
-                    <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas fa-code" style="font-size: 0.65rem;"></i> Development</div>
-                        <div class="game-name" title="Visual Studio Code">Visual Studio Code</div>
-                        <div class="game-match-detail" title="Editing targeting.lua"><i class="fas fa-code"></i> Editing targeting.lua</div>
-                        <div class="game-players-strip">
-                            <div class="avatar-stack">
-                                <img src="https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024" alt="! DINGDONG GAMING" title="! DINGDONG GAMING - Editing targeting.lua" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                            </div>
-                            <div class="game-player-headline" title="! DINGDONG GAMING">
-                                <span class="game-player-name">! DINGDONG GAMING</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Initial loading skeleton state while live bot data synchronizes -->
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+                <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
             </div>
 
             <!-- Sub-containers for Most Played & Leaderboard -->
@@ -2119,42 +2045,7 @@
             };
         }
 
-        const DEFAULT_COMMUNITY_GAMES = [
-            {
-                name: "Brawlhalla",
-                count: 2,
-                is_live: true,
-                sample_detail: "Active Discord Session",
-                players: ["PaMuJiThA", "Dodam"],
-                player_details: [
-                    { name: "PaMuJiThA", avatar: "https://cdn.discordapp.com/avatars/703218404470816808/a_ad16d37e6320a308c084912daec3db22.gif?size=1024", details: "Playing" },
-                    { name: "Dodam", avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024", details: "In Lobby" }
-                ],
-                rich_cover: "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg"
-            },
-            {
-                name: "ARC Raiders",
-                count: 1,
-                is_live: true,
-                sample_detail: "Active Discord Session",
-                players: ["Animo"],
-                player_details: [
-                    { name: "Animo", avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024", details: "Playing" }
-                ],
-                rich_cover: "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg"
-            },
-            {
-                name: "Visual Studio Code",
-                count: 1,
-                is_live: true,
-                sample_detail: "Editing targeting.lua",
-                players: ["! DINGDONG GAMING"],
-                player_details: [
-                    { name: "! DINGDONG GAMING", avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=1024", details: "Editing targeting.lua" }
-                ],
-                rich_cover: "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png"
-            }
-        ];
+        const DEFAULT_COMMUNITY_GAMES = [];
 
         // ── Phase 5: Typical squad sizes per game ──
         const TYPICAL_SQUAD_SIZES = {
@@ -2222,8 +2113,27 @@
             const grid = document.getElementById('live-games-grid');
             if (!grid) return;
 
-            const isRealData = Array.isArray(gamesList) && gamesList.length > 0;
-            const games = isRealData ? gamesList : DEFAULT_COMMUNITY_GAMES;
+            if (!Array.isArray(gamesList) || gamesList.length === 0) {
+                window.currentLiveGamesState = [];
+                const totalPlayersEl = document.getElementById('lounge-total-players');
+                if (totalPlayersEl) {
+                    totalPlayersEl.textContent = '0 Players In-Game';
+                }
+                if (lastGamesDigest === 'EMPTY' && grid.querySelector('.empty-lounge-state')) {
+                    return;
+                }
+                lastGamesDigest = 'EMPTY';
+                grid.innerHTML = `
+                    <div class="empty-lounge-state" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">
+                        <div style="font-size: 2.5rem; color: var(--muted, #64748b); margin-bottom: 12px;"><i class="fas fa-gamepad"></i></div>
+                        <div style="font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin-bottom: 6px;">No Active Squads Right Now</div>
+                        <div style="font-size: 0.85rem; color: #94a3b8;">Launch a game or jump into voice in Discord to start a live squad session!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const games = gamesList;
             window.currentLiveGamesState = games;
 
             const digest = JSON.stringify(games.map(g => ({
@@ -2234,7 +2144,7 @@
                 avatars: g.player_details ? g.player_details.map(p => p.avatar) : [],
                 details: g.player_details ? g.player_details.map(p => p.details) : []
             })));
-            if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
+            if (digest === lastGamesDigest && grid.children.length > 0 && !grid.querySelector('.skeleton-card') && !grid.querySelector('.empty-lounge-state')) {
                 return;
             }
             lastGamesDigest = digest;
@@ -2259,7 +2169,7 @@
             games.forEach((game, idx) => {
                 const card = document.createElement('div');
                 const count = game.count || (game.players ? game.players.length : 1);
-                const isLive = isRealData || (game.is_live === true);
+                const isLive = true;
                 const isHot = maxPlayers >= 2 && count === maxPlayers;
 
                 const theme = getGameTheme(game.name);
@@ -2742,6 +2652,8 @@
                     : (d.playing_games && d.playing_games.length > 0 ? d.playing_games : []);
                 
                 renderLiveGames(liveGames);
+            } else if (!window.hasRenderedLiveGames) {
+                renderLiveGames([]);
             }
         }
 
