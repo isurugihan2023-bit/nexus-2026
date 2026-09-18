@@ -142,6 +142,22 @@ function updateMemberDisplays(count) {
     }
 }
 
+function updateLoungeStats(totalMembers, onlineNow, playingCount) {
+    const totalEl = document.getElementById('lounge-stat-total');
+    const onlineEl = document.getElementById('lounge-stat-online');
+    const playingEl = document.getElementById('lounge-stat-playing');
+
+    if (totalEl && totalMembers !== undefined && totalMembers !== null) {
+        totalEl.textContent = totalMembers;
+    }
+    if (onlineEl && onlineNow !== undefined && onlineNow !== null) {
+        onlineEl.textContent = onlineNow;
+    }
+    if (playingEl && playingCount !== undefined && playingCount !== null) {
+        playingEl.textContent = playingCount;
+    }
+}
+
 async function fetchBotData() {
     let d = null;
     const endpoints = [
@@ -191,6 +207,16 @@ async function fetchBotData() {
         const liveGames = (d.top_played_games && d.top_played_games.length > 0)
             ? d.top_played_games
             : (d.playing_games && d.playing_games.length > 0 ? d.playing_games : []);
+
+        const totalMembers = (d.total_users !== undefined && d.total_users !== null)
+            ? d.total_users
+            : (d.ninja_nexus_members || 0);
+        const onlineNow = (d.online_users !== undefined && d.online_users !== null)
+            ? d.online_users
+            : (d.presence_count !== undefined ? d.presence_count : 0);
+        const playingCount = liveGames.reduce((acc, g) => acc + (g.count || (g.players ? g.players.length : 1)), 0);
+
+        updateLoungeStats(totalMembers, onlineNow, playingCount);
         renderLiveGames(liveGames);
     } else if (!window.hasRenderedLiveGames) {
         renderLiveGames([]);
@@ -208,7 +234,13 @@ async function fetchDiscordStats() {
         if (r.ok) {
             const disc = await r.json();
             const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
-            if (count) updateMemberDisplays(count);
+            if (count) {
+                updateMemberDisplays(count);
+                const totalEl = document.getElementById('lounge-stat-total');
+                if (totalEl && (totalEl.textContent === '0' || totalEl.textContent === '47')) {
+                    totalEl.textContent = count;
+                }
+            }
         }
     } catch(e) {}
 }
@@ -382,9 +414,14 @@ function renderLiveGames(gamesList) {
 
     if (!Array.isArray(gamesList) || gamesList.length === 0) {
         window.currentLiveGamesState = [];
+        grid.classList.remove('single-game');
         const totalPlayersEl = document.getElementById('lounge-total-players');
         if (totalPlayersEl) {
             totalPlayersEl.textContent = '0 Players In-Game';
+        }
+        const playingEl = document.getElementById('lounge-stat-playing');
+        if (playingEl) {
+            playingEl.textContent = '0';
         }
         if (lastGamesDigest === 'EMPTY' && grid.children.length === 0) {
             return;
@@ -396,6 +433,12 @@ function renderLiveGames(gamesList) {
 
     const games = gamesList;
     window.currentLiveGamesState = games;
+
+    if (games.length === 1) {
+        grid.classList.add('single-game');
+    } else {
+        grid.classList.remove('single-game');
+    }
 
     const digest = JSON.stringify(games.map(g => ({
         name: g.name,
@@ -417,6 +460,10 @@ function renderLiveGames(gamesList) {
     const totalPlayersEl = document.getElementById('lounge-total-players');
     if (totalPlayersEl) {
         totalPlayersEl.textContent = `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`;
+    }
+    const playingEl = document.getElementById('lounge-stat-playing');
+    if (playingEl) {
+        playingEl.textContent = totalPlayersCount;
     }
 
     let maxPlayers = 0;

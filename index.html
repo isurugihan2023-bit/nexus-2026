@@ -650,6 +650,18 @@
             max-width: 100%;
             flex: 0 1 350px;
         }
+        .live-games-grid.single-game {
+            display: flex;
+            justify-content: center;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .live-games-grid.single-game .game-card {
+            width: 380px;
+            max-width: 100%;
+            flex: 0 1 380px;
+        }
         .live-games-grid .empty-lounge-state {
             width: 100%;
             flex: 1 1 100%;
@@ -657,23 +669,19 @@
         .game-card {
             --game-accent: #a855f7;
             --game-accent-border: rgba(168, 85, 247, 0.3);
-            background: rgba(16, 14, 28, 0.88);
+            background: #100e1c;
             border: 1px solid rgba(168, 85, 247, 0.22);
             border-radius: 22px;
             overflow: hidden;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
             display: flex;
             flex-direction: column;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.35s ease;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
             cursor: pointer;
             position: relative;
-            box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.5);
         }
         .game-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(168, 85, 247, 0.6);
-            box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.65);
+            border-color: rgba(168, 85, 247, 0.65);
+            background: #141126;
         }
         .game-card.is-hot {
             border-color: rgba(168, 85, 247, 0.4);
@@ -945,8 +953,64 @@
             margin-bottom: 24px;
             font-family: var(--font);
         }
+        /* ── Live Stats Strip ── */
+        .lounge-stats-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            max-width: 580px;
+            width: 100%;
+            margin: 0 auto 32px auto;
+            background: #100e1c;
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .lounge-stat-col {
+            padding: 16px 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .lounge-stat-col:not(:last-child) {
+            border-right: 1px solid rgba(168, 85, 247, 0.18);
+        }
+        .lounge-stat-num {
+            font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+            font-weight: 850;
+            color: #ffffff;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            font-family: var(--font);
+        }
+        .lounge-stat-label {
+            font-size: 0.68rem;
+            font-weight: 750;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 5px;
+            line-height: 1.2;
+        }
+        @media (max-width: 480px) {
+            .lounge-stats-strip {
+                margin-bottom: 24px;
+            }
+            .lounge-stat-col {
+                padding: 12px 6px;
+            }
+            .lounge-stat-num {
+                font-size: 1.3rem;
+            }
+            .lounge-stat-label {
+                font-size: 0.62rem;
+            }
+        }
         .lounge-tab-btn {
-            background: rgba(18, 15, 34, 0.75);
+            background: #120f22;
             border: 1px solid rgba(139, 92, 246, 0.2);
             color: var(--sub);
             padding: 8px 18px;
@@ -955,22 +1019,20 @@
             font-weight: 700;
             font-family: var(--font);
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            backdrop-filter: blur(10px);
         }
         .lounge-tab-btn:hover {
             color: #fff;
             border-color: rgba(168, 85, 247, 0.5);
-            background: rgba(168, 85, 247, 0.1);
+            background: rgba(168, 85, 247, 0.15);
         }
         .lounge-tab-btn.active {
             color: #fff;
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(168, 85, 247, 0.25));
-            border-color: rgba(168, 85, 247, 0.6);
-            box-shadow: 0 0 16px rgba(124, 58, 237, 0.3);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(168, 85, 247, 0.35));
+            border-color: rgba(168, 85, 247, 0.75);
         }
         .sync-status-indicator {
             display: inline-flex;
@@ -1375,6 +1437,22 @@
                 </div>
             </div>
             
+            <!-- Live Stats Strip -->
+            <div class="lounge-stats-strip reveal" id="lounge-stats-strip">
+                <div class="lounge-stat-col">
+                    <div class="lounge-stat-num" id="lounge-stat-total">47</div>
+                    <div class="lounge-stat-label">Total Members</div>
+                </div>
+                <div class="lounge-stat-col">
+                    <div class="lounge-stat-num" id="lounge-stat-online">0</div>
+                    <div class="lounge-stat-label">Online Now</div>
+                </div>
+                <div class="lounge-stat-col">
+                    <div class="lounge-stat-num" id="lounge-stat-playing">0</div>
+                    <div class="lounge-stat-label">Playing a Game</div>
+                </div>
+            </div>
+
             <div id="live-games-grid" class="live-games-grid reveal"></div>
 
             <!-- Sub-containers for Most Played & Leaderboard -->
@@ -2081,9 +2159,14 @@
 
             if (!Array.isArray(gamesList) || gamesList.length === 0) {
                 window.currentLiveGamesState = [];
+                grid.classList.remove('single-game');
                 const totalPlayersEl = document.getElementById('lounge-total-players');
                 if (totalPlayersEl) {
                     totalPlayersEl.textContent = '0 Players In-Game';
+                }
+                const playingEl = document.getElementById('lounge-stat-playing');
+                if (playingEl) {
+                    playingEl.textContent = '0';
                 }
                 if (lastGamesDigest === 'EMPTY' && grid.children.length === 0) {
                     return;
@@ -2095,6 +2178,12 @@
 
             const games = gamesList;
             window.currentLiveGamesState = games;
+
+            if (games.length === 1) {
+                grid.classList.add('single-game');
+            } else {
+                grid.classList.remove('single-game');
+            }
 
             const digest = JSON.stringify(games.map(g => ({
                 name: g.name,
@@ -2116,6 +2205,10 @@
             const totalPlayersEl = document.getElementById('lounge-total-players');
             if (totalPlayersEl) {
                 totalPlayersEl.textContent = `${totalPlayersCount} ${totalPlayersCount === 1 ? 'Player' : 'Players'} In-Game`;
+            }
+            const playingEl = document.getElementById('lounge-stat-playing');
+            if (playingEl) {
+                playingEl.textContent = totalPlayersCount;
             }
 
             let maxPlayers = 0;
@@ -2562,6 +2655,22 @@
             }
         }
 
+        function updateLoungeStats(totalMembers, onlineNow, playingCount) {
+            const totalEl = document.getElementById('lounge-stat-total');
+            const onlineEl = document.getElementById('lounge-stat-online');
+            const playingEl = document.getElementById('lounge-stat-playing');
+
+            if (totalEl && totalMembers !== undefined && totalMembers !== null) {
+                totalEl.textContent = totalMembers;
+            }
+            if (onlineEl && onlineNow !== undefined && onlineNow !== null) {
+                onlineEl.textContent = onlineNow;
+            }
+            if (playingEl && playingCount !== undefined && playingCount !== null) {
+                playingEl.textContent = playingCount;
+            }
+        }
+
         // ── Real-Time Bot & Discord Synchronization Pipeline (Degrade Path) ──
         async function fetchBotData() {
             let d = null;
@@ -2611,6 +2720,15 @@
                     ? d.top_played_games
                     : (d.playing_games && d.playing_games.length > 0 ? d.playing_games : []);
                 
+                const totalMembers = (d.total_users !== undefined && d.total_users !== null)
+                    ? d.total_users
+                    : (d.ninja_nexus_members || currentNinjaNexusMembers || 0);
+                const onlineNow = (d.online_users !== undefined && d.online_users !== null)
+                    ? d.online_users
+                    : (d.presence_count !== undefined ? d.presence_count : 0);
+                const playingCount = liveGames.reduce((acc, g) => acc + (g.count || (g.players ? g.players.length : 1)), 0);
+
+                updateLoungeStats(totalMembers, onlineNow, playingCount);
                 renderLiveGames(liveGames);
             } else if (!window.hasRenderedLiveGames) {
                 renderLiveGames([]);
@@ -2630,6 +2748,10 @@
                     const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
                     if (count) {
                         updateMemberDisplays(count);
+                        const totalEl = document.getElementById('lounge-stat-total');
+                        if (totalEl && (totalEl.textContent === '0' || totalEl.textContent === '47')) {
+                            totalEl.textContent = count;
+                        }
                     }
                 }
             } catch(e) {}
