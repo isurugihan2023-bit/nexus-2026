@@ -1057,25 +1057,6 @@ document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
     });
 });
 
-// Web Push Opt-in
-const notifyBtn = document.getElementById('btn-live-notifications');
-if (notifyBtn) {
-    notifyBtn.addEventListener('click', async () => {
-        if (!('Notification' in window)) {
-            alert('Notifications are not supported in your browser.');
-            return;
-        }
-        const perm = await Notification.requestPermission();
-        if (perm === 'granted') {
-            notifyBtn.innerHTML = '<i class="fas fa-check" style="color:#22c55e;"></i> Squad Alerts Enabled';
-            new Notification('Ninja Nexus Live Gaming', {
-                body: 'You will receive alerts when community members launch squad gaming sessions!',
-                icon: 'images/favicon.png'
-            });
-        }
-    });
-}
-
 // ── Real-time Uptime Counter ──
 setInterval(() => {
     if (window.heroUptimeSec > 0) {
