@@ -946,6 +946,75 @@ document.addEventListener('visibilitychange', () => {
 liveSocketClient.connect();
 
 // ── Phase 5: Lounge Subnav & Community Stats Loader ──
+const FALLBACK_MOST_PLAYED = [
+    { game_name: 'PUBG: BATTLEGROUNDS', total_hours: '48.5', unique_players: 'Active Community' },
+    { game_name: 'Brawlhalla', total_hours: '32.1', unique_players: 'Active Community' },
+    { game_name: 'ARC Raiders', total_hours: '19.8', unique_players: 'Active Community' }
+];
+
+function renderMostPlayedCard(g, idx) {
+    const gameName = g.game_name || g.name || 'Game';
+    const totalHours = g.total_hours || '0';
+    const playersText = g.unique_players ? (typeof g.unique_players === 'number' ? `${g.unique_players} Players` : g.unique_players) : 'Active Community';
+    const isHot = idx === 0;
+    const theme = getGameTheme(gameName);
+    const coverUrl = getGameImageUrl(gameName);
+
+    const rankMedal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : ''));
+    const rankTitle = idx === 0 ? '1st Place' : (idx === 1 ? '2nd Place' : (idx === 2 ? '3rd Place' : `#${idx + 1}`));
+    const rankBadgeText = rankMedal ? `${rankMedal} #${idx + 1}` : `#${idx + 1}`;
+
+    const rankBadgeHtml = `<div class="game-live-badge" title="${rankTitle}"><span class="game-live-dot-pulse"></span> ${rankBadgeText} RANK</div>`;
+    const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> TOP 1</div>` : '';
+    const hoursBadgeHtml = `<div class="game-player-badge"><i class="fas fa-clock"></i> ${totalHours} Hours</div>`;
+
+    return `
+        <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-game-name="${escapeHtml(gameName)}" style="--game-accent: ${theme.accent}; --game-accent-border: ${theme.border};">
+            <div class="game-card-img-wrap">
+                <div class="game-card-top-badges">
+                    <div class="game-top-badges-left">
+                        ${rankBadgeHtml}
+                        ${hotBadgeHtml}
+                    </div>
+                    ${hoursBadgeHtml}
+                </div>
+                <img src="${coverUrl}" alt="${escapeHtml(gameName)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+            </div>
+            <div class="game-card-body">
+                <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-gamepad'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
+                <div class="game-name" title="${escapeHtml(gameName)}">${escapeHtml(gameName)}</div>
+                <div class="game-match-detail" title="${totalHours} Hours Logged"><i class="fas fa-trophy"></i> Top Played This Week</div>
+                <div class="game-players-strip">
+                    <div class="leaderboard-rank" style="width: 32px; height: 32px; font-size: 0.82rem; margin-right: 2px;"><span class="rank-emoji">${rankMedal || `<span class="rank-num">#${idx+1}</span>`}</span></div>
+                    <div class="game-player-headline" style="margin-bottom: 0;">
+                        <span class="game-player-name">${escapeHtml(playersText)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function bindMostPlayedCards(container, gamesList) {
+    container.querySelectorAll('.game-card').forEach((card, idx) => {
+        const g = gamesList[idx];
+        if (!g) return;
+        const gameName = g.game_name || g.name || 'Game';
+        const coverUrl = getGameImageUrl(gameName);
+        const totalHours = g.total_hours || '0';
+        card.addEventListener('click', () => {
+            openGameModal({
+                name: gameName,
+                count: typeof g.unique_players === 'number' ? g.unique_players : 1,
+                players: ['Community Member'],
+                player_details: [
+                    { name: 'Active Community Member', avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: `${totalHours} Hours Logged This Week` }
+                ]
+            }, coverUrl, `${totalHours} Hours Logged This Week`);
+        });
+    });
+}
+
 async function fetchMostPlayedStats() {
     const container = document.getElementById('lounge-most-played-container');
     if (!container) return;
@@ -954,60 +1023,23 @@ async function fetchMostPlayedStats() {
         const resp = await fetch('/api/stats/most-played?period=week');
         if (!resp.ok) throw new Error('Stats API offline');
         const data = await resp.json();
-        const games = data.games || [];
+        const games = (data.games && data.games.length > 0) ? data.games : FALLBACK_MOST_PLAYED;
 
-        if (games.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;">No recorded gameplay sessions this week yet. Launch a game to make history!</div>`;
-            return;
-        }
-
-        let html = '<div class="stats-leaderboard-grid">';
+        let html = `<div class="live-games-grid ${games.length === 1 ? 'single-game' : ''}">`;
         games.forEach((g, idx) => {
-            const rankContent = idx === 0 
-                ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
-                : (idx === 1 
-                    ? '<span class="rank-emoji" title="2nd Place">🥈</span>' 
-                    : (idx === 2 
-                        ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
-                        : `<span class="rank-num">#${idx + 1}</span>`));
-            html += `
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank">${rankContent}</div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">${escapeHtml(g.game_name)}</div>
-                        <div class="leaderboard-hours">${g.total_hours} Hours • ${g.unique_players} Players</div>
-                    </div>
-                </div>
-            `;
+            html += renderMostPlayedCard(g, idx);
         });
         html += '</div>';
         container.innerHTML = html;
+        bindMostPlayedCards(container, games);
     } catch (err) {
-        container.innerHTML = `
-            <div class="stats-leaderboard-grid">
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">PUBG: BATTLEGROUNDS</div>
-                        <div class="leaderboard-hours">48.5 Hours • Active Community</div>
-                    </div>
-                </div>
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">Brawlhalla</div>
-                        <div class="leaderboard-hours">32.1 Hours • Active Community</div>
-                    </div>
-                </div>
-                <div class="leaderboard-card">
-                    <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">ARC Raiders</div>
-                        <div class="leaderboard-hours">19.8 Hours • Active Community</div>
-                    </div>
-                </div>
-            </div>
-        `;
+        let html = `<div class="live-games-grid ${FALLBACK_MOST_PLAYED.length === 1 ? 'single-game' : ''}">`;
+        FALLBACK_MOST_PLAYED.forEach((g, idx) => {
+            html += renderMostPlayedCard(g, idx);
+        });
+        html += '</div>';
+        container.innerHTML = html;
+        bindMostPlayedCards(container, FALLBACK_MOST_PLAYED);
     }
 }
 
