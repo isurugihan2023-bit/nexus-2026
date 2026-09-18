@@ -1191,10 +1191,7 @@ document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
         if (tab === 'live') {
             if (liveGrid) liveGrid.style.display = '';
             if (mostPlayed) mostPlayed.style.display = 'none';
-            if (voiceSec) {
-                voiceSec.style.display = '';
-                voiceSec.classList.remove('tab-focused');
-            }
+            if (voiceSec) voiceSec.style.display = 'none';
         } else if (tab === 'most-played') {
             if (liveGrid) liveGrid.style.display = 'none';
             if (mostPlayed) {
@@ -1207,7 +1204,6 @@ document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
             if (mostPlayed) mostPlayed.style.display = 'none';
             if (voiceSec) {
                 voiceSec.style.display = '';
-                voiceSec.classList.add('tab-focused');
                 fetchVoiceLeaderboard();
             }
         }

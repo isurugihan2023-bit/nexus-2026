@@ -1078,53 +1078,10 @@
 
         /* ── Top Voice Time Card Windows ── */
         .voice-leaderboard-wrap {
-            margin-top: 56px;
-            padding-top: 40px;
-            border-top: 1px solid rgba(139, 92, 246, 0.12);
             width: 100%;
-        }
-        .voice-leaderboard-head {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .voice-lead-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 5px 14px;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.25);
-            border-radius: 999px;
-            color: #c084fc;
-            font-size: 0.74rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-        .voice-lead-title {
-            font-size: 1.45rem;
-            font-weight: 850;
-            color: #fff;
-            letter-spacing: -0.02em;
-            margin-bottom: 6px;
-        }
-        .voice-lead-sub {
-            font-size: 0.88rem;
-            color: var(--muted);
-            max-width: 520px;
-            margin: 0 auto;
         }
         #voice-leaderboard-grid .game-card {
             cursor: default;
-        }
-        .voice-leaderboard-wrap.tab-focused {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: none;
-        }
-        .voice-leaderboard-wrap.tab-focused .voice-leaderboard-head {
-            display: none;
         }
 
         /* ── Skeletons ── */
@@ -1451,14 +1408,7 @@
             <div id="lounge-most-played-container" style="display: none;"></div>
 
             <!-- ── TOP VOICE TIME WINDOWS (GAME CARD STYLE) ─────────── -->
-            <div id="voice-leaderboard-section" class="voice-leaderboard-wrap reveal">
-                <div class="voice-leaderboard-head">
-                    <div class="voice-lead-badge">
-                        <i class="fas fa-trophy"></i> Top Voice Time
-                    </div>
-                    <h3 class="voice-lead-title">Most Active in Voice</h3>
-                    <p class="voice-lead-sub">Real-time leaderboard of community members with the highest voice channel activity</p>
-                </div>
+            <div id="voice-leaderboard-section" class="voice-leaderboard-wrap" style="display: none;">
                 <div id="voice-leaderboard-grid" class="live-games-grid">
                     <div class="game-card reveal visible is-hot" data-voice-rank="1">
                         <div class="game-card-img-wrap">
@@ -3144,10 +3094,7 @@
                 if (tab === 'live') {
                     if (liveGrid) liveGrid.style.display = '';
                     if (mostPlayed) mostPlayed.style.display = 'none';
-                    if (voiceSec) {
-                        voiceSec.style.display = '';
-                        voiceSec.classList.remove('tab-focused');
-                    }
+                    if (voiceSec) voiceSec.style.display = 'none';
                 } else if (tab === 'most-played') {
                     if (liveGrid) liveGrid.style.display = 'none';
                     if (mostPlayed) {
@@ -3160,7 +3107,6 @@
                     if (mostPlayed) mostPlayed.style.display = 'none';
                     if (voiceSec) {
                         voiceSec.style.display = '';
-                        voiceSec.classList.add('tab-focused');
                         fetchVoiceLeaderboard();
                     }
                 }
