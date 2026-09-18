@@ -727,77 +727,12 @@
             pointer-events: none;
             z-index: 2;
         }
-        .game-card-top-badges {
-            position: absolute;
-            top: 13px;
-            left: 13px;
-            right: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .game-top-badges-left {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .game-live-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: rgba(16, 14, 28, 0.92);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(168, 85, 247, 0.35);
-            border-radius: 100px;
-            font-size: 0.68rem;
-            font-weight: 850;
-            color: #c084fc;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        .game-live-dot-pulse {
-            width: 7px;
-            height: 7px;
-            background: #c084fc;
-            border-radius: 50%;
-        }
+        .game-card-top-badges,
+        .game-live-badge,
+        .game-player-badge,
+        .game-top-badges-left,
         .game-hot-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            background: rgba(147, 51, 234, 0.18);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(168, 85, 247, 0.35);
-            border-radius: 100px;
-            font-size: 0.66rem;
-            font-weight: 850;
-            color: #c084fc;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-        .game-player-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 11px;
-            background: rgba(16, 14, 28, 0.92);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: 100px;
-            font-size: 0.72rem;
-            font-weight: 800;
-            color: #f1f5f9;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            white-space: nowrap;
-            font-variant-numeric: tabular-nums;
-        }
-        .game-player-badge i {
-            color: #c084fc;
+            display: none !important;
         }
         .game-card-body {
             padding: 18px 22px 20px;
@@ -2164,12 +2099,6 @@
                     detailIcon = 'fa-crosshairs';
                 }
 
-                const liveBadgeHtml = isLive
-                    ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
-                    : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
-
-                const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
-                const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
 
                 const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
                 const maxVisible = 4;
@@ -2494,9 +2423,6 @@
                 if (grid && gameObj) {
                     const card = grid.querySelector(`.game-card[data-game-name="${CSS.escape(gameObj.name)}"]`);
                     if (card) {
-                        const countBadge = card.querySelector('.game-player-badge');
-                        if (countBadge) countBadge.innerHTML = `<i class="fas fa-users"></i> ${gameObj.count} In Session`;
-                        
                         const headline = card.querySelector('.game-player-headline .game-player-name');
                         if (headline && gameObj.players.length > 0) {
                             headline.textContent = gameObj.players.length === 1

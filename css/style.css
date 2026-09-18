@@ -787,8 +787,11 @@ footer {
 .voice-leaderboard-wrap {
     width: 100%;
 }
-#voice-leaderboard-grid .game-card {
-    cursor: default;
+
+.game-card-top-badges,
+.game-live-badge,
+.game-player-badge,
+.game-top-badges-left,
+.game-hot-badge {
+    display: none !important;
 }
-
-

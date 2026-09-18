@@ -573,13 +573,6 @@ function renderLiveGames(gamesList) {
             detailIcon = 'fa-crosshairs';
         }
 
-        const liveBadgeHtml = isLive
-            ? `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> LIVE</div>`
-            : `<div class="game-live-badge" style="color: #94a3b8; border-color: rgba(255,255,255,0.15);"><i class="fas fa-gamepad"></i> FEATURED</div>`;
-
-        const hotBadgeHtml = isHot ? `<div class="game-hot-badge"><i class="fas fa-fire"></i> HOT</div>` : '';
-        const countBadgeHtml = `<div class="game-player-badge"><i class="fas fa-users"></i> ${count} In Session</div>`;
-
         const playerDetails = game.player_details || (game.players ? game.players.map(p => ({ name: (typeof p === 'string' ? p : p.name), avatar: (p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'), details: matchDetail })) : []);
         const maxVisible = 4;
         const visiblePlayers = playerDetails.slice(0, maxVisible);
@@ -904,9 +897,6 @@ class NexusLiveSocketClient {
         if (grid && gameObj) {
             const card = grid.querySelector(`.game-card[data-game-name="${CSS.escape(gameObj.name)}"]`);
             if (card) {
-                const countBadge = card.querySelector('.game-player-badge');
-                if (countBadge) countBadge.innerHTML = `<i class="fas fa-users"></i> ${gameObj.count} In Session`;
-                
                 const headline = card.querySelector('.game-player-headline .game-player-name');
                 if (headline && gameObj.players.length > 0) {
                     headline.textContent = gameObj.players.length === 1
