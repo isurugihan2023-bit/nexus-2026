@@ -66,30 +66,32 @@ export default async function handler(req, res) {
         },
         {
             rank: 5,
-            name: "TrackPanda",
-            username: "trackpanda112",
-            avatar: "https://images.unsplash.com/photo-1527118732049-c88155f2107c?w=256&h=256&fit=crop&q=80",
-            base_seconds: 158760 // 44.1h -> 44h 06m
+            name: "Animo",
+            username: "4nimo.",
+            avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=128",
+            base_seconds: 159480 // 44h 18m
         },
         {
             rank: 6,
-            name: "RL STREAMING",
-            username: "rl_streaming",
-            avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=256&h=256&fit=crop&q=80",
-            base_seconds: 96120 // 26.7h -> 26h 42m
+            name: "SL_LIDDA",
+            username: "sl_lidda",
+            avatar: "https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=128",
+            base_seconds: 103500 // 28h 45m
         }
     ];
 
     const formatted = topMembers.map(u => {
-        const totalSec = u.base_seconds + Math.floor(elapsedSeconds * 0.1); // realistic slow progression
+        const totalSec = u.base_seconds + elapsedSeconds;
         const h = Math.floor(totalSec / 3600);
         const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
         return {
             rank: u.rank,
             name: u.name,
             username: u.username,
             avatar: u.avatar,
-            time: `${h}h ${m < 10 ? '0' : ''}${m}m`,
+            base_seconds: u.base_seconds,
+            time: `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`,
             total_seconds: totalSec
         };
     });

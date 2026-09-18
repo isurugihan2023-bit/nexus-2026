@@ -1089,17 +1089,18 @@ const VOICE_BASELINE_TIMESTAMP = 1789733576000;
 
 function computeLiveVoiceData(baseList) {
     const elapsed = Math.max(0, Math.floor((Date.now() - VOICE_BASELINE_TIMESTAMP) / 1000));
-    const addedSec = Math.floor(elapsed * 0.1);
+    const addedSec = elapsed;
     return baseList.map(u => {
         const base = (u.base_seconds !== undefined) ? u.base_seconds : (u.total_seconds || 0);
         const totalSec = base + addedSec;
         const h = Math.floor(totalSec / 3600);
         const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
         return {
             ...u,
             base_seconds: base,
             total_seconds: totalSec,
-            time: `${h}h ${m < 10 ? '0' : ''}${m}m`
+            time: `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`
         };
     });
 }
@@ -1139,19 +1140,19 @@ const FALLBACK_VOICE_LEADERBOARD = [
     },
     {
         rank: 5,
-        name: 'TrackPanda',
-        username: 'trackpanda112',
-        avatar: 'https://images.unsplash.com/photo-1527118732049-c88155f2107c?w=256&h=256&fit=crop&q=80',
+        name: 'Animo',
+        username: '4nimo.',
+        avatar: 'https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=128',
         cover: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
-        base_seconds: 158760
+        base_seconds: 159480
     },
     {
         rank: 6,
-        name: 'RL STREAMING',
-        username: 'rl_streaming',
-        avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=256&h=256&fit=crop&q=80',
+        name: 'SL_LIDDA',
+        username: 'sl_lidda',
+        avatar: 'https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=128',
         cover: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80',
-        base_seconds: 96120
+        base_seconds: 103500
     }
 ];
 
@@ -1240,6 +1241,7 @@ async function fetchVoiceLeaderboard() {
         if (liveTop && liveTop.length > 0) {
             currentVoiceData = liveTop.map((u, i) => ({
                 ...u,
+                base_seconds: (u.base_seconds !== undefined) ? u.base_seconds : (FALLBACK_VOICE_LEADERBOARD[i]?.base_seconds || u.total_seconds),
                 cover: FALLBACK_VOICE_LEADERBOARD[i]?.cover || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80'
             }));
         }
@@ -1255,7 +1257,7 @@ setInterval(() => {
     const container = document.getElementById('voice-leaderboard-grid');
     if (!container) return;
     const elapsed = Math.max(0, Math.floor((Date.now() - VOICE_BASELINE_TIMESTAMP) / 1000));
-    const addedSec = Math.floor(elapsed * 0.1);
+    const addedSec = elapsed;
 
     const timeBadges = container.querySelectorAll('.voice-card-time');
     timeBadges.forEach((el, idx) => {
@@ -1265,7 +1267,8 @@ setInterval(() => {
             const sec = base + addedSec;
             const h = Math.floor(sec / 3600);
             const m = Math.floor((sec % 3600) / 60);
-            el.textContent = `${h}h ${m < 10 ? '0' : ''}${m}m`;
+            const s = sec % 60;
+            el.textContent = `${h}h ${m < 10 ? '0' : ''}${m}m ${s < 10 ? '0' : ''}${s}s`;
         }
     });
 }, 1000);
