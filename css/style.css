@@ -131,6 +131,13 @@ ul { list-style: none; }
     font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em;
 }
 .nav-logo img { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; }
+.nav-logo-dot,
+.nav-logo > span ~ *,
+.nav-logo span:not(:first-of-type) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
 
 .nav-links { display: flex; align-items: center; gap: 32px; position: relative; }
 .nav-links a {

@@ -124,8 +124,13 @@
             font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em;
         }
         .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
-
-
+        .nav-logo-dot,
+        .nav-logo > span ~ *,
+        .nav-logo span:not(:first-of-type) {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
         .nav-links { display: flex; gap: 32px; }
         .nav-links a { color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 150ms; }
         .nav-links a:hover { color: var(--text); }
@@ -1685,6 +1690,10 @@
     </div>
 
     <script>
+        // Ensure no stray dots exist in logo
+        try {
+            document.querySelectorAll('.nav-logo-dot').forEach(el => el.remove());
+        } catch(e) {}
         /* ── Navbar scroll ── */
         const nav = document.getElementById('navbar');
         // ── Tab System ─────────────────────────────────────
