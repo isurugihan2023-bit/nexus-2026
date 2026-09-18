@@ -63,6 +63,20 @@ export default async function handler(req, res) {
             username: "cr4zy12",
             avatar: "https://cdn.discordapp.com/avatars/909069118349639751/89f7749f1e8243d3576acc06eebb2e57.png?size=128",
             base_seconds: 221460 // 61h 31m
+        },
+        {
+            rank: 5,
+            name: "hirusha",
+            username: "hirusha4455",
+            avatar: "https://cdn.discordapp.com/avatars/1290610484558434314/a220c10fc003d68a502fbc0051ccc862.png?size=128",
+            base_seconds: 159480 // 44h 18m
+        },
+        {
+            rank: 6,
+            name: "Gineth",
+            username: "gineth",
+            avatar: "https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=128",
+            base_seconds: 103500 // 28h 45m
         }
     ];
 

@@ -945,8 +945,6 @@ function renderMostPlayedCard(g, idx) {
     const theme = getGameTheme(gameName);
     const coverUrl = getGameImageUrl(gameName);
 
-    const rankMedal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : ''));
-
     return `
         <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-game-name="${escapeHtml(gameName)}" style="--game-accent: ${theme.accent}; --game-accent-border: ${theme.border};">
             <div class="game-card-img-wrap">
@@ -957,7 +955,7 @@ function renderMostPlayedCard(g, idx) {
                 <div class="game-name" title="${escapeHtml(gameName)}">${escapeHtml(gameName)}</div>
                 <div class="game-match-detail" title="${totalHours} Hours Logged"><i class="fas fa-trophy"></i> Top Played This Week</div>
                 <div class="game-players-strip">
-                    <div class="leaderboard-rank" style="width: 32px; height: 32px; font-size: 0.82rem; margin-right: 2px;"><span class="rank-emoji">${rankMedal || `<span class="rank-num">#${idx+1}</span>`}</span></div>
+                    <div class="leaderboard-rank" style="width: 32px; height: 32px; font-size: 0.82rem; margin-right: 2px;"><span class="rank-num">#${idx+1}</span></div>
                     <div class="game-player-headline" style="margin-bottom: 0;">
                         <span class="game-player-name">${escapeHtml(playersText)}</span>
                     </div>
@@ -1052,6 +1050,24 @@ const FALLBACK_VOICE_LEADERBOARD = [
         cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
         time: '61h 31m',
         total_seconds: 221460
+    },
+    {
+        rank: 5,
+        name: 'hirusha',
+        username: 'hirusha4455',
+        avatar: 'https://cdn.discordapp.com/avatars/1290610484558434314/a220c10fc003d68a502fbc0051ccc862.png?size=128',
+        cover: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
+        time: '44h 18m',
+        total_seconds: 159480
+    },
+    {
+        rank: 6,
+        name: 'Gineth',
+        username: 'gineth',
+        avatar: 'https://cdn.discordapp.com/avatars/857933823537971210/eb8f3018b0950eda1e2f326169ee0ea6.png?size=128',
+        cover: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80',
+        time: '28h 45m',
+        total_seconds: 103500
     }
 ];
 
@@ -1060,20 +1076,30 @@ let voiceDataLoadTimestamp = Date.now();
 
 function renderVoiceWindowCard(u, idx) {
     const rankNum = u.rank || (idx + 1);
-    const rankMedal = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : '🏅'));
     const isHot = rankNum === 1;
 
-    const rankBadgeHtml = `<div class="game-live-badge"><span class="game-live-dot-pulse"></span> ${rankMedal} #${rankNum} RANK</div>`;
+    const rankBadgeHtml = `<div class="game-live-badge">#${rankNum} RANK</div>`;
     const timeBadgeHtml = `<div class="game-player-badge"><i class="fas fa-headset"></i> <span class="voice-card-time" data-row-idx="${idx}">${escapeHtml(u.time || '')}</span></div>`;
 
-    const coverUrl = u.cover || (
-        rankNum === 1 ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80' :
-        rankNum === 2 ? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80' :
-        rankNum === 3 ? 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80' :
-        'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80'
-    );
+    const defaultCovers = {
+        1: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
+        2: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=700&q=80',
+        3: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&q=80',
+        4: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80',
+        5: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=700&q=80',
+        6: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&q=80'
+    };
+    const coverUrl = u.cover || defaultCovers[rankNum] || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80';
 
-    const tagIcon = rankNum === 1 ? 'fa-crown' : (rankNum === 2 ? 'fa-tachometer-alt' : (rankNum === 3 ? 'fa-bolt' : 'fa-fire'));
+    const tagIcons = {
+        1: 'fa-crown',
+        2: 'fa-tachometer-alt',
+        3: 'fa-bolt',
+        4: 'fa-fire',
+        5: 'fa-star',
+        6: 'fa-shield-halved'
+    };
+    const tagIcon = tagIcons[rankNum] || 'fa-headset';
     const tagText = `TOP VOICE #${rankNum}`;
     const handle = u.username ? `@${u.username}` : (u.name || 'Member');
 
