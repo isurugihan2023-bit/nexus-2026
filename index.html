@@ -1039,45 +1039,8 @@
         }
         .leaderboard-card:hover .leaderboard-rank {
             transform: scale(1.06);
-        }
-        .leaderboard-rank.gold {
-            background: rgba(234, 179, 8, 0.12);
-            border: 1px solid rgba(250, 204, 21, 0.4);
-            box-shadow: none;
-        }
-        .leaderboard-rank.silver {
-            background: rgba(226, 232, 240, 0.12);
-            border: 1px solid rgba(226, 232, 240, 0.4);
-            box-shadow: none;
-        }
-        .leaderboard-rank.bronze {
-            background: rgba(249, 115, 22, 0.12);
-            border: 1px solid rgba(249, 115, 22, 0.4);
-            box-shadow: none;
-        }
-        .leaderboard-card.is-gold {
-            border-color: rgba(234, 179, 8, 0.25);
-            background: rgba(16, 14, 28, 0.9);
-        }
-        .leaderboard-card.is-gold:hover {
-            border-color: rgba(234, 179, 8, 0.45);
-            box-shadow: none;
-        }
-        .leaderboard-card.is-silver {
-            border-color: rgba(148, 163, 184, 0.25);
-            background: rgba(16, 14, 28, 0.9);
-        }
-        .leaderboard-card.is-silver:hover {
-            border-color: rgba(148, 163, 184, 0.45);
-            box-shadow: none;
-        }
-        .leaderboard-card.is-bronze {
-            border-color: rgba(217, 119, 6, 0.25);
-            background: rgba(16, 14, 28, 0.9);
-        }
-        .leaderboard-card.is-bronze:hover {
-            border-color: rgba(217, 119, 6, 0.45);
-            box-shadow: none;
+            border-color: rgba(168, 85, 247, 0.6);
+            background: rgba(124, 58, 237, 0.2);
         }
         .leaderboard-info { flex-grow: 1; overflow: hidden; font-family: var(--font); }
         .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
@@ -2858,8 +2821,6 @@
 
                 let html = '<div class="stats-leaderboard-grid">';
                 games.forEach((g, idx) => {
-                    const rankTier = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
-                    const cardClass = rankTier ? `is-${rankTier}` : '';
                     const rankContent = idx === 0 
                         ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
                         : (idx === 1 
@@ -2868,8 +2829,8 @@
                                 ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
                                 : `<span class="rank-num">#${idx + 1}</span>`));
                     html += `
-                        <div class="leaderboard-card ${cardClass}">
-                            <div class="leaderboard-rank ${rankTier}">${rankContent}</div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank">${rankContent}</div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">${escapeHtml(g.game_name)}</div>
                                 <div class="leaderboard-hours">${g.total_hours} Hours • ${g.unique_players} Players</div>
@@ -2882,22 +2843,22 @@
             } catch (err) {
                 container.innerHTML = `
                     <div class="stats-leaderboard-grid">
-                        <div class="leaderboard-card is-gold">
-                            <div class="leaderboard-rank gold"><span class="rank-emoji" title="1st Place">🥇</span></div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">PUBG: BATTLEGROUNDS</div>
                                 <div class="leaderboard-hours">48.5 Hours • Active Community</div>
                             </div>
                         </div>
-                        <div class="leaderboard-card is-silver">
-                            <div class="leaderboard-rank silver"><span class="rank-emoji" title="2nd Place">🥈</span></div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">Brawlhalla</div>
                                 <div class="leaderboard-hours">32.1 Hours • Active Community</div>
                             </div>
                         </div>
-                        <div class="leaderboard-card is-bronze">
-                            <div class="leaderboard-rank bronze"><span class="rank-emoji" title="3rd Place">🥉</span></div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">ARC Raiders</div>
                                 <div class="leaderboard-hours">19.8 Hours • Active Community</div>
@@ -2925,8 +2886,6 @@
 
                 let html = '<div class="stats-leaderboard-grid">';
                 users.forEach((u, idx) => {
-                    const rankTier = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
-                    const cardClass = rankTier ? `is-${rankTier}` : '';
                     const rankContent = idx === 0 
                         ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
                         : (idx === 1 
@@ -2935,8 +2894,8 @@
                                 ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
                                 : `<span class="rank-num">#${idx + 1}</span>`));
                     html += `
-                        <div class="leaderboard-card ${cardClass}">
-                            <div class="leaderboard-rank ${rankTier}">${rankContent}</div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank">${rankContent}</div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">${escapeHtml(u.username)}</div>
                                 <div class="leaderboard-hours">${u.total_hours} Hours • ${u.session_count} Sessions</div>
@@ -2949,22 +2908,22 @@
             } catch (err) {
                 container.innerHTML = `
                     <div class="stats-leaderboard-grid">
-                        <div class="leaderboard-card is-gold">
-                            <div class="leaderboard-rank gold"><span class="rank-emoji" title="1st Place">🥇</span></div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">Dodam</div>
                                 <div class="leaderboard-hours">26.4 Hours Active</div>
                             </div>
                         </div>
-                        <div class="leaderboard-card is-silver">
-                            <div class="leaderboard-rank silver"><span class="rank-emoji" title="2nd Place">🥈</span></div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">PaMuJiThA</div>
                                 <div class="leaderboard-hours">18.2 Hours Active</div>
                             </div>
                         </div>
-                        <div class="leaderboard-card is-bronze">
-                            <div class="leaderboard-rank bronze"><span class="rank-emoji" title="3rd Place">🥉</span></div>
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
                             <div class="leaderboard-info">
                                 <div class="leaderboard-name">Animo</div>
                                 <div class="leaderboard-hours">12.5 Hours Active</div>

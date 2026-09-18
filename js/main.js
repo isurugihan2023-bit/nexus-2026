@@ -938,8 +938,6 @@ async function fetchMostPlayedStats() {
 
         let html = '<div class="stats-leaderboard-grid">';
         games.forEach((g, idx) => {
-            const rankTier = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
-            const cardClass = rankTier ? `is-${rankTier}` : '';
             const rankContent = idx === 0 
                 ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
                 : (idx === 1 
@@ -948,8 +946,8 @@ async function fetchMostPlayedStats() {
                         ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
                         : `<span class="rank-num">#${idx + 1}</span>`));
             html += `
-                <div class="leaderboard-card ${cardClass}">
-                    <div class="leaderboard-rank ${rankTier}">${rankContent}</div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank">${rankContent}</div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">${escapeHtml(g.game_name)}</div>
                         <div class="leaderboard-hours">${g.total_hours} Hours • ${g.unique_players} Players</div>
@@ -962,22 +960,22 @@ async function fetchMostPlayedStats() {
     } catch (err) {
         container.innerHTML = `
             <div class="stats-leaderboard-grid">
-                <div class="leaderboard-card is-gold">
-                    <div class="leaderboard-rank gold"><span class="rank-emoji" title="1st Place">🥇</span></div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">PUBG: BATTLEGROUNDS</div>
                         <div class="leaderboard-hours">48.5 Hours • Active Community</div>
                     </div>
                 </div>
-                <div class="leaderboard-card is-silver">
-                    <div class="leaderboard-rank silver"><span class="rank-emoji" title="2nd Place">🥈</span></div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">Brawlhalla</div>
                         <div class="leaderboard-hours">32.1 Hours • Active Community</div>
                     </div>
                 </div>
-                <div class="leaderboard-card is-bronze">
-                    <div class="leaderboard-rank bronze"><span class="rank-emoji" title="3rd Place">🥉</span></div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">ARC Raiders</div>
                         <div class="leaderboard-hours">19.8 Hours • Active Community</div>
@@ -1005,8 +1003,6 @@ async function fetchLeaderboardStats() {
 
         let html = '<div class="stats-leaderboard-grid">';
         users.forEach((u, idx) => {
-            const rankTier = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
-            const cardClass = rankTier ? `is-${rankTier}` : '';
             const rankContent = idx === 0 
                 ? '<span class="rank-emoji" title="1st Place">🥇</span>' 
                 : (idx === 1 
@@ -1015,8 +1011,8 @@ async function fetchLeaderboardStats() {
                         ? '<span class="rank-emoji" title="3rd Place">🥉</span>' 
                         : `<span class="rank-num">#${idx + 1}</span>`));
             html += `
-                <div class="leaderboard-card ${cardClass}">
-                    <div class="leaderboard-rank ${rankTier}">${rankContent}</div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank">${rankContent}</div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">${escapeHtml(u.username)}</div>
                         <div class="leaderboard-hours">${u.total_hours} Hours • ${u.session_count} Sessions</div>
@@ -1029,22 +1025,22 @@ async function fetchLeaderboardStats() {
     } catch (err) {
         container.innerHTML = `
             <div class="stats-leaderboard-grid">
-                <div class="leaderboard-card is-gold">
-                    <div class="leaderboard-rank gold"><span class="rank-emoji" title="1st Place">🥇</span></div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank"><span class="rank-emoji" title="1st Place">🥇</span></div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">Dodam</div>
                         <div class="leaderboard-hours">26.4 Hours Active</div>
                     </div>
                 </div>
-                <div class="leaderboard-card is-silver">
-                    <div class="leaderboard-rank silver"><span class="rank-emoji" title="2nd Place">🥈</span></div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank"><span class="rank-emoji" title="2nd Place">🥈</span></div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">PaMuJiThA</div>
                         <div class="leaderboard-hours">18.2 Hours Active</div>
                     </div>
                 </div>
-                <div class="leaderboard-card is-bronze">
-                    <div class="leaderboard-rank bronze"><span class="rank-emoji" title="3rd Place">🥉</span></div>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-rank"><span class="rank-emoji" title="3rd Place">🥉</span></div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">Animo</div>
                         <div class="leaderboard-hours">12.5 Hours Active</div>

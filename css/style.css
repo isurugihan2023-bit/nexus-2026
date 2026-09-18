@@ -626,45 +626,8 @@ body.home-tab-active .hero-section { display: flex !important; }
 }
 .leaderboard-card:hover .leaderboard-rank {
     transform: scale(1.06);
-}
-.leaderboard-rank.gold {
-    background: rgba(234, 179, 8, 0.12);
-    border: 1px solid rgba(250, 204, 21, 0.4);
-    box-shadow: none;
-}
-.leaderboard-rank.silver {
-    background: rgba(226, 232, 240, 0.12);
-    border: 1px solid rgba(226, 232, 240, 0.4);
-    box-shadow: none;
-}
-.leaderboard-rank.bronze {
-    background: rgba(249, 115, 22, 0.12);
-    border: 1px solid rgba(249, 115, 22, 0.4);
-    box-shadow: none;
-}
-.leaderboard-card.is-gold {
-    border-color: rgba(234, 179, 8, 0.25);
-    background: rgba(16, 14, 28, 0.9);
-}
-.leaderboard-card.is-gold:hover {
-    border-color: rgba(234, 179, 8, 0.45);
-    box-shadow: none;
-}
-.leaderboard-card.is-silver {
-    border-color: rgba(148, 163, 184, 0.25);
-    background: rgba(16, 14, 28, 0.9);
-}
-.leaderboard-card.is-silver:hover {
-    border-color: rgba(148, 163, 184, 0.45);
-    box-shadow: none;
-}
-.leaderboard-card.is-bronze {
-    border-color: rgba(217, 119, 6, 0.25);
-    background: rgba(16, 14, 28, 0.9);
-}
-.leaderboard-card.is-bronze:hover {
-    border-color: rgba(217, 119, 6, 0.45);
-    box-shadow: none;
+    border-color: rgba(168, 85, 247, 0.6);
+    background: rgba(124, 58, 237, 0.2);
 }
 .leaderboard-info { flex-grow: 1; overflow: hidden; font-family: var(--font); }
 .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
