@@ -453,6 +453,8 @@ ul { list-style: none; }
     position: relative;
     overflow: hidden;
 }
+.cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.cta-btns .btn { width: 180px; max-width: 100%; justify-content: center; text-align: center; }
 
 /* ── FOOTER ───────────────────────────────────────── */
 footer {

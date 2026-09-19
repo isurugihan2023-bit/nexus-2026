@@ -510,6 +510,7 @@
         .cta-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 18px; }
         .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
         .cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+        .cta-btns .btn { width: 180px; max-width: 100%; justify-content: center; text-align: center; }
 
         .footer,
         #site-footer {
@@ -1831,8 +1832,11 @@
                     <h2 class="cta-title">Ready to join<br><span class="grad">Ninja Nexus?</span></h2>
                     <p class="cta-sub">Join our gaming and anime community to chat, game, and have fun.</p>
                     <div class="cta-btns">
-                        <a href="https://discord.gg/fZNDG5sfhf" class="btn btn-primary" target="_blank">
-                            <i class="fab fa-discord"></i> Join The Server
+                        <a href="https://discord.gg/fZNDG5sfhf" class="btn btn-primary" target="_blank" title="Connect to Discord">
+                            <i class="fab fa-discord"></i> Connect
+                        </a>
+                        <a href="ts3server://13.250.182.35" id="cta-ts-connect-btn" class="btn btn-primary ts-modal-trigger" title="Connect to TeamSpeak (13.250.182.35)">
+                            <i class="fab fa-teamspeak"></i> Connect
                         </a>
                     </div>
                 </div>
@@ -1915,7 +1919,6 @@
     <script>
         /* ── TeamSpeak Modal Handler ── */
         const tsModal = document.getElementById('teamspeak-modal');
-        const tsBtn = document.getElementById('hero-ts-connect-btn');
         const tsCloseBtn = document.getElementById('ts-modal-close-btn');
         const tsBackdrop = document.getElementById('ts-backdrop-close');
         const tsCopyBtn = document.getElementById('ts-copy-btn');
@@ -1935,7 +1938,9 @@
             document.body.style.overflow = '';
         }
 
-        if (tsBtn) tsBtn.addEventListener('click', openTsModal);
+        document.querySelectorAll('#hero-ts-connect-btn, #cta-ts-connect-btn, .ts-modal-trigger').forEach(btn => {
+            btn.addEventListener('click', openTsModal);
+        });
         if (tsCloseBtn) tsCloseBtn.addEventListener('click', closeTsModal);
         if (tsBackdrop) tsBackdrop.addEventListener('click', closeTsModal);
 
