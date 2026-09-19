@@ -502,8 +502,8 @@ body.home-tab-active .hero-section { display: flex !important; }
     justify-content: center;
     gap: 12px;
     flex-wrap: wrap;
-    margin-top: 24px;
-    margin-bottom: 24px;
+    margin-top: 20px;
+    margin-bottom: 0;
     font-family: var(--font);
 }
 .lounge-tab-btn {
