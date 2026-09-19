@@ -1201,10 +1201,10 @@
         /* ── TeamSpeak Custom Modal ── */
         .ts-modal-box {
             max-width: 480px;
-            background: linear-gradient(160deg, #16122c 0%, #0d0a1a 100%);
-            border: 1px solid rgba(139, 92, 246, 0.28);
+            background: #110e20;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 26px;
-            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 50px -10px rgba(124, 58, 237, 0.35);
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95);
             padding: 32px 28px 26px;
             text-align: center;
         }
@@ -1225,12 +1225,8 @@
             font-size: 2rem;
             color: #ffffff;
             margin-bottom: 14px;
-            box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15);
-            animation: tsIconPulse 3s infinite ease-in-out;
-        }
-        @keyframes tsIconPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.5); }
-            50% { transform: scale(1.04); box-shadow: 0 14px 38px -3px rgba(124, 58, 237, 0.7); }
+            box-shadow: none;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
         .ts-modal-title {
             font-size: 1.45rem;
@@ -1256,12 +1252,6 @@
             height: 7px;
             border-radius: 50%;
             background: #10b981;
-            box-shadow: 0 0 8px #10b981;
-            animation: pulseGreen 2s infinite;
-        }
-        @keyframes pulseGreen {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.85); }
         }
         .ts-modal-body {
             display: flex;
@@ -1348,7 +1338,7 @@
             padding: 14px 20px !important;
             font-size: 0.98rem !important;
             border-radius: 14px !important;
-            box-shadow: 0 10px 24px -5px rgba(124, 58, 237, 0.45) !important;
+            box-shadow: none !important;
         }
         .ts-download-link {
             display: inline-flex;
@@ -1916,7 +1906,7 @@
                     <a href="ts3server://13.250.182.35" class="btn btn-primary ts-launch-btn">
                         <i class="fab fa-teamspeak"></i> Launch TeamSpeak 3 Client
                     </a>
-                    <a href="https://www.teamspeak.com/en/downloads/" target="_blank" class="ts-download-link">
+                    <a href="https://www.teamspeak.com/en/downloads/?product=ts3" target="_blank" class="ts-download-link">
                         <i class="fas fa-download"></i> Don't have TeamSpeak? Download client
                     </a>
                 </div>
