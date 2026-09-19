@@ -3167,9 +3167,10 @@
     </script>
 
     <!-- ── BACKGROUND MUSIC & CONTROLLER ─────────────────────── -->
-    <audio id="bg-music" loop preload="none">
-        <source src="/audio/nexus-theme.mp3" type="audio/mpeg">
+    <audio id="bg-music" loop preload="auto" src="audio/nexus-theme.mp3">
         <source src="audio/nexus-theme.mp3" type="audio/mpeg">
+        <source src="./audio/nexus-theme.mp3" type="audio/mpeg">
+        <source src="/audio/nexus-theme.mp3" type="audio/mpeg">
     </audio>
 
     <div class="bg-music-control" id="bg-music-control" role="region" aria-label="Audio Controls">
@@ -3368,7 +3369,8 @@
                                 clearInterval(fadeTimer);
                             }
                         }, stepTime);
-                    }).catch(() => {
+                    }).catch((err) => {
+                        console.warn('Audio play error:', err);
                         updateUI(false);
                     });
                 }
@@ -3394,8 +3396,15 @@
             // Initial UI state
             updateUI(false);
 
-            // First-click handler to initiate music softly
-            function onFirstClick(e) {
+            // First-interaction handler to initiate music softly
+            const interactionEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
+            function removeInteractionListeners() {
+                interactionEvents.forEach(evt => {
+                    document.removeEventListener(evt, onFirstInteraction);
+                });
+            }
+
+            function onFirstInteraction(e) {
                 if (isFirstClickHandled) return;
                 if (control && control.contains(e.target)) return;
 
@@ -3409,20 +3418,22 @@
                 }
 
                 isFirstClickHandled = true;
-                document.removeEventListener('click', onFirstClick);
+                removeInteractionListeners();
             }
 
             if (!isUserPaused) {
-                document.addEventListener('click', onFirstClick);
+                interactionEvents.forEach(evt => {
+                    document.addEventListener(evt, onFirstInteraction, { passive: true });
+                });
             }
 
             // Manual toggle button click
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 isFirstClickHandled = true;
-                document.removeEventListener('click', onFirstClick);
+                removeInteractionListeners();
 
-                if (audio.paused || audio.volume === 0) {
+                if (audio.paused) {
                     isUserPaused = false;
                     try {
                         localStorage.setItem('nexus_music_paused', 'false');
