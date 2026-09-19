@@ -3165,5 +3165,319 @@
             });
         });
     </script>
+
+    <!-- ── BACKGROUND MUSIC & CONTROLLER ─────────────────────── -->
+    <audio id="bg-music" loop preload="none">
+        <source src="/audio/nexus-theme.mp3" type="audio/mpeg">
+        <source src="audio/nexus-theme.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="bg-music-control" id="bg-music-control" role="region" aria-label="Audio Controls">
+        <button id="bg-music-toggle" class="bg-music-btn" aria-label="Play background music" title="Toggle background music">
+            <i class="fas fa-volume-xmark" id="bg-music-icon" aria-hidden="true"></i>
+        </button>
+        <div class="bg-music-slider-wrap">
+            <input type="range" id="bg-music-volume" class="bg-music-slider" min="0" max="100" value="15" aria-label="Background music volume" title="Volume">
+        </div>
+    </div>
+
+    <style>
+        .bg-music-control {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9998;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            background: rgba(14, 11, 24, 0.85);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            border-radius: 100px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(124, 58, 237, 0.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+            user-select: none;
+        }
+        .bg-music-control:hover {
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 22px rgba(124, 58, 237, 0.4);
+        }
+        .bg-music-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #7C3AED;
+            border: none;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            outline: none;
+            flex-shrink: 0;
+        }
+        .bg-music-btn:hover {
+            background: #6D28D9;
+            transform: scale(1.06);
+        }
+        .bg-music-btn:active {
+            transform: scale(0.96);
+        }
+        .bg-music-btn:focus-visible {
+            outline: 2px solid #a78bfa;
+            outline-offset: 2px;
+        }
+        .bg-music-slider-wrap {
+            display: flex;
+            align-items: center;
+        }
+        .bg-music-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 70px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+            margin: 0;
+            transition: background 0.2s ease;
+        }
+        .bg-music-slider:focus-visible {
+            outline: 2px solid #a78bfa;
+            outline-offset: 2px;
+        }
+        .bg-music-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(124, 58, 237, 0.8);
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+        .bg-music-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            background: #c4b5fd;
+        }
+        .bg-music-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #a78bfa;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(124, 58, 237, 0.8);
+        }
+        @media (max-width: 600px) {
+            .bg-music-control {
+                padding: 0;
+                border-radius: 50%;
+                border: none;
+                background: transparent;
+                box-shadow: none;
+                bottom: 20px;
+                right: 20px;
+            }
+            .bg-music-slider-wrap {
+                display: none !important;
+            }
+            .bg-music-btn {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(124, 58, 237, 0.45);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .bg-music-control,
+            .bg-music-btn,
+            .bg-music-slider {
+                transition: none !important;
+                animation: none !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+            }
+        }
+    </style>
+
+    <script>
+        (function() {
+            const audio = document.getElementById('bg-music');
+            const toggleBtn = document.getElementById('bg-music-toggle');
+            const icon = document.getElementById('bg-music-icon');
+            const slider = document.getElementById('bg-music-volume');
+            const control = document.getElementById('bg-music-control');
+            if (!audio || !toggleBtn || !slider) return;
+
+            let fadeTimer = null;
+            let targetVolume = 0.15; // default 15%
+            let isUserPaused = false;
+            let wasPlayingBeforeHide = false;
+            let isFirstClickHandled = false;
+
+            // Load preferences from localStorage with try/catch
+            try {
+                const savedPaused = localStorage.getItem('nexus_music_paused');
+                if (savedPaused === 'true') {
+                    isUserPaused = true;
+                }
+                const savedVol = localStorage.getItem('nexus_music_volume');
+                if (savedVol !== null) {
+                    const parsed = parseInt(savedVol, 10);
+                    if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+                        targetVolume = parsed / 100;
+                        slider.value = parsed;
+                    }
+                }
+            } catch (e) {}
+
+            function updateUI(playing) {
+                if (playing) {
+                    toggleBtn.setAttribute('aria-label', 'Mute background music');
+                    toggleBtn.title = 'Mute background music';
+                    if (icon) {
+                        icon.className = 'fas fa-volume-high';
+                    }
+                } else {
+                    toggleBtn.setAttribute('aria-label', 'Play background music');
+                    toggleBtn.title = 'Play background music';
+                    if (icon) {
+                        icon.className = 'fas fa-volume-xmark';
+                    }
+                }
+            }
+
+            function fadeIn(duration = 3000) {
+                clearInterval(fadeTimer);
+                audio.volume = 0;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        updateUI(true);
+                        const stepTime = 50;
+                        const steps = duration / stepTime;
+                        const increment = targetVolume / steps;
+                        fadeTimer = setInterval(() => {
+                            if (audio.volume + increment < targetVolume) {
+                                audio.volume = Math.min(targetVolume, audio.volume + increment);
+                            } else {
+                                audio.volume = targetVolume;
+                                clearInterval(fadeTimer);
+                            }
+                        }, stepTime);
+                    }).catch(() => {
+                        updateUI(false);
+                    });
+                }
+            }
+
+            function fadeOut(duration = 600) {
+                clearInterval(fadeTimer);
+                updateUI(false);
+                const stepTime = 40;
+                const steps = duration / stepTime;
+                const decrement = audio.volume / steps;
+                fadeTimer = setInterval(() => {
+                    if (audio.volume - decrement > 0.01) {
+                        audio.volume = Math.max(0, audio.volume - decrement);
+                    } else {
+                        audio.volume = 0;
+                        clearInterval(fadeTimer);
+                        audio.pause();
+                    }
+                }, stepTime);
+            }
+
+            // Initial UI state
+            updateUI(false);
+
+            // First-click handler to initiate music softly
+            function onFirstClick(e) {
+                if (isFirstClickHandled) return;
+                if (control && control.contains(e.target)) return;
+
+                let userChoseMute = false;
+                try {
+                    userChoseMute = localStorage.getItem('nexus_music_paused') === 'true';
+                } catch (err) {}
+
+                if (!userChoseMute && !isUserPaused) {
+                    fadeIn(3000);
+                }
+
+                isFirstClickHandled = true;
+                document.removeEventListener('click', onFirstClick);
+            }
+
+            if (!isUserPaused) {
+                document.addEventListener('click', onFirstClick);
+            }
+
+            // Manual toggle button click
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                isFirstClickHandled = true;
+                document.removeEventListener('click', onFirstClick);
+
+                if (audio.paused || audio.volume === 0) {
+                    isUserPaused = false;
+                    try {
+                        localStorage.setItem('nexus_music_paused', 'false');
+                    } catch (err) {}
+                    fadeIn(1000);
+                } else {
+                    isUserPaused = true;
+                    try {
+                        localStorage.setItem('nexus_music_paused', 'true');
+                    } catch (err) {}
+                    fadeOut(600);
+                }
+            });
+
+            // Volume slider changes
+            slider.addEventListener('input', () => {
+                clearInterval(fadeTimer);
+                const val = parseInt(slider.value, 10);
+                targetVolume = val / 100;
+
+                try {
+                    localStorage.setItem('nexus_music_volume', val.toString());
+                } catch (err) {}
+
+                if (targetVolume === 0) {
+                    audio.volume = 0;
+                    updateUI(false);
+                } else {
+                    if (!isUserPaused && !audio.paused) {
+                        audio.volume = targetVolume;
+                        updateUI(true);
+                    } else if (isUserPaused) {
+                        updateUI(false);
+                    }
+                }
+            });
+
+            // Page Visibility handling (pause when tab hidden, resume when visible)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    if (!audio.paused && !isUserPaused) {
+                        wasPlayingBeforeHide = true;
+                        audio.pause();
+                    }
+                } else {
+                    if (wasPlayingBeforeHide && !isUserPaused) {
+                        wasPlayingBeforeHide = false;
+                        audio.play().then(() => {
+                            audio.volume = targetVolume;
+                            updateUI(true);
+                        }).catch(() => {});
+                    }
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
