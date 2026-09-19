@@ -869,7 +869,7 @@ footer {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: 16px;
-    padding: 14px 16px;
+    padding: 8px;
     text-align: left;
     transition: border-color 0.2s;
 }

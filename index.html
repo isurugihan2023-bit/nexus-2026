@@ -1262,7 +1262,7 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.09);
             border-radius: 16px;
-            padding: 14px 16px;
+            padding: 8px;
             text-align: left;
             transition: border-color 0.2s;
         }
@@ -1875,24 +1875,17 @@
     <div id="teamspeak-modal" class="game-modal" aria-hidden="true">
         <div class="modal-backdrop" id="ts-backdrop-close"></div>
         <div class="modal-box ts-modal-box">
-            <button class="modal-close-btn" id="ts-modal-close-btn" aria-label="Close modal">
-                <i class="fas fa-times"></i>
-            </button>
             <div class="ts-modal-header">
                 <div class="ts-icon-glow">
                     <i class="fab fa-teamspeak"></i>
                 </div>
                 <h3 class="ts-modal-title">Connect to <span class="grad">TeamSpeak 3</span></h3>
                 <div class="ts-status-badge">
-                    <span class="ts-pulse-dot"></span> Server Online • Ultra-Low Latency
+                    <span class="ts-pulse-dot"></span> Server Online
                 </div>
             </div>
             <div class="ts-modal-body">
                 <div class="ts-ip-card">
-                    <div class="ts-ip-meta">
-                        <span class="ts-ip-label">SERVER ADDRESS</span>
-                        <span class="ts-ip-port">Port: 9987 (Default)</span>
-                    </div>
                     <div class="ts-ip-row">
                         <code class="ts-ip-text" id="ts-ip-val">13.250.182.35</code>
                         <button type="button" class="ts-copy-btn" id="ts-copy-btn" title="Copy server IP">
