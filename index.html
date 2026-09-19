@@ -1197,6 +1197,194 @@
             justify-content: space-between;
             align-items: center;
         }
+
+        /* ── TeamSpeak Custom Modal ── */
+        .ts-modal-box {
+            max-width: 480px;
+            background: linear-gradient(160deg, #16122c 0%, #0d0a1a 100%);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            border-radius: 26px;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 50px -10px rgba(124, 58, 237, 0.35);
+            padding: 32px 28px 26px;
+            text-align: center;
+        }
+        .ts-modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .ts-icon-glow {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 14px;
+            box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15);
+            animation: tsIconPulse 3s infinite ease-in-out;
+        }
+        @keyframes tsIconPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.5); }
+            50% { transform: scale(1.04); box-shadow: 0 14px 38px -3px rgba(124, 58, 237, 0.7); }
+        }
+        .ts-modal-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+        .ts-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #a78bfa;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.22);
+            padding: 4px 14px;
+            border-radius: 999px;
+        }
+        .ts-pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulseGreen 2s infinite;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .ts-modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .ts-ip-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            padding: 14px 16px;
+            text-align: left;
+            transition: border-color 0.2s;
+        }
+        .ts-ip-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+        .ts-ip-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+        }
+        .ts-ip-label {
+            color: var(--muted);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+        .ts-ip-port {
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+        }
+        .ts-ip-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 8, 20, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+        .ts-ip-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #c4b5fd;
+            letter-spacing: 0.04em;
+            user-select: all;
+        }
+        .ts-copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(124, 58, 237, 0.18);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            color: #e9d5ff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ts-copy-btn:hover {
+            background: rgba(124, 58, 237, 0.38);
+            border-color: rgba(139, 92, 246, 0.6);
+            transform: translateY(-1px);
+        }
+        .ts-copy-btn.copied {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+            color: #34d399;
+        }
+        .ts-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .ts-launch-btn {
+            width: 100% !important;
+            padding: 14px 20px !important;
+            font-size: 0.98rem !important;
+            border-radius: 14px !important;
+            box-shadow: 0 10px 24px -5px rgba(124, 58, 237, 0.45) !important;
+        }
+        .ts-download-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s;
+            padding: 4px 0;
+        }
+        .ts-download-link:hover {
+            color: #c4b5fd;
+            text-decoration: underline;
+        }
+        .ts-guide-tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: rgba(124, 58, 237, 0.06);
+            border: 1px solid rgba(124, 58, 237, 0.14);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 0.72rem;
+            color: #a5b4fc;
+            text-align: left;
+            line-height: 1.45;
+        }
+        .ts-guide-tip i {
+            color: #8b5cf6;
+            margin-top: 2px;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
@@ -1259,7 +1447,7 @@
                     <a href="https://discord.gg/fZNDG5sfhf" class="btn btn-primary" target="_blank" title="Connect to Discord">
                         <i class="fab fa-discord"></i> Connect
                     </a>
-                    <a href="ts3server://13.250.182.35" class="btn btn-primary" title="Connect to TeamSpeak (13.250.182.35)">
+                    <a href="ts3server://13.250.182.35" id="hero-ts-connect-btn" class="btn btn-primary" title="Connect to TeamSpeak (13.250.182.35)">
                         <i class="fab fa-teamspeak"></i> Connect
                     </a>
                 </div>
@@ -1693,7 +1881,110 @@
         </div>
     </div>
 
+    <!-- ── TEAMSPEAK CONNECT MODAL ─────────────────── -->
+    <div id="teamspeak-modal" class="game-modal" aria-hidden="true">
+        <div class="modal-backdrop" id="ts-backdrop-close"></div>
+        <div class="modal-box ts-modal-box">
+            <button class="modal-close-btn" id="ts-modal-close-btn" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="ts-modal-header">
+                <div class="ts-icon-glow">
+                    <i class="fab fa-teamspeak"></i>
+                </div>
+                <h3 class="ts-modal-title">Connect to <span class="grad">TeamSpeak 3</span></h3>
+                <div class="ts-status-badge">
+                    <span class="ts-pulse-dot"></span> Server Online • Ultra-Low Latency
+                </div>
+            </div>
+            <div class="ts-modal-body">
+                <div class="ts-ip-card">
+                    <div class="ts-ip-meta">
+                        <span class="ts-ip-label">SERVER ADDRESS</span>
+                        <span class="ts-ip-port">Port: 9987 (Default)</span>
+                    </div>
+                    <div class="ts-ip-row">
+                        <code class="ts-ip-text" id="ts-ip-val">13.250.182.35</code>
+                        <button type="button" class="ts-copy-btn" id="ts-copy-btn" title="Copy server IP">
+                            <i class="fas fa-copy" id="ts-copy-icon"></i>
+                            <span id="ts-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ts-actions">
+                    <a href="ts3server://13.250.182.35" class="btn btn-primary ts-launch-btn">
+                        <i class="fab fa-teamspeak"></i> Launch TeamSpeak 3 Client
+                    </a>
+                    <a href="https://www.teamspeak.com/en/downloads/" target="_blank" class="ts-download-link">
+                        <i class="fas fa-download"></i> Don't have TeamSpeak? Download client
+                    </a>
+                </div>
+
+                <div class="ts-guide-tip">
+                    <i class="fas fa-info-circle"></i>
+                    <span>If the client doesn't launch automatically, copy the IP address above and paste it into TeamSpeak via <strong>Connections &rarr; Connect</strong>.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        /* ── TeamSpeak Modal Handler ── */
+        const tsModal = document.getElementById('teamspeak-modal');
+        const tsBtn = document.getElementById('hero-ts-connect-btn');
+        const tsCloseBtn = document.getElementById('ts-modal-close-btn');
+        const tsBackdrop = document.getElementById('ts-backdrop-close');
+        const tsCopyBtn = document.getElementById('ts-copy-btn');
+
+        function openTsModal(e) {
+            if (e) e.preventDefault();
+            if (!tsModal) return;
+            tsModal.classList.add('active');
+            tsModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTsModal() {
+            if (!tsModal) return;
+            tsModal.classList.remove('active');
+            tsModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        if (tsBtn) tsBtn.addEventListener('click', openTsModal);
+        if (tsCloseBtn) tsCloseBtn.addEventListener('click', closeTsModal);
+        if (tsBackdrop) tsBackdrop.addEventListener('click', closeTsModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeTsModal();
+        });
+
+        if (tsCopyBtn) {
+            tsCopyBtn.addEventListener('click', async () => {
+                const ipText = '13.250.182.35';
+                try {
+                    await navigator.clipboard.writeText(ipText);
+                } catch(err) {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = ipText;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+                tsCopyBtn.classList.add('copied');
+                const icon = document.getElementById('ts-copy-icon');
+                const text = document.getElementById('ts-copy-text');
+                if (icon) icon.className = 'fas fa-check';
+                if (text) text.textContent = 'Copied!';
+                setTimeout(() => {
+                    tsCopyBtn.classList.remove('copied');
+                    if (icon) icon.className = 'fas fa-copy';
+                    if (text) text.textContent = 'Copy';
+                }, 2000);
+            });
+        }
         // Ensure no stray dots exist in logo
         try {
             document.querySelectorAll('.nav-logo-dot').forEach(el => el.remove());
