@@ -245,7 +245,7 @@ ul { list-style: none; }
 }
 
 .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; }
-.hero-btns .btn { width: 236px; max-width: 100%; justify-content: center; text-align: center; }
+.hero-btns .btn { width: 180px; max-width: 100%; justify-content: center; text-align: center; }
 
 /* Floating stat chips */
 .hero-chips {
