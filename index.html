@@ -735,6 +735,30 @@
             color: var(--p400);
             margin-bottom: 16px;
         }
+        .empty-lounge-discord-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: #5865F2;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            color: #ffffff;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.35);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        .empty-lounge-discord-btn:hover {
+            transform: translateY(-2px) scale(1.08);
+            background-color: #4752c4;
+            box-shadow: 0 12px 28px rgba(88, 101, 242, 0.55);
+            color: #ffffff;
+        }
+        .empty-lounge-discord-btn:active {
+            transform: scale(0.96);
+        }
         .empty-lounge-title {
             font-size: clamp(1.15rem, 2.5vw, 1.35rem);
             font-weight: 800;
@@ -1586,8 +1610,8 @@
                         <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
                         <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
                         <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-primary" title="Join Discord">
-                                <i class="fab fa-discord"></i> Join Discord
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">
+                                <i class="fab fa-discord"></i>
                             </a>
                         </div>
                     </div>
@@ -2394,8 +2418,8 @@
                         <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
                         <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
                         <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-primary" title="Join Discord">
-                                <i class="fab fa-discord"></i> Join Discord
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">
+                                <i class="fab fa-discord"></i>
                             </a>
                         </div>
                     </div>
