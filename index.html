@@ -164,15 +164,10 @@
 
         .hero::before {
             content: '';
-            position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background-image: radial-gradient(circle, rgba(139,92,246,0.12) 1.5px, transparent 1.5px);
             background-size: 28px 28px;
             pointer-events: none;
-            animation: gridSlide 15s linear infinite;
-        }
-        @keyframes gridSlide {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-28px, -28px); }
         }
 
         .ambient-orb {
@@ -182,15 +177,9 @@
         }
         .orb-1 {
             width: 800px; height: 800px; top: -200px; left: -200px;
-            animation: floatOrb 12s ease-in-out infinite alternate;
         }
         .orb-2 {
             width: 700px; height: 700px; bottom: -150px; right: -150px;
-            animation: floatOrb 18s ease-in-out infinite alternate-reverse;
-        }
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(60px, 40px) scale(1.05); }
         }
 
         .hero-glow {
@@ -218,11 +207,7 @@
         }
 
         .hero-float {
-            animation: heroFadeGlow 4s ease-in-out infinite;
-        }
-        @keyframes heroFadeGlow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.72; }
+            opacity: 1;
         }
 
         .hero-sub {
@@ -299,14 +284,12 @@
             gap: 8px;
             padding: 8px 20px;
             border-radius: 999px;
-            background: rgba(15, 13, 26, 0.7);
-            border: none;
+            background: rgba(18, 14, 32, 0.92);
+            border: 1px solid rgba(168, 85, 247, 0.2);
             color: #c084fc;
             font-size: 0.84rem;
             font-weight: 600;
             letter-spacing: 0.04em;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             transition: transform 200ms ease, background 200ms;
         }
         .hero-since-pill:hover {
@@ -1033,7 +1016,7 @@
             padding: 20px;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.2s ease;
         }
         .game-modal.active {
             opacity: 1;
@@ -1042,9 +1025,7 @@
         .modal-backdrop {
             position: absolute;
             inset: 0;
-            background: rgba(6, 5, 12, 0.82);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: rgba(6, 5, 14, 0.9);
         }
         .modal-box {
             position: relative;
@@ -1053,14 +1034,14 @@
             background: #131024;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
-            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
             overflow: hidden;
-            transform: scale(0.92) translateY(20px);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(12px);
+            transition: transform 0.2s ease;
             z-index: 2;
         }
         .game-modal.active .modal-box {
-            transform: scale(1) translateY(0);
+            transform: translateY(0);
         }
         .modal-banner {
             position: relative;
@@ -1200,12 +1181,17 @@
         }
 
         /* ── TeamSpeak Custom Modal ── */
+        body.modal-open .hero,
+        body.modal-open .lounge-section,
+        body.modal-open .cta-section {
+            pointer-events: none;
+        }
         .ts-modal-box {
             max-width: 480px;
             background: #110e20;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 26px;
-            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
             padding: 32px 28px 26px;
             text-align: center;
         }
@@ -1929,6 +1915,7 @@
             tsModal.classList.add('active');
             tsModal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
         }
 
         function closeTsModal() {
@@ -1936,6 +1923,7 @@
             tsModal.classList.remove('active');
             tsModal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
         }
 
         document.querySelectorAll('#hero-ts-connect-btn, #cta-ts-connect-btn, .ts-modal-trigger').forEach(btn => {
@@ -2549,6 +2537,7 @@
             gameModal.classList.add('active');
             gameModal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
         }
 
         function closeGameModal() {
@@ -2560,6 +2549,7 @@
             gameModal.classList.remove('active');
             gameModal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
         }
 
         if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeGameModal);

@@ -114,12 +114,11 @@ ul { list-style: none; }
 /* ── NAVBAR ─────────────────────────────────────── */
 .nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+    transition: background 0.3s, border-color 0.3s;
     border-bottom: 1px solid transparent;
 }
 .nav.scrolled {
-    background: rgba(10,10,15,0.85);
-    backdrop-filter: blur(16px);
+    background: rgba(10,10,15,0.96);
     border-color: var(--border);
 }
 .nav-inner {
@@ -202,11 +201,10 @@ ul { list-style: none; }
 /* Discord Presence Pill */
 .discord-presence {
     display: inline-flex; align-items: center;
-    background: rgba(20, 20, 25, 0.7);
+    background: rgba(20, 20, 25, 0.92);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 40px; padding: 6px 18px 6px 6px;
     gap: 12px; margin-bottom: 24px;
-    backdrop-filter: blur(10px);
 }
 .dp-avatar { position: relative; width: 42px; height: 42px; min-width: 42px; min-height: 42px; }
 .dp-avatar img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
@@ -254,12 +252,11 @@ ul { list-style: none; }
 .chip {
     display: flex; align-items: center; justify-content: center; gap: 12px;
     padding: 12px 22px; border-radius: 12px;
-    background: rgba(15, 13, 26, 0.75);
+    background: rgba(15, 13, 26, 0.92);
     border: 1px solid var(--border);
     font-size: 0.88rem; font-weight: 600;
     transition: transform 200ms ease, border-color 200ms;
     text-align: left;
-    backdrop-filter: blur(12px);
 }
 .chip:hover {
     border-color: var(--p500);
@@ -283,14 +280,12 @@ ul { list-style: none; }
     gap: 8px;
     padding: 8px 20px;
     border-radius: 999px;
-    background: rgba(15, 13, 26, 0.7);
-    border: none;
+    background: rgba(18, 14, 32, 0.92);
+    border: 1px solid rgba(168, 85, 247, 0.2);
     color: #c084fc;
     font-size: 0.84rem;
     font-weight: 600;
     letter-spacing: 0.04em;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     transition: transform 200ms ease, background 200ms;
 }
 .hero-since-pill:hover {
@@ -490,7 +485,6 @@ footer {
     justify-content: center;
     cursor: pointer;
     z-index: 999;
-    backdrop-filter: blur(10px);
     transition: transform 0.2s, background 0.2s, border-color 0.2s;
 }
 .music-btn:hover { transform: scale(1.1); border-color: var(--p500); }
@@ -513,7 +507,7 @@ body.home-tab-active .hero-section { display: flex !important; }
     font-family: var(--font);
 }
 .lounge-tab-btn {
-    background: rgba(18, 15, 34, 0.75);
+    background: rgba(18, 15, 34, 0.92);
     border: 1px solid rgba(139, 92, 246, 0.2);
     color: var(--sub);
     padding: 8px 18px;
@@ -526,7 +520,6 @@ body.home-tab-active .hero-section { display: flex !important; }
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    backdrop-filter: blur(10px);
 }
 .lounge-tab-btn:hover {
     color: #fff;
