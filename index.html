@@ -659,9 +659,59 @@
             max-width: 100%;
             flex: 0 1 380px;
         }
-        .live-games-grid .empty-lounge-state {
+        .empty-lounge-state {
             width: 100%;
             flex: 1 1 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+        }
+        .empty-lounge-box {
+            background: rgba(16, 14, 28, 0.75);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 24px;
+            padding: 44px 28px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        }
+        .empty-lounge-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--p400);
+            margin-bottom: 18px;
+        }
+        .empty-lounge-title {
+            font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+        .empty-lounge-sub {
+            font-size: 0.9rem;
+            color: var(--sub);
+            max-width: 380px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .empty-lounge-actions .btn {
+            width: 210px;
+            max-width: 100%;
+            justify-content: center;
         }
         .game-card {
             --game-accent: #a855f7;
@@ -1485,7 +1535,22 @@
                 </div>
             </div>
             
-            <div id="live-games-grid" class="live-games-grid reveal"></div>
+            <div id="live-games-grid" class="live-games-grid reveal">
+                <div class="empty-lounge-state">
+                    <div class="empty-lounge-box">
+                        <div class="empty-lounge-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
+                        <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
+                        <div class="empty-lounge-actions">
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-primary" title="Join Discord">
+                                <i class="fab fa-discord"></i> Join Discord
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Sub-containers for Most Played -->
             <div id="lounge-most-played-container" style="display: none;"></div>
@@ -1842,8 +1907,8 @@
             <div class="modal-banner">
                 <img id="modal-game-cover" src="images/nexus_logo.png" alt="Game Banner">
                 <div class="modal-banner-content">
-                    <h3 class="modal-game-title" id="modal-game-title">Game Title</h3>
-                    <div class="modal-game-subtitle" id="modal-game-count">1 Member In-Game</div>
+                    <h3 class="modal-game-title" id="modal-game-title">Game Session</h3>
+                    <div class="modal-game-subtitle" id="modal-game-count">Voice Lounge Squad</div>
                 </div>
             </div>
             <div class="modal-body">
@@ -2277,6 +2342,25 @@
             return getGameImageUrl(gameName);
         }
 
+        function renderEmptyLoungeState() {
+            return `
+                <div class="empty-lounge-state">
+                    <div class="empty-lounge-box">
+                        <div class="empty-lounge-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
+                        <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
+                        <div class="empty-lounge-actions">
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" class="btn btn-primary" title="Join Discord">
+                                <i class="fab fa-discord"></i> Join Discord
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         let lastGamesDigest = '';
         window.currentLiveGamesState = [];
 
@@ -2296,11 +2380,11 @@
                 if (playingEl) {
                     playingEl.textContent = '0';
                 }
-                if (lastGamesDigest === 'EMPTY' && grid.children.length === 0) {
+                if (lastGamesDigest === 'EMPTY' && grid.querySelector('.empty-lounge-state')) {
                     return;
                 }
                 lastGamesDigest = 'EMPTY';
-                grid.innerHTML = '';
+                grid.innerHTML = renderEmptyLoungeState();
                 return;
             }
 
@@ -2771,75 +2855,11 @@
         }
 
         // ── Real-Time Verified Live Games Snapshot ──
-        const FALLBACK_LIVE_GAMES = [
-            {
-                name: "Ceylon Roleplay",
-                count: 2,
-                players: ["Animo", "SL_LIDDA"],
-                player_details: [
-                    {
-                        name: "Animo",
-                        username: "4nimo.",
-                        avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024",
-                        details: "Players 50/100",
-                        state: "Players 50/100",
-                        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                        start_timestamp: 1789735569000
-                    },
-                    {
-                        name: "SL_LIDDA",
-                        username: "sl_lidda",
-                        avatar: "https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=1024",
-                        details: "Players 50/100",
-                        state: "Players 50/100",
-                        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                        start_timestamp: 1789736471000
-                    }
-                ],
-                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                sample_detail: "Players 50/100"
-            },
-            {
-                name: "VALORANT",
-                count: 1,
-                players: ["Tr!pl3x ✘"],
-                player_details: [
-                    {
-                        name: "Tr!pl3x ✘",
-                        username: "_diaa_x.",
-                        avatar: "https://cdn.discordapp.com/avatars/1279080572504899684/d1f5a6199f68b381f2a6aa301dc496d0.png?size=1024",
-                        details: "Competitive Match",
-                        state: "",
-                        rich_cover: null,
-                        start_timestamp: 1789744260344
-                    }
-                ],
-                rich_cover: null,
-                sample_detail: ""
-            },
-            {
-                name: "Dota 2",
-                count: 1,
-                players: ["local leclerc"],
-                player_details: [
-                    {
-                        name: "local leclerc",
-                        username: "leda6605",
-                        avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024",
-                        details: "Ranked Match",
-                        state: "",
-                        rich_cover: null,
-                        start_timestamp: 1789744868885
-                    }
-                ],
-                rich_cover: null,
-                sample_detail: ""
-            }
-        ];
+        const FALLBACK_LIVE_GAMES = [];
 
         // Immediate initial render for instant live responsiveness
         renderLiveGames(FALLBACK_LIVE_GAMES);
-        updateLoungeStats(48, 12, 4);
+        updateLoungeStats(48, 12, 0);
 
         // ── Real-Time Bot & Discord Synchronization Pipeline (Degrade Path) ──
         async function fetchBotData() {
