@@ -19,7 +19,18 @@ export default async function handler(req, res) {
 
         if (upstream.ok) {
             const data = await upstream.json();
-            return res.status(200).json(data);
+            // Normalize to every shape the frontend understands:
+            // {count, members} (voice) + {games, top_played_games} (lounge).
+            const members = Array.isArray(data.members) ? data.members : (Array.isArray(data.games) ? data.games : []);
+            const games = Array.isArray(data.games) ? data.games : members;
+            return res.status(200).json({
+                ...data,
+                count: data.count ?? members.length,
+                members,
+                games,
+                top_played_games: Array.isArray(data.top_played_games) ? data.top_played_games : games,
+                stale: false
+            });
         }
     } catch (e) {
         // Fall through to empty live state
@@ -27,6 +38,10 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
         count: 0,
-        members: []
+        members: [],
+        games: [],
+        top_played_games: [],
+        playing_games: [],
+        stale: true
     });
 }

@@ -35,10 +35,6 @@
     {
       "source": "/static/:path*",
       "destination": "http://92.118.206.166:30038/static/:path*"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "http://92.118.206.166:30038/api/:path*"
     }
   ],
   "headers": [
