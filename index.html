@@ -2441,6 +2441,43 @@
             `;
         }
 
+        function renderOfflineLoungeState() {
+            return `
+                <div class="empty-lounge-state" data-lounge-offline="true">
+                    <div class="empty-lounge-box">
+                        <h3 class="empty-lounge-title">Live feed is offline, try again soon.</h3>
+                        <p class="empty-lounge-sub">Could not reach the live server. Check back shortly.</p>
+                        <div class="empty-lounge-actions">
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">
+                                <i class="fab fa-discord"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showOfflineLounge() {
+            const grid = document.getElementById('live-games-grid');
+            if (!grid) return;
+            window.hasRenderedLiveGames = true;
+            window.currentLiveGamesState = [];
+            grid.classList.remove('single-game');
+            const totalPlayersEl = document.getElementById('lounge-total-players');
+            if (totalPlayersEl) {
+                totalPlayersEl.textContent = '0 Players In-Game';
+            }
+            const playingEl = document.getElementById('lounge-stat-playing');
+            if (playingEl) {
+                playingEl.textContent = '0';
+            }
+            if (lastGamesDigest === 'OFFLINE' && grid.querySelector('[data-lounge-offline]')) {
+                return;
+            }
+            lastGamesDigest = 'OFFLINE';
+            grid.innerHTML = renderOfflineLoungeState();
+        }
+
         let lastGamesDigest = '';
         window.currentLiveGamesState = [];
 
@@ -2751,7 +2788,7 @@
                 this.isExplicitlyPaused = false;
 
                 const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '157.90.181.183:23063');
+                const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '92.118.206.166:30038');
                 this.url = window.NEXUS_WS_URL || `${proto}//${host}/ws/live-games`;
             }
 
@@ -2945,9 +2982,8 @@
         async function fetchBotData() {
             let d = null;
             const endpoints = [
-                '/api/bot_data?_t=' + Date.now(),
                 '/api/public_stats?_t=' + Date.now(),
-                'http://157.90.181.183:23063/api/public_stats?_t=' + Date.now()
+                '/api/bot_data?_t=' + Date.now()
             ];
 
             for (const url of endpoints) {
@@ -3000,8 +3036,8 @@
 
                 updateLoungeStats(totalMembers, onlineNow, playingCount);
                 renderLiveGames(liveGames);
-            } else if (!window.hasRenderedLiveGames) {
-                renderLiveGames(FALLBACK_LIVE_GAMES);
+            } else {
+                showOfflineLounge();
             }
         }
 
@@ -3061,8 +3097,11 @@
             }
         });
 
-        // Initialize real-time WebSocket client
+        // Initialize real-time WebSocket client (polling stays the default;
+        // the socket is only an opportunistic upgrade and the dead
+        // api.ninjanexus.duckdns.org host cannot work)
         liveSocketClient.connect();
+        startStatsPolling();
 
         // ── Phase 5: Lounge Subnav & Community Stats Loader (real aggregates) ──
         function renderMostPlayedCard(g, idx) {

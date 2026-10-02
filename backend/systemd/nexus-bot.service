@@ -20,7 +20,7 @@ StartLimitBurst=5
 
 # Environment variables
 Environment=PYTHONUNBUFFERED=1
-Environment=PORT=23063
+Environment=PORT=30038
 # Environment=RAWG_API_KEY=your_key_here
 
 # Resource limits & safety

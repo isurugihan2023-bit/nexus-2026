@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
-        const upstream = await fetch('http://157.90.181.183:23063/api/public_stats', {
+        const upstream = await fetch('http://92.118.206.166:30038/api/public_stats', {
             signal: controller.signal,
             headers: { 'Accept': 'application/json' }
         });

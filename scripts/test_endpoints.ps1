@@ -1,4 +1,4 @@
-$base = "http://157.90.181.183:23063"
+$base = "http://92.118.206.166:30038"
 $paths = @(
     "/api/public_stats",
     "/api/bot_data",

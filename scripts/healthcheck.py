@@ -12,7 +12,7 @@ import json
 import urllib.request
 import urllib.error
 
-TARGET_URL = os.getenv("NEXUS_HEALTH_URL", "http://157.90.181.183:23063/api/public_stats")
+TARGET_URL = os.getenv("NEXUS_HEALTH_URL", "http://92.118.206.166:30038/api/public_stats")
 WEBHOOK_URL = os.getenv("DISCORD_ALERT_WEBHOOK_URL", "")
 TIMEOUT_SECONDS = 5.0
 

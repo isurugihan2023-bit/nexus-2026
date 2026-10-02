@@ -1,6 +1,6 @@
 # Ninja Nexus — Real-Time Live Gaming Platform (Backend Deployment Guide)
 
-This directory contains the drop-in Python modules and deployment configurations for the Ninja Nexus Discord bot daemon hosted at `157.90.181.183:23063`.
+This directory contains the drop-in Python modules and deployment configurations for the Ninja Nexus Discord bot daemon hosted at `92.118.206.166:30038`.
 
 ---
 
@@ -36,7 +36,7 @@ Because the web frontend is served over HTTPS on Vercel, browsers require WebSoc
    sudo apt install caddy
    ```
 2. Copy `backend/Caddyfile` to `/etc/caddy/Caddyfile`.
-3. Update the domain (e.g. `api.ninjanexus.duckdns.org` or `nexus-api.duckdns.org`) to point to your VPS IP `157.90.181.183`.
+3. Update the domain (e.g. `api.ninjanexus.duckdns.org` or `nexus-api.duckdns.org`) to point to your VPS IP `92.118.206.166`.
 4. Restart Caddy:
    ```bash
    sudo systemctl restart caddy

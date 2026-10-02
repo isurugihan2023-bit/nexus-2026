@@ -232,9 +232,8 @@ updateLoungeStats(48, 12, 4);
 async function fetchBotData() {
     let d = null;
     const endpoints = [
-        '/api/bot_data?_t=' + Date.now(),
         '/api/public_stats?_t=' + Date.now(),
-        'http://157.90.181.183:23063/api/public_stats?_t=' + Date.now()
+        '/api/bot_data?_t=' + Date.now()
     ];
 
     for (const url of endpoints) {
@@ -782,7 +781,7 @@ class NexusLiveSocketClient {
 
         // Auto-detect TLS: wss:// if HTTPS, ws:// if HTTP
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '157.90.181.183:23063');
+        const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '92.118.206.166:30038');
         this.url = window.NEXUS_WS_URL || `${proto}//${host}/ws/live-games`;
     }
 
