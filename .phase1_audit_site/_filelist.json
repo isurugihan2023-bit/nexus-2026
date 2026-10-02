@@ -1,0 +1,206 @@
+[
+ {
+  "path": ".github/workflows/healthcheck.yml",
+  "size": 656,
+  "lines": 27,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "api/bot_data.js",
+  "size": 1239,
+  "lines": 32,
+  "served": "YES"
+ },
+ {
+  "path": "api/public_stats.js",
+  "size": 1239,
+  "lines": 32,
+  "served": "YES"
+ },
+ {
+  "path": "api/voice_live.js",
+  "size": 1103,
+  "lines": 33,
+  "served": "YES"
+ },
+ {
+  "path": "api/voice_stats.js",
+  "size": 7656,
+  "lines": 88,
+  "served": "YES"
+ },
+ {
+  "path": "audio/nexus-theme.mp3",
+  "size": 7684325,
+  "lines": 59245,
+  "served": "YES"
+ },
+ {
+  "path": "backend/bot_integration_example.py",
+  "size": 4020,
+  "lines": 102,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/Caddyfile",
+  "size": 877,
+  "lines": 26,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/db.py",
+  "size": 9534,
+  "lines": 236,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/live_ws.py",
+  "size": 6103,
+  "lines": 145,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/logger.py",
+  "size": 2194,
+  "lines": 57,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/rawg.py",
+  "size": 4643,
+  "lines": 112,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/README.md",
+  "size": 4161,
+  "lines": 90,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/stats_api.py",
+  "size": 3974,
+  "lines": 90,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/systemd/nexus-bot.service",
+  "size": 781,
+  "lines": 33,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "backend/tests/test_db.py",
+  "size": 2292,
+  "lines": 58,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "css/style.css",
+  "size": 29579,
+  "lines": 980,
+  "served": "YES"
+ },
+ {
+  "path": "favicon.ico",
+  "size": 149496,
+  "lines": 821,
+  "served": "YES"
+ },
+ {
+  "path": "favicon.png",
+  "size": 149496,
+  "lines": 821,
+  "served": "YES"
+ },
+ {
+  "path": "images/bg-anime.jpg",
+  "size": 169166,
+  "lines": 1266,
+  "served": "YES"
+ },
+ {
+  "path": "images/favicon.png",
+  "size": 149496,
+  "lines": 821,
+  "served": "YES"
+ },
+ {
+  "path": "images/gojo-bg.jpg",
+  "size": 94064,
+  "lines": 725,
+  "served": "YES"
+ },
+ {
+  "path": "images/gojo-bg.png",
+  "size": 10540382,
+  "lines": 73160,
+  "served": "YES"
+ },
+ {
+  "path": "images/nexus_logo.png",
+  "size": 268779,
+  "lines": 1729,
+  "served": "YES"
+ },
+ {
+  "path": "index.html",
+  "size": 161631,
+  "lines": 3495,
+  "served": "YES"
+ },
+ {
+  "path": "js/main.js",
+  "size": 51072,
+  "lines": 1229,
+  "served": "YES"
+ },
+ {
+  "path": "js/script.js",
+  "size": 7996,
+  "lines": 202,
+  "served": "YES"
+ },
+ {
+  "path": "scripts/calc_time.ps1",
+  "size": 871,
+  "lines": 24,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "scripts/healthcheck.py",
+  "size": 4326,
+  "lines": 110,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "scripts/public_stats.json",
+  "size": 8688,
+  "lines": 2,
+  "served": "YES"
+ },
+ {
+  "path": "scripts/test_bobo.ps1",
+  "size": 232,
+  "lines": 7,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "scripts/test_endpoints.ps1",
+  "size": 931,
+  "lines": 33,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "scripts/test_endpoints.py",
+  "size": 999,
+  "lines": 35,
+  "served": "build/config/api/backend"
+ },
+ {
+  "path": "vercel.json",
+  "size": 2116,
+  "lines": 90,
+  "served": "YES"
+ }
+]

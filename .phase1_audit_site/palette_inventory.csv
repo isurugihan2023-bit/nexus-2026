@@ -1,0 +1,53 @@
+color_normalized,raw_variants,usage_count,files_distinct,role,sample_locations
+#ffffff,"#fff | #ffffff | rgba(255, 255, 255, 0.03) | rgba(255, 255, 255, 0.05)",77,3,primary text / button text,css/style.css:81; css/style.css:82; css/style.css:86; css/style.css:101; css/style.css:103; css/style.css:205
+#7c3aed,"#7c3aed | rgba(124, 58, 237, 0.05) | rgba(124, 58, 237, 0.06) | rgba(124, 58, 237, 0.1)",63,2,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:16; css/style.css:48; css/style.css:60; css/style.css:61; css/style.css:76; css/style.css:85
+#8b5cf6,"#8b5cf6 | rgba(139, 92, 246, 0.08) | rgba(139, 92, 246, 0.1) | rgba(139, 92, 246, 0.12)",43,2,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:12; css/style.css:13; css/style.css:15; css/style.css:42; css/style.css:80; css/style.css:85
+#a855f7,"#a855f7 | rgba(168, 85, 247, 0.1) | rgba(168, 85, 247, 0.2) | rgba(168, 85, 247, 0.22)",27,3,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:284; css/style.css:526; css/style.css:527; css/style.css:531; css/style.css:532; css/style.css:561
+named:transparent,named:transparent,25,2,accent tint / border / glow (purple alpha),css/style.css:50; css/style.css:73; css/style.css:118; css/style.css:193; css/style.css:194; index.html:72
+#a78bfa,"#a78bfa | rgba(167, 139, 250, 0.35) | rgba(167,139,250,0.4)",19,2,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:14; css/style.css:48; css/style.css:52; css/style.css:53; css/style.css:80; css/style.css:846
+#94a3b8,#94a3b8,12,2,muted text / labels,css/style.css:546; css/style.css:617; css/style.css:704; css/style.css:887; css/style.css:950; index.html:1043
+#100e1c,"#100e1c | rgba(16, 14, 28, 0.02) | rgba(16, 14, 28, 0.25) | rgba(16, 14, 28, 0.85)",12,2,card / surface background,css/style.css:572; css/style.css:665; index.html:776; index.html:820; index.html:820; index.html:820
+#c084fc,#c084fc,10,2,accent text / light purple text,css/style.css:285; css/style.css:592; css/style.css:638; css/style.css:687; index.html:289; index.html:656
+#000000,"rgba(0, 0, 0, 0.3) | rgba(0, 0, 0, 0.5) | rgba(0, 0, 0, 0.6) | rgba(0, 0, 0, 0.8)",10,2,accent tint / border / glow (purple alpha),css/style.css:425; css/style.css:809; index.html:983; index.html:1169; index.html:1197; index.html:1326
+#c4b5fd,#c4b5fd,8,2,accent text / light purple text,css/style.css:48; css/style.css:904; css/style.css:958; index.html:70; index.html:1227; index.html:1421
+#0a0a0f,"#0a0a0f | rgba(10, 10, 15, 0.4) | rgba(10, 10, 15, 0.85) | rgba(10,10,15,0.82)",7,2,page background,css/style.css:9; css/style.css:121; css/style.css:183; css/style.css:183; index.html:32; index.html:115
+#22c55e,"#22c55e | rgba(34,197,94,0.3) | rgba(34,197,94,0.4)",7,2,status success/online/live,css/style.css:491; css/style.css:491; css/style.css:491; css/style.css:556; css/style.css:557; index.html:1053
+#0f0d1a,"#0f0d1a | rgba(15, 13, 26, 0.8) | rgba(15, 13, 26, 0.92) | rgba(15,13,26,0.85)",6,2,card / surface background,css/style.css:10; css/style.css:90; css/style.css:255; css/style.css:443; css/style.css:480; index.html:33
+#10b981,"#10b981 | rgba(16, 185, 129, 0.2) | rgba(16, 185, 129, 0.5)",6,2,status success/online/live,css/style.css:856; css/style.css:928; css/style.css:929; index.html:1373; index.html:1445; index.html:1446
+#6d28d9,"#6d28d9 | rgba(109,40,217,0.18)",4,2,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:17; index.html:40; index.html:189; index.html:3225
+#a5b4fc,#a5b4fc,4,2,accent text / light purple text,css/style.css:228; css/style.css:970; index.html:251; index.html:1487
+#120f22,"rgba(18, 15, 34, 0.5) | rgba(18, 15, 34, 0.85) | rgba(18, 15, 34, 0.92)",4,2,accent tint / border / glow (purple alpha),css/style.css:510; css/style.css:544; index.html:1041; index.html:1122
+named:red,named:red,4,2,accent tint / border / glow (purple alpha),index.html:2292; index.html:2331; js/main.js:343; js/main.js:382
+#4f46e5,#4f46e5,3,2,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:100; css/style.css:823; index.html:1340
+#5865f2,#5865f2,3,2,Discord brand blurple (BOT badge),css/style.css:222; index.html:245; index.html:2000
+#0a0814,"rgba(10, 8, 20, 0.6) | rgba(10, 8, 20, 0.75)",3,2,accent tint / border / glow (purple alpha),css/style.css:895; index.html:1308; index.html:1412
+#e9d5ff,#e9d5ff,3,2,accent text / light purple text,css/style.css:914; index.html:674; index.html:1431
+#151225,#151225,2,2,card / surface background,css/style.css:11; index.html:34
+#6b6880,#6b6880,2,2,muted text / labels,css/style.css:18; index.html:41
+#9391a8,#9391a8,2,2,secondary/sub text,css/style.css:19; index.html:42
+#f0eeff,#f0eeff,2,2,primary text / button text,css/style.css:20; index.html:43
+#141419,"rgba(20, 20, 25, 0.6) | rgba(20, 20, 25, 0.92)",2,2,accent tint / border / glow (purple alpha),css/style.css:204; index.html:227
+#23a559,#23a559,2,2,status success/online/live,css/style.css:213; index.html:236
+#0d0d12,#0d0d12,2,2,presence dot ring,css/style.css:214; index.html:237
+#120e20,"rgba(18, 14, 32, 0.92)",2,2,accent tint / border / glow (purple alpha),css/style.css:283; index.html:287
+#1a1430,"rgba(26, 20, 48, 0.85)",2,2,accent tint / border / glow (purple alpha),css/style.css:292; index.html:296
+#eab308,#eab308,2,2,status standby/warning (sync dot),css/style.css:553; index.html:1050
+#110e20,#110e20,2,2,card / surface background,css/style.css:806; index.html:1323
+#34d399,#34d399,2,2,status success/online/live,css/style.css:930; index.html:1447
+#9333ea,"rgba(147, 51, 234, 0.14) | rgba(147, 51, 234, 0.2)",2,1,accent tint / border / glow (purple alpha),index.html:652; index.html:670
+#003399,#039,2,2,accent tint / border / glow (purple alpha),index.html:2607; js/main.js:644
+#09090b,#09090b,2,1,card / surface background,js/script.js:117; js/script.js:126
+#6366f1,#6366f1,1,1,primary accent (buttons/badges/tabs/gradients/icons),css/style.css:110
+#161326,"rgba(22, 19, 38, 0.95)",1,1,accent tint / border / glow (purple alpha),css/style.css:679
+#43b581,#43b581,1,1,status success/online/live,index.html:566
+#141126,#141126,1,1,card / surface background,index.html:788
+#0d0b17,#0d0b17,1,1,card / surface background,index.html:798
+#cbd5e1,#cbd5e1,1,1,game card headline text,index.html:872
+#201b35,#201b35,1,1,avatar fallback bg,index.html:938
+#120e1c,"rgba(18, 14, 28, 0.75)",1,1,accent tint / border / glow (purple alpha),index.html:980
+#9490a8,#9490a8,1,1,accent tint / border / glow (purple alpha),index.html:991
+#06050e,"rgba(6, 5, 14, 0.9)",1,1,accent tint / border / glow (purple alpha),index.html:1160
+#131024,#131024,1,1,card / surface background,index.html:1166
+#0b0914,#0b0914,1,1,accent tint / border / glow (purple alpha),index.html:1183
+#ef4444,"rgba(239, 68, 68, 0.8)",1,1,destructive hover (modal close),index.html:1209
+#0e0b18,"rgba(14, 11, 24, 0.85)",1,1,accent tint / border / glow (purple alpha),index.html:3195

@@ -1,0 +1,108 @@
+NINJA NEXUS SITE — PHASE 1 COLOR AUDIT SUMMARY (read-only, 2026-10-01)
+Full data: SITE_UI_REPORT.md, palette_inventory.csv, sections_color_map.md,
+assets_color_report.md, shots_before/ (19 PNGs), baseline_md5.txt. No project file changed.
+
+1) FILES (size | served?)
+- index.html (161631 B, 3494 lines) — ONLY served file; all live CSS/JS is inline
+- css/style.css (29579 B) — NOT linked, dead alternate theme
+- js/main.js (51072 B), js/script.js (7996 B) — NOT loaded, dead duplicates
+- api/*.js, vercel.json — no colors. No Tailwind/SCSS/manifest/SVG files exist.
+- CDN: Font Awesome 6.4.0 + Google Fonts (glyphs inherit CSS color; safe)
+- Meta: theme-color #7C3AED only. No TileColor/color-scheme/manifest/og:image.
+
+2) DOMINANT PALETTE (52 unique entries, see CSV)
+- Backgrounds: #0a0a0f page, #0f0d1a/#151225/#100e1c cards, #131024/#110e20 modals
+- Accent (one purple family): #7c3aed #8b5cf6 #a78bfa #6d28d9 #a855f7 #4f46e5
+- Pale purple text: #c4b5fd #c084fc #e9d5ff #a5b4fc
+- Text: #f0eeff body, #9391a8 sub, #6b6880 muted (+#94a3b8 details)
+- Non-purple: greens #23a559/#43b581/#22c55e/#10b981/#34d399, amber #eab308,
+  Discord blurple #5865F2, red rgba(239,68,68,0.8) close-hover
+- 16 CSS vars (--bg* --p400-700 --muted/--sub/--text --border* --game-accent*);
+  ~60-65% of declarations are HARD-CODED (all gradients/alphas/shadows)
+- Near-dupes: #fff=#ffffff; 5 greens; 3 grays; #7c3aed-base rgba(10,10,15,*) twins
+- Dead: --game-accent-border (0 uses); var(--bg1) used-but-never-declared (:566)
+- No hsl/oklch/lab/color-mix; no conic gradients; no color-tween keyframes;
+  no prefers-color-scheme/data-theme/dark-light; JS colors = one constant
+  getGameTheme #a855f7 + setProperty --game-accent (+ dead #09090B). No canvas/charts.
+
+3) PER-SECTION MAP (short)
+- Navbar: rgba(10,10,15,0.82)->0.95 scrolled; links muted->text; Join Server
+  gradient p600->p500 white text (hover opacity only); LIVE link NOT special
+- Hero: purple dot-grid/orbs/glow; .grad text #c4b5fd->#a78bfa->#7c3aed + glow;
+  presence pill (BOT badge blurple #5865F2, dot #23a559; MOBILE dot #43b581);
+  Join buttons gradient #8b5cf6->#a78bfa white (hover shifts darker + purple shadow);
+  chips bg2/border, icons p400; Since-pill #c084fc; copyright muted
+- Lounge: radial purple bg; tabs inactive #9490a8, ACTIVE white on #8b5cf6->#a78bfa
+  gradient + purple shadow; sync dot amber standby/green WS/purple polling;
+  empty title white .85, Discord btn purple gradient; most-played = game-card system
+- Game card: bg #100e1c (hover #141126), covers grayscale(100%), blend gradient to
+  #100e1c; genre/match icons --game-accent (always #a855f7); name #fff; avatars
+  ring #100e1c (hover accent); overflow bubble p600->p700 white
+- About/Features: cards bg2/border; hover border WHITE (not purple); icon tiles
+  purple tint + p400 glyphs; inline titles p400; stats text/muted
+- Commands: filters default white .05/muted; ACTIVE solid p600 white (needs black
+  text on lime); category bg2; cmd cards bg3, hover purple .05/border2; name chip
+  white on white .08; desc sub
+- CTA: bg2/border2; hairline transparent->p500->p400; dot-grid + center purple glow
+- Game modal: backdrop rgba(6,5,14,0.9); box #131024; banner grayscale dark;
+  close hover RED; subtitle #c4b5fd; rows white .03 (hover purple .08); avatar ring
+  p500; Playing badge #c084fc; Discord icon blurple (keep)
+- TeamSpeak: box #110e20; icon gradient #7c3aed->#4f46e5; Online pill p400-text +
+  green #10b981 dot (keep); IP mono #c4b5fd; Copy purple-tint/#e9d5ff, COPIED green
+  rgba(16,185,129,.2)/#34d399 (keep); download #94a3b8; tip tinted purple
+- Footer: display:none (dead). Music pill: rgba(14,11,24,.85) + purple glow;
+  round btn #7C3AED white (hover #6D28D9); slider track white .18, thumb #a78bfa.
+  Scrollbar 5px: track bg, thumb rgba(139,92,246,0.35). Skeletons: white sweep.
+- UNKNOWN (absent): all :focus (except music), all :disabled, ::selection,
+  ::placeholder, caret/accent-color, mask, drop-shadow, canvas.
+
+4) BAKED-IN IMAGE COLORS (Pillow-computed)
+- nexus_logo.png (736x735, 269KB): #330062/#40007b/#5600a3 — PURPLE RASTER, used in
+  nav + presence + modal. CANNOT be CSS-recolored. NEEDS lime replacement.
+- favicon.png/ico (149KB, 3 identical copies): same purple — regenerate.
+- bg-anime.jpg (navy #384879/#0f182a) + gojo-bg.* (near-black, 10.5MB PNG!) —
+  all UNREFERENCED dead weight; keep unlinked.
+- Remote covers/avatars: grayscale(100%) by CSS — self-neutralize; keep behavior.
+  ui-avatars fallback background=6d28d9 must change.
+
+5) CONTRAST FAILURES (WCAG normal >=4.5)
+- muted #6b6880 on bg: 3.68 FAIL
+- white on #8b5cf6 (ALL primary/Join buttons): 4.23 FAIL
+- white on #a78bfa (active lounge tab end): 2.72 FAIL
+- Pass: body 17.29, sub 6.45, accents-on-bg 7.3+, white-on-#7c3aed 5.70
+=> lime fills MUST take BLACK text (white-on-lime ~1.3:1).
+
+6) FEASIBILITY (lime-on-black, colors only)
+1. CSS-only? ALMOST: + JS const #a855f7 (2 defs), logo/favicon replacement,
+   theme-color attr, ui-avatars string. No canvas/charts/particles.
+2. One token block covers ~70%: re-point --p400/500/600/700 (lime ramp) +
+   --border/--border2 (lime alphas); keep bg/text vars. Rest needs literal replace.
+3. Replace in index.html ONLY (dead files: 0): `124,58,237`~45, `139,92,246`~30,
+   `168,85,247`~25, #7c3aed~63, #8b5cf6~43, #a855f7~27, #a78bfa~19, #c084fc~10.
+4. Solid fills needing BLACK text: .btn-primary everywhere, .nav-invite,
+   .cmd-filter.active, .lounge-tab-btn.active, empty-lounge btn, overflow bubble,
+   music btn (+ unhide badges if revived).
+5. Keep distinct from lime: online/success greens, amber standby, polling color
+   (move off purple, NOT to lime), red close-hover, Discord blurple.
+6. Risks: purple logo until replaced; #100e1c blend seam; .grad fallback+glow pair;
+   partial rgb-triplet replacement leaves purple ghosts; mobile duplicates missed;
+   var(--bg1) bug; NEVER re-link dead css/style.css (palette diverges).
+
+7) 10 RISKIEST HOTSPOTS
+1 :root tokens 2 .grad gradient+fallback+glow 3 .btn-primary pair 4 lounge tabs
+5 cmd-filter.active 6 game-card system+blend+grayscale 7 TeamSpeak modal+copied
+8 game modal+red hover 9 music control+mobile variant 10 scattered purple
+alphas/glows/dot-grids (~30 sites incl. shadows).
+
+8) THREE BIGGEST FINDINGS
+A. Single-file site: 100% of live color is inline in index.html (52 unique colors,
+   ~60-65% hard-coded, 16 vars); css/js folders are unlinked decoys with DIVERGENT
+   palettes — re-theme touches ONE file, and must NOT re-link the dead files.
+B. Logo/favicon are PURPLE RASTER (#330062 family, computed) shown on every view —
+   CSS cannot fix them; replacements required or lime theme clashes on sight.
+C. White-on-purple already fails contrast (buttons 4.23, active tab 2.72, muted
+   3.68) — lime fills must take black text, and amber/green status colors must be
+   kept visually distinct from lime or "live/online" meaning is lost.
+Deliverables: .phase1_audit_site/{SITE_UI_REPORT.md,palette_inventory.csv,
+sections_color_map.md,assets_color_report.md,SITE_UI_SUMMARY.txt,
+shots_before/(19 PNGs),baseline_md5.txt} + scripts.
