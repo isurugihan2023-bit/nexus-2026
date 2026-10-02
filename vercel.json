@@ -6,39 +6,39 @@
     },
     {
       "source": "/members",
-      "destination": "http://157.90.181.183:23063/members"
+      "destination": "http://92.118.206.166:30038/members"
     },
     {
       "source": "/admin_login",
-      "destination": "http://157.90.181.183:23063/admin_login"
+      "destination": "http://92.118.206.166:30038/admin_login"
     },
     {
       "source": "/dashboard",
-      "destination": "http://157.90.181.183:23063/dashboard"
+      "destination": "http://92.118.206.166:30038/dashboard"
     },
     {
       "source": "/admin_dashboard",
-      "destination": "http://157.90.181.183:23063/admin_dashboard"
+      "destination": "http://92.118.206.166:30038/admin_dashboard"
     },
     {
       "source": "/servers",
-      "destination": "http://157.90.181.183:23063/servers"
+      "destination": "http://92.118.206.166:30038/servers"
     },
     {
       "source": "/admin",
-      "destination": "http://157.90.181.183:23063/admin"
+      "destination": "http://92.118.206.166:30038/admin"
     },
     {
       "source": "/admin/:path*",
-      "destination": "http://157.90.181.183:23063/admin/:path*"
+      "destination": "http://92.118.206.166:30038/admin/:path*"
     },
     {
       "source": "/static/:path*",
-      "destination": "http://157.90.181.183:23063/static/:path*"
+      "destination": "http://92.118.206.166:30038/static/:path*"
     },
     {
       "source": "/api/:path*",
-      "destination": "http://157.90.181.183:23063/api/:path*"
+      "destination": "http://92.118.206.166:30038/api/:path*"
     }
   ],
   "headers": [
