@@ -11,10 +11,11 @@ export default async function handler(req, res) {
     const period = ((req.query?.period || 'week') + '').toLowerCase().trim();
     const validPeriod = ['week', 'month', 'all'].includes(period) ? period : 'week';
 
-    // Try the live bot daemon first (short timeout so the tab stays fast)
+    // Try the live bot daemon first (short timeout so the tab stays fast).
+    // NOTE: /api/stats/* requires auth (401) — the public route is the live one.
     const upstreams = [
-        `http://92.118.206.166:30038/api/stats/most-played?period=${validPeriod}&limit=6`,
-        `http://92.118.206.166:30038/api/public/most-played?period=${validPeriod}`
+        `http://92.118.206.166:30038/api/public/most-played?period=${validPeriod}`,
+        `http://92.118.206.166:30038/api/stats/most-played?period=${validPeriod}&limit=6`
     ];
 
     for (const url of upstreams) {
