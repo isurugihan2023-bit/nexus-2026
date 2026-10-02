@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Ninja Nexus</title>
     <meta name="description" content="The ultimate anime and gaming community. Join Ninja Nexus to make friends, hang out, and have fun.">
     <meta property="og:title" content="Ninja Nexus">
@@ -1499,6 +1499,195 @@
             flex-shrink: 0;
         }
     </style>
+    <style id="nx-responsive">
+        /* ══ Ninja Nexus mobile/tablet layer — every rule below is scoped to a
+           media query (or hidden by default), so desktop ≥1025px is untouched. ══ */
+        .mobile-nav { display: none; }
+        .ts-phone-note { display: none; }
+
+        @media (max-width: 1024px) {
+            html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+            body {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            img { max-width: 100%; height: auto; }
+            button, a, .cmd-filter, .lounge-tab-btn {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            .nav {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            /* Dynamic viewport units: no address-bar jump (desktop keeps 100vh) */
+            .hero { height: auto; min-height: 560px; min-height: 100svh; min-height: 100dvh; }
+            section#lounge.lounge-section.tab-pane.active { min-height: calc(100svh - 76px); min-height: calc(100dvh - 76px); }
+            /* 44px minimum tap targets */
+            .btn, .nav-invite, .cmd-filter, .lounge-tab-btn,
+            .ts-copy-btn, .modal-close-btn, .hamburger, .empty-lounge-discord-btn,
+            #bg-music-toggle { min-height: 44px; }
+            #bg-music-toggle { width: 44px; height: 44px; min-width: 44px; }
+            .cmd-filter, .lounge-tab-btn { display: inline-flex; align-items: center; }
+            .modal-close-btn { width: 44px; height: 44px; }
+            .footer-col a { display: inline-block; padding: 10px 0; }
+            .footer-socials a { padding: 10px; margin: -10px 0; }
+            .footer-socials { gap: 12px; }
+            /* Modal shell fits small screens, internal scroll only */
+            .game-modal { padding: 12px; }
+            .modal-box { max-width: 100%; max-height: calc(100dvh - 24px); display: flex; flex-direction: column; }
+            .modal-body { max-height: none; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+            body.modal-open { overflow: hidden !important; }
+        }
+
+        /* ── Tablet 601–1024px: 2-col grids, 4-col stats ── */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .features-section { padding: 88px 0; }
+            .commands-section, .cta-section { padding: 64px 0 88px; }
+            .sec-head { margin-bottom: 48px; }
+            .sec-title { font-size: clamp(1.9rem, 4.5vw, 2.4rem); }
+            .sec-sub, .hero-sub, .feat-card p, .cmd-card-desc { font-size: 1rem; line-height: 1.7; }
+            .feat-grid { grid-template-columns: repeat(2, 1fr); }
+            #about div[style*="grid-template-columns"] { grid-template-columns: repeat(2, 1fr) !important; }
+            .cmd-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-leaderboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-chips { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 720px; }
+            .stats-strip-inner { grid-template-columns: repeat(4, 1fr); }
+            .stats-strip-inner .stat-item { padding: 0 16px; border-right: 1px solid var(--border); border-bottom: none; }
+            .stats-strip-inner .stat-item:last-child { border-right: none; }
+            .stat-num { font-size: clamp(1.8rem, 4vw, 2.2rem); }
+            .hero-heading { font-size: clamp(2.4rem, 6vw, 3.4rem); }
+            .modal-box { max-width: min(540px, calc(100vw - 32px)); }
+        }
+
+        /* ── Hamburger panel (below ~900px; desktop keeps inline links) ── */
+        @media (max-width: 900px) {
+            .hamburger { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+            .mobile-nav { display: none; }
+            body.nav-open .mobile-nav {
+                position: fixed; top: 76px; left: 12px; right: 12px; z-index: 998;
+                display: flex; flex-direction: column; gap: 4px;
+                padding: 10px; margin: 0;
+                background: rgba(22, 22, 22, 0.98);
+                border: 1px solid var(--border2); border-radius: 16px;
+                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+                list-style: none;
+                max-height: calc(100dvh - 100px); overflow-y: auto;
+                animation: nxNavDrop 220ms ease;
+            }
+            @keyframes nxNavDrop { from { opacity: 0; transform: translateY(-10px); } }
+            .mobile-nav a {
+                display: flex; align-items: center; gap: 10px;
+                min-height: 48px; padding: 12px 16px; border-radius: 10px;
+                font-weight: 600; font-size: 1rem; color: var(--text);
+            }
+            .mobile-nav a:active { background: rgba(198, 227, 43, 0.12); }
+            .mobile-nav a i { width: 20px; text-align: center; color: var(--p400); }
+            .mobile-nav .mobile-nav-join {
+                justify-content: center; margin-top: 6px;
+                background: linear-gradient(135deg, #C6E32B 0%, #D4EC5A 100%);
+                color: #0F0F0F; font-weight: 800;
+            }
+        }
+
+        /* ── Phone ≤600px ── */
+        @media (max-width: 600px) {
+            .container { padding: 0 16px; }
+            .features-section { padding: 72px 0; }
+            .commands-section, .cta-section { padding: 56px 0 72px; }
+            #about.tab-pane { padding: 72px 0 !important; }
+            .sec-head { margin-bottom: 40px; }
+            .sec-title { font-size: clamp(1.65rem, 8vw, 2.1rem); }
+            .sec-sub, .hero-sub, .feat-card p, .cmd-card-desc, .footer-brand-desc { font-size: 1rem; line-height: 1.7; }
+            .feat-grid { grid-template-columns: 1fr; }
+            #about div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+            .cmd-grid { grid-template-columns: 1fr; }
+            .stats-leaderboard-grid { grid-template-columns: 1fr; }
+            .feat-card { padding: 26px 20px; }
+            /* Hero */
+            .hero { padding: 96px 0 48px; }
+            .hero-heading { font-size: clamp(2rem, 11vw, 2.5rem); }
+            .hero-btns, .cta-btns { flex-direction: column; align-items: stretch; }
+            .hero-btns .btn, .cta-btns .btn { width: 100%; max-width: 320px; margin-left: auto; margin-right: auto; min-height: 52px; white-space: normal; }
+            .hero-chips { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 340px; }
+            .chip { justify-content: center; text-align: center; padding: 10px 8px; }
+            .stats-strip-inner { grid-template-columns: repeat(2, 1fr); }
+            .stat-num { font-size: clamp(1.7rem, 8vw, 2rem); }
+            /* Commands: single scrollable filter row + wrapping cards */
+            .cmd-filters {
+                flex-wrap: nowrap; justify-content: flex-start;
+                overflow-x: auto; -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none; -ms-overflow-style: none;
+                margin-left: -16px; margin-right: -16px; padding: 4px 16px 10px;
+                max-width: none;
+            }
+            .cmd-filters::-webkit-scrollbar { display: none; }
+            .cmd-filters .cmd-filter { flex: 0 0 auto; scroll-snap-align: start; }
+            .cmd-category { padding: 20px 16px; }
+            .cmd-card-name { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
+            .cmd-card-desc { overflow-wrap: anywhere; }
+            /* Live tabs + cards */
+            .lounge-tab-btn { flex: 1 1 auto; justify-content: center; }
+            .live-games-grid .game-card, .live-games-grid.single-game .game-card { flex-basis: 100%; width: 100%; }
+            /* Modal */
+            .modal-banner { height: 140px; }
+            .modal-body { padding: 18px 16px; }
+            .modal-footer { flex-wrap: wrap; gap: 12px; }
+            /* TeamSpeak */
+            .ts-ip-row { flex-wrap: wrap; gap: 10px; }
+            .ts-ip-text { font-size: 0.95rem; overflow-wrap: anywhere; max-width: 100%; }
+            .ts-copy-btn { flex: 1 1 auto; justify-content: center; }
+            .ts-phone-note {
+                display: block;
+                background: rgba(198, 227, 43, 0.06);
+                border: 1px solid rgba(198, 227, 43, 0.14);
+                border-radius: 12px; padding: 10px 12px;
+                font-size: 0.8rem; color: #D4EC5A; line-height: 1.5; text-align: left;
+            }
+            /* Lighter paint on phones */
+            .ambient-orb, .hero-glow { display: none; }
+            /* Music control above browser chrome + clear of content
+               (ID selector beats the later body-embedded music stylesheet) */
+            #bg-music-control { bottom: calc(20px + env(safe-area-inset-bottom)); right: calc(16px + env(safe-area-inset-right)); }
+            #bg-music-toggle { width: 44px; height: 44px; }
+            .footer-grid { gap: 28px; }
+        }
+
+        /* ── Phone landscape (short screens) ── */
+        @media (max-height: 500px) {
+            .hero { min-height: 0; padding: 96px 0 48px; }
+            .hero-heading { font-size: clamp(1.8rem, 6vw, 2.2rem); }
+            .hero-btns { margin-bottom: 20px; }
+            .hero-chips { margin-bottom: 8px; }
+            .hero-since { margin-top: 20px; }
+            .modal-banner { height: 110px; }
+            .modal-box { max-height: calc(100dvh - 16px); }
+            .cta-box { padding: 48px 20px; }
+        }
+
+        /* ── Touch: no sticky hover, add press feedback ── */
+        @media (hover: none) {
+            .btn:hover, .chip:hover, .cmd-card:hover, .cmd-filter:hover,
+            .feat-card:hover, .lounge-tab-btn:hover, .leaderboard-card:hover,
+            .ts-copy-btn:hover, .modal-close-btn:hover, .hero-since-pill:hover,
+            .empty-lounge-discord-btn:hover, .game-card:hover, .ts-ip-card:hover { transform: none; box-shadow: none; }
+            .btn:active, .cmd-filter:active, .lounge-tab-btn:active, .ts-copy-btn:active { transform: scale(0.97); }
+            .feat-card:hover::before { animation: none; }
+        }
+
+        /* ── Reduced motion (all screens, opt-in only) ── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .ambient-orb, .hero-glow { display: none !important; }
+        }
+    </style>
 </head>
 <body>
 
@@ -1522,8 +1711,18 @@
                         <i class="fab fa-discord"></i> Join Server
                     </a>
                 </div>
-                <button class="hamburger" aria-label="menu"><i class="fas fa-bars"></i></button>
+                <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><i class="fas fa-bars"></i></button>
             </div>
+            <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#commands">Commands</a>
+                <a href="#stats">Stats</a>
+                <a href="#lounge">LIVE</a>
+                <a href="https://discord.gg/fZNDG5sfhf" class="mobile-nav-join" target="_blank" rel="noopener">
+                    <i class="fab fa-discord"></i> Join Server
+                </a>
+            </nav>
         </div>
     </nav>
 
@@ -2037,6 +2236,7 @@
                     <a href="ts3server://13.250.182.35" class="btn btn-primary ts-launch-btn">
                         <i class="fab fa-teamspeak"></i> Launch TeamSpeak 3 Client
                     </a>
+                    <p class="ts-phone-note">On phone, install the TeamSpeak app and connect to <strong>13.250.182.35</strong> manually.</p>
                     <a href="https://www.teamspeak.com/en/downloads/?product=ts3" target="_blank" class="ts-download-link">
                         <i class="fas fa-download"></i> Don't have TeamSpeak? Download client
                     </a>
@@ -2050,6 +2250,53 @@
         </div>
     </div>
 
+    <script>
+        /* ── Mobile nav (hamburger) — desktop nav untouched ── */
+        (function () {
+            const btn = document.querySelector('.hamburger');
+            const panel = document.getElementById('mobile-nav');
+            if (!btn || !panel) return;
+            const icon = btn.querySelector('i');
+            function setLabel(open) {
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+                if (icon) icon.className = open ? 'fas fa-xmark' : 'fas fa-bars';
+            }
+            function closeNav() {
+                if (!document.body.classList.contains('nav-open')) return;
+                document.body.classList.remove('nav-open');
+                setLabel(false);
+            }
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = !document.body.classList.contains('nav-open');
+                document.body.classList.toggle('nav-open', open);
+                setLabel(open);
+            });
+            panel.querySelectorAll('a[href^="#"]').forEach((a) => {
+                a.addEventListener('click', (e) => {
+                    const href = a.getAttribute('href');
+                    closeNav();
+                    if (!href || !href.startsWith('#')) return;
+                    e.preventDefault();
+                    const id = href.substring(1);
+                    document.querySelectorAll('.nav-links a').forEach((l) => {
+                        l.classList.toggle('active', l.getAttribute('href') === href);
+                    });
+                    if (typeof showTab === 'function') showTab(id);
+                });
+            });
+            document.addEventListener('click', (e) => {
+                if (document.body.classList.contains('nav-open') && !e.target.closest('.nav')) closeNav();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.body.classList.contains('nav-open')) {
+                    closeNav();
+                    btn.focus();
+                }
+            });
+        })();
+    </script>
     <script>
         /* ── TeamSpeak Modal Handler ── */
         const tsModal = document.getElementById('teamspeak-modal');
