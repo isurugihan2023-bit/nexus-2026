@@ -3064,17 +3064,12 @@
         // Initialize real-time WebSocket client
         liveSocketClient.connect();
 
-        // ── Phase 5: Lounge Subnav & Community Stats Loader ──
-        const FALLBACK_MOST_PLAYED = [
-            { game_name: 'PUBG: BATTLEGROUNDS', total_hours: '48.5', unique_players: 'Active Community' },
-            { game_name: 'Brawlhalla', total_hours: '32.1', unique_players: 'Active Community' },
-            { game_name: 'ARC Raiders', total_hours: '19.8', unique_players: 'Active Community' }
-        ];
-
+        // ── Phase 5: Lounge Subnav & Community Stats Loader (real aggregates) ──
         function renderMostPlayedCard(g, idx) {
             const gameName = g.game_name || g.name || 'Game';
-            const totalHours = g.total_hours || '0';
-            const playersText = g.unique_players ? (typeof g.unique_players === 'number' ? `${g.unique_players} Players` : g.unique_players) : 'Active Community';
+            const totalHours = (g.total_hours !== undefined && g.total_hours !== null) ? g.total_hours : 0;
+            const playerCount = g.unique_players || 0;
+            const playersText = `${playerCount} ${playerCount === 1 ? 'player' : 'players'}, ${totalHours} h`;
             const isHot = idx === 0;
             const theme = getGameTheme(gameName);
             const coverUrl = getGameImageUrl(gameName);
@@ -3098,22 +3093,55 @@
             `;
         }
 
+        function openMostPlayedModal(g, coverUrl) {
+            if (!gameModal) return;
+            const gameName = g.game_name || g.name || 'Game';
+            const totalHours = (g.total_hours !== undefined && g.total_hours !== null) ? g.total_hours : 0;
+            const playerCount = g.unique_players || 0;
+            const sessionCount = g.sessions || 0;
+            const coverEl = document.getElementById('modal-game-cover');
+            const titleEl = document.getElementById('modal-game-title');
+            const countEl = document.getElementById('modal-game-count');
+            const listEl = document.getElementById('modal-players-list');
+
+            if (coverEl) coverEl.src = coverUrl || getGameImageUrl(gameName);
+            if (titleEl) titleEl.textContent = gameName;
+            if (countEl) countEl.textContent = `${totalHours} h total this week`;
+
+            if (listEl) {
+                if (window.modalActivityInterval) clearInterval(window.modalActivityInterval);
+                listEl.innerHTML = '';
+                const rows = [
+                    { label: 'Players this week', value: `${playerCount} ${playerCount === 1 ? 'player' : 'players'}` },
+                    { label: 'Time played', value: `${totalHours} hours total` },
+                    { label: 'Sessions', value: `${sessionCount} ${sessionCount === 1 ? 'session' : 'sessions'}` }
+                ];
+                rows.forEach(r => {
+                    const item = document.createElement('div');
+                    item.className = 'modal-player-item';
+                    item.innerHTML = `
+                        <div class="modal-player-info">
+                            <div class="modal-player-name">${escapeHtml(r.label)}</div>
+                            <div class="modal-player-detail">${escapeHtml(r.value)}</div>
+                        </div>
+                    `;
+                    listEl.appendChild(item);
+                });
+            }
+
+            gameModal.classList.add('active');
+            gameModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
         function bindMostPlayedCards(container, gamesList) {
             container.querySelectorAll('.game-card').forEach((card, idx) => {
                 const g = gamesList[idx];
                 if (!g) return;
                 const gameName = g.game_name || g.name || 'Game';
                 const coverUrl = getGameImageUrl(gameName);
-                const totalHours = g.total_hours || '0';
                 card.addEventListener('click', () => {
-                    openGameModal({
-                        name: gameName,
-                        count: typeof g.unique_players === 'number' ? g.unique_players : 1,
-                        players: ['Community Member'],
-                        player_details: [
-                            { name: 'Active Community Member', avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', details: `${totalHours} Hours Logged This Week` }
-                        ]
-                    }, coverUrl, `${totalHours} Hours Logged This Week`);
+                    openMostPlayedModal(g, coverUrl);
                 });
             });
         }
@@ -3123,10 +3151,16 @@
             if (!container) return;
 
             try {
-                const resp = await fetch('/api/stats/most-played?period=week');
-                if (!resp.ok) throw new Error('Stats API offline');
+                const resp = await fetch('/api/public/most-played?period=week');
+                if (!resp.ok) throw new Error('Stats unavailable');
                 const data = await resp.json();
-                const games = (data.games && data.games.length > 0) ? data.games : FALLBACK_MOST_PLAYED;
+                const games = (data.games && data.games.length > 0) ? data.games : [];
+
+                if (games.length === 0) {
+                    const since = (data.tracking_since || '').split('T')[0];
+                    container.innerHTML = `<div class="game-player-headline"><span class="game-player-name">Not enough data yet. Tracking started on ${escapeHtml(since)}.</span></div>`;
+                    return;
+                }
 
                 let html = `<div class="live-games-grid ${games.length === 1 ? 'single-game' : ''}">`;
                 games.forEach((g, idx) => {
@@ -3136,13 +3170,7 @@
                 container.innerHTML = html;
                 bindMostPlayedCards(container, games);
             } catch (err) {
-                let html = `<div class="live-games-grid ${FALLBACK_MOST_PLAYED.length === 1 ? 'single-game' : ''}">`;
-                FALLBACK_MOST_PLAYED.forEach((g, idx) => {
-                    html += renderMostPlayedCard(g, idx);
-                });
-                html += '</div>';
-                container.innerHTML = html;
-                bindMostPlayedCards(container, FALLBACK_MOST_PLAYED);
+                container.innerHTML = `<div class="game-player-headline"><span class="game-player-name">Stats are unavailable right now.</span></div>`;
             }
         }
 
