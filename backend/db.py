@@ -57,6 +57,30 @@ class GamingDatabase:
                     fetched_at INTEGER
                 );
             """)
+            # Voice sessions table for voice-channel presence tracking.
+            # started_at/ended_at are UTC epoch MILLISECONDS. ended_at IS NULL = open.
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS voice_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    discord_user_id TEXT NOT NULL,
+                    username TEXT NOT NULL,
+                    channel_id TEXT,
+                    channel_name TEXT,
+                    started_at INTEGER NOT NULL,
+                    ended_at INTEGER,
+                    is_bot INTEGER NOT NULL DEFAULT 0
+                );
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_voice_user ON voice_sessions(discord_user_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_voice_started ON voice_sessions(started_at);")
+            # Migrate older voice_sessions tables that predate channel/is_bot columns.
+            existing_cols = {row[1] for row in cursor.execute("PRAGMA table_info(voice_sessions)").fetchall()}
+            if "channel_id" not in existing_cols:
+                cursor.execute("ALTER TABLE voice_sessions ADD COLUMN channel_id TEXT")
+            if "channel_name" not in existing_cols:
+                cursor.execute("ALTER TABLE voice_sessions ADD COLUMN channel_name TEXT")
+            if "is_bot" not in existing_cols:
+                cursor.execute("ALTER TABLE voice_sessions ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
             conn.commit()
             logger.info(f"[DB] Initialized SQLite database at {self.db_path}")
 
@@ -233,3 +257,129 @@ class GamingDatabase:
                     fetched_at = excluded.fetched_at
             """, (name, cover_url, genre, source, now))
             conn.commit()
+
+    # ── Voice sessions ──────────────────────────────────────────────
+    # All timestamps are UTC epoch MILLISECONDS. ended_at IS NULL = open.
+    # Bots must never accrue voice time: pass is_bot=1 (or use close to
+    # exclude them) and keep them out of ranking queries (is_bot = 0).
+
+    def open_voice_session(self, discord_user_id: str, username: str,
+                           channel_id: Optional[str] = None,
+                           channel_name: Optional[str] = None,
+                           started_at: Optional[int] = None,
+                           is_bot: bool = False) -> int:
+        """Open a voice session, first closing any other open one for this user.
+
+        Closing-then-opening keeps per-channel accuracy on moves (the old row
+        ends exactly when the new row starts: no gap, no overlap).
+        """
+        now = started_at if started_at is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE voice_sessions SET ended_at = ? WHERE discord_user_id = ? AND ended_at IS NULL",
+                (now, discord_user_id)
+            )
+            cursor.execute(
+                """INSERT INTO voice_sessions
+                   (discord_user_id, username, channel_id, channel_name, started_at, ended_at, is_bot)
+                   VALUES (?, ?, ?, ?, ?, NULL, ?)""",
+                (discord_user_id, username, channel_id, channel_name, now, 1 if is_bot else 0)
+            )
+            session_id = cursor.lastrowid
+            conn.commit()
+            return session_id
+
+    def close_voice_session(self, discord_user_id: str, ended_at: Optional[int] = None) -> int:
+        """Close open voice session(s) for this user. Clamps end >= start so
+        clock skew can never create negative durations in historical totals."""
+        now = ended_at if ended_at is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, started_at FROM voice_sessions WHERE discord_user_id = ? AND ended_at IS NULL",
+                (discord_user_id,)
+            )
+            rows = cursor.fetchall()
+            for row in rows:
+                sane_end = max(now, row["started_at"])
+                cursor.execute("UPDATE voice_sessions SET ended_at = ? WHERE id = ?", (sane_end, row["id"]))
+            conn.commit()
+            return len(rows)
+
+    def close_all_open_voice_sessions(self, ended_at: Optional[int] = None) -> List[str]:
+        """Close EVERY open voice session (reconcile/reset). Returns affected user ids."""
+        now = ended_at if ended_at is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, discord_user_id, started_at FROM voice_sessions WHERE ended_at IS NULL")
+            rows = cursor.fetchall()
+            for row in rows:
+                sane_end = max(now, row["started_at"])
+                cursor.execute("UPDATE voice_sessions SET ended_at = ? WHERE id = ?", (sane_end, row["id"]))
+            conn.commit()
+            return [row["discord_user_id"] for row in rows]
+
+    def get_open_voice_sessions(self) -> List[Dict[str, Any]]:
+        """All currently open (unclosed) voice sessions."""
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """SELECT id, discord_user_id, username, channel_id, channel_name,
+                          started_at, ended_at, is_bot
+                   FROM voice_sessions WHERE ended_at IS NULL ORDER BY started_at ASC"""
+            )
+            return [dict(row) for row in cursor.fetchall()]
+
+    def find_overlong_open_sessions(self, now_ms: Optional[int] = None,
+                                    max_open_ms: int = 24 * 3600 * 1000) -> List[Dict[str, Any]]:
+        """Open sessions older than max_open_ms. These are the stale-timer
+        suspects (bot was offline while the member left, or a missed event)."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        overlong = []
+        for row in self.get_open_voice_sessions():
+            age = now - row["started_at"]
+            if age < 0 or age > max_open_ms:
+                overlong.append({**row, "open_ms": age})
+        return overlong
+
+    def get_voice_totals(self, period: str = "week", limit: int = 10) -> List[Dict[str, Any]]:
+        """Voice-hours ranking. Excludes bots. Caps any single session's
+        credited time at 24h and ignores negative spans so one stale row can
+        never dominate a leaderboard. Does NOT modify stored data."""
+        now = int(time.time() * 1000)
+        ms_in_day = 86400 * 1000
+        cutoff = 0
+        if period == "day":
+            cutoff = now - ms_in_day
+        elif period == "week":
+            cutoff = now - (7 * ms_in_day)
+        elif period == "month":
+            cutoff = now - (30 * ms_in_day)
+        cap_ms = 24 * 3600 * 1000
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT discord_user_id, username, started_at,
+                       COALESCE(ended_at, ?) AS ended_at
+                FROM voice_sessions
+                WHERE started_at >= ? AND is_bot = 0
+            """, (now, cutoff))
+            totals: Dict[str, Dict[str, Any]] = {}
+            for row in cursor.fetchall():
+                span = max(0, min(row["ended_at"] - row["started_at"], cap_ms))
+                if span <= 0:
+                    continue
+                entry = totals.setdefault(row["discord_user_id"], {
+                    "discord_user_id": row["discord_user_id"],
+                    "username": row["username"],
+                    "session_count": 0,
+                    "total_seconds": 0,
+                })
+                entry["session_count"] += 1
+                entry["total_seconds"] += span // 1000
+            ranked = sorted(totals.values(), key=lambda e: e["total_seconds"], reverse=True)[:limit]
+            for idx, entry in enumerate(ranked, 1):
+                entry["rank"] = idx
+                entry["total_hours"] = round(entry["total_seconds"] / 3600, 1)
+            return ranked

@@ -16,6 +16,11 @@ from .live_ws import LiveGamesWebSocketManager, extract_game_activity
 from .stats_api import StatsApiRouter
 from .rawg import GameMetadataResolver
 from .logger import setup_nexus_logger
+from .voice_tracker import (
+    reconcile_voice_sessions,
+    handle_voice_state_update,
+    build_voice_live_payload,
+)
 
 # 1. Initialize logging & database
 logger = setup_nexus_logger()
@@ -26,6 +31,7 @@ resolver = GameMetadataResolver(db, rawg_api_key=os.getenv("RAWG_API_KEY"))
 intents = discord.Intents.default()
 intents.presences = True  # Required for tracking game activities!
 intents.members = True
+intents.voice_states = True  # Required for tracking voice channels!
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 def get_current_live_games():
@@ -99,3 +105,33 @@ def setup_web_server(app: web.Application):
     ws_manager.attach_routes(app, path="/ws/live-games")
     stats_router.attach_routes(app)
     # (Your existing routes /api/public_stats and /api/bot_data stay untouched)
+
+    # ── Voice-live endpoint: same {"count", "members"} shape the dashboard
+    # and api/voice_live.js already consume, plus server-computed
+    # elapsed_seconds and real mute flags (see voice_tracker for the schema).
+    async def voice_live(request: web.Request) -> web.Response:
+        payload = build_voice_live_payload(db, list(bot.guilds))
+        return web.json_response(payload)
+    app.router.add_get("/api/voice_live", voice_live)
+
+
+# 6. Voice tracking: reconcile on (re)connect, track every state change.
+#    Copy these two handlers into your real bot file (this file is reference
+#    only and is NOT uploaded). Requires intents.voice_states = True.
+@bot.event
+async def on_ready():
+    report = reconcile_voice_sessions(db, list(bot.guilds))
+    logger.info(
+        "[VOICE] Reconcile on ready: closed=%d restarted=%d opened=%d",
+        len(report["closed_stale"]), len(report["restarted"]), len(report["opened_fresh"])
+    )
+
+
+@bot.event
+async def on_voice_state_update(member: discord.Member,
+                                before: discord.VoiceState,
+                                after: discord.VoiceState):
+    # Join / leave (incl. moderator disconnect) / move (incl. AFK moves).
+    # Mute toggles need no DB write: flags are read live in the payload.
+    # Bots are ignored here and never accrue ranked voice time.
+    handle_voice_state_update(db, member, before, after)
