@@ -39,7 +39,9 @@
     "wuwa": "Wuthering Waves",
     "call of duty": "Call of Duty",
     "cod": "Call of Duty",
-    "warzone": "Call of Duty"
+    "warzone": "Call of Duty",
+    "arc raiders": "ARC Raiders",
+    "brawlhalla": "Brawlhalla"
   },
   "ignore_apps": [
     "visual studio code",
@@ -94,7 +96,13 @@
     "call-of-duty": { "category": "Tactical FPS", "image": "images/games/call-of-duty.jpg" },
     "rocket-league": { "category": "Sports", "image": "images/games/rocket-league.jpg" },
     "overwatch-2": { "category": "Tactical FPS", "image": "images/games/overwatch-2.jpg" },
-    "ea-sports-fc": { "category": "Sports", "image": "images/games/ea-sports-fc.jpg" }
+    "ea-sports-fc": { "category": "Sports", "image": "images/games/ea-sports-fc.jpg" },
+    "arc-raiders": { "category": "Extraction Shooter", "image": "images/games/arc-raiders.jpg" },
+    "brawlhalla": { "category": "Platform Fighter", "image": "images/games/brawlhalla.jpg" }
+  },
+  "shared_images": {
+    "_comment": "Intentional franchise shares: these game_keys may resolve to the same file without tripping the uniqueness test.",
+    "images/games/gta-v.jpg": ["gta-v", "fivem", "dream-creation"]
   },
   "fallback": { "category": "Gaming", "image": "images/games/fallback.svg" },
   "fivem_server": {

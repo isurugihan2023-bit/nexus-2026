@@ -27,6 +27,8 @@ Known `<game_key>` values (from `backend/config/games.json`):
 | `rocket-league.jpg` | Rocket League |
 | `overwatch-2.jpg` | Overwatch 2 |
 | `ea-sports-fc.jpg` | EA Sports FC |
+| `arc-raiders.jpg` | ARC Raiders |
+| `brawlhalla.jpg` | Brawlhalla |
 
 `.png` with the same name is also picked up. Anything missing falls back
 automatically: category art (`cat-*.svg`, shipped) → `fallback.svg`.

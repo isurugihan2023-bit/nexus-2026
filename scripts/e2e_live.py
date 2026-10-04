@@ -57,14 +57,23 @@ MP_STUB = {
          "sessions": 5, "rich_cover": None},
         {"name": "F1 25", "total_hours": 2.5, "unique_players": 2,
          "sessions": 5, "rich_cover": None},
+        {"name": "Wuthering Waves", "total_hours": 1.7, "unique_players": 1,
+         "sessions": 1, "rich_cover": None},
     ],
     "stale": False,
 }
 
 
 def serve():
+    # Threaded: the page loads logo + audio + API + covers concurrently, and a
+    # single-threaded server aborts parallel connections (broken images).
     handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=ROOT)
-    httpd = socketserver.TCPServer(("127.0.0.1", 0), handler)
+
+    class QuietThreaded(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        daemon_threads = True
+        allow_reuse_address = True
+
+    httpd = QuietThreaded(("127.0.0.1", 0), handler)
     port = httpd.server_address[1]
     t = threading.Thread(target=httpd.serve_forever, daemon=True)
     t.start()
@@ -116,10 +125,11 @@ def check_width(pw, base, width, height, tag):
     pg.wait_for_timeout(1500)
     mp_cards = pg.evaluate(
         "document.querySelectorAll('#lounge-most-played-container .game-card').length")
-    assert mp_cards == 3, f"[{tag}] expected 3 most-played cards, got {mp_cards}"
+    assert mp_cards == 4, f"[{tag}] expected 4 most-played cards, got {mp_cards}"
     mp_titles = pg.evaluate(
         "[...document.querySelectorAll('#lounge-most-played-container .game-card .game-name')].map(e=>e.textContent)")
-    assert "VALORANT" in mp_titles and "Ceylon Roleplay" in mp_titles and "F1 25" in mp_titles, mp_titles
+    assert "VALORANT" in mp_titles and "Ceylon Roleplay" in mp_titles, mp_titles
+    assert "F1 25" in mp_titles and "Wuthering Waves" in mp_titles, mp_titles
     mp_head = pg.evaluate(
         "[...document.querySelectorAll('#lounge-most-played-container .game-player-name')].map(e=>e.textContent)")
     assert any("4 players, 10.1 h" in h for h in mp_head), mp_head
@@ -130,6 +140,7 @@ def check_width(pw, base, width, height, tag):
     assert "tactical fps" in mp_tags, mp_tags
     assert "fivem roleplay" in mp_tags, mp_tags
     assert "racing" in mp_tags, mp_tags
+    assert "action rpg" in mp_tags, mp_tags
     assert "gaming" not in mp_tags, f"[{tag}] generic GAMING label leaked: {mp_tags}"
     # Real covers: Discord rich art for Ceylon, known art (not the robot
     # placeholder) for the rest
@@ -137,6 +148,12 @@ def check_width(pw, base, width, height, tag):
         "[...document.querySelectorAll('#lounge-most-played-container .game-card-img-wrap img')].map(e=>e.currentSrc || e.src)")
     assert any("app-assets/945695523376103484" in s for s in mp_imgs), mp_imgs
     assert not any("fallback.svg" in s for s in mp_imgs), f"[{tag}] placeholder leaked: {mp_imgs}"
+    # Regression guard: Wuthering Waves must show action-RPG art, never the
+    # rally-car photo (co6m58), racing art, or the generic placeholder.
+    wuwa_src = pg.evaluate(
+        "[...document.querySelectorAll('#lounge-most-played-container .game-card')].find(c => (c.querySelector('.game-name') || {}).textContent === 'Wuthering Waves')?.querySelector('.game-card-img-wrap img')?.currentSrc || ''")
+    assert "action-rpg" in wuwa_src, f"[{tag}] WuWa has wrong art: {wuwa_src}"
+    assert "co6m58" not in wuwa_src and "racing" not in wuwa_src, f"[{tag}] WuWa art mismatch: {wuwa_src}"
     # No raw Discord user IDs exposed: visible card text must not contain
     # long digit runs (Discord CDN art-asset IDs inside image URLs are
     # public game art, not member IDs — display name + avatar URL is the

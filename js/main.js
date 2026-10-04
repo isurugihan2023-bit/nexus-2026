@@ -263,7 +263,7 @@ const GAME_IMAGE_OVERRIDES = {
     "roblox": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kch.jpg",
     "fortnite": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2767.jpg",
     "genshin": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2040.jpg",
-    "wuthering waves": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6m58.jpg",
+    "wuthering waves": "images/games/cat-action-rpg.svg",
     "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
     "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
     "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
@@ -416,6 +416,12 @@ function getGameImageUrl(game) {
     }
     if (typeof game === 'string') {
         const lower = game.toLowerCase();
+        const slug = lower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (slug) {
+            for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+                if (key.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') === slug) return url;
+            }
+        }
         for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
             if (lower.includes(key)) return url;
         }

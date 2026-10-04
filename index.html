@@ -2527,7 +2527,7 @@
             "roblox": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kch.jpg",
             "fortnite": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2767.jpg",
             "genshin": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2040.jpg",
-            "wuthering waves": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6m58.jpg",
+            "wuthering waves": "images/games/cat-action-rpg.svg",
             "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
             "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
             "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
@@ -2684,9 +2684,21 @@
         // Local static art first (images/games/*), remote existing art as the
         // automatic backup, neutral local fallback last. Missing local files
         // therefore never break a card — the cover just falls through.
+        function slugOf(name) {
+            return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+        // Safeguard: an exact slug hit always wins, so a short fragment key
+        // ("arc", "cod", "f1") can never hijack a game that has its own entry.
+        // Only falls back to fragment matching for genuinely unknown games.
         function getGameRemoteOverride(gameName) {
             const lower = (gameName || '').toLowerCase();
             if (!lower) return '';
+            const slug = slugOf(gameName);
+            if (slug) {
+                for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+                    if (slugOf(k) === slug) return url;
+                }
+            }
             for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
                 if (lower.includes(k)) return url;
             }

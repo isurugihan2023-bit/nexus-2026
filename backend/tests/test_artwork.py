@@ -51,6 +51,33 @@ def run_tests():
     print("[TEST] ensure_cached never raises, returns None without network...")
     assert asyncio.run(artwork.ensure_cached("definitely-not-a-game-xyz", "Definitely Not A Game XYZ")) is None
 
+    print("[TEST] no two games share one image file (unless declared)...")
+    import json as _json
+    cfg_path = os.path.join(os.path.dirname(__file__), "..", "config", "games.json")
+    with open(cfg_path, "r", encoding="utf-8") as f:
+        _cfg = _json.load(f)
+    _meta = _cfg.get("metadata", {})
+    _shared = {img: set(keys) for img, keys in _cfg.get("shared_images", {}).items()
+               if not img.startswith("_")}
+    _by_image = {}
+    for _key, _m in _meta.items():
+        _by_image.setdefault(_m.get("image", ""), set()).add(_key)
+    for _img, _keys in sorted(_by_image.items()):
+        if len(_keys) < 2:
+            continue
+        assert _shared.get(_img) == _keys, \
+            f"image shared by {_keys} but not declared in shared_images: {_img}"
+    print("[TEST] resolved covers: a real file is never shared between games...")
+    _resolved = {}
+    for _key, _m in _meta.items():
+        _img = artwork.image_for(_key, _m.get("category", ""))
+        if _img.endswith((".svg",)) or not os.path.isfile(
+                os.path.join(os.path.dirname(__file__), "..", "..", _img)):
+            continue  # generic category art is shared by design
+        assert _img not in _resolved, \
+            f"{_img} claimed by both {_resolved[_img]} and {_key}"
+        _resolved[_img] = _key
+
     print("[TEST] ALL ARTWORK TESTS PASSED [OK]")
 
 
