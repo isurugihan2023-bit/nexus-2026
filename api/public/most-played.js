@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     const range = ['7d', 'week', '30d', 'month', 'all', '24h', 'day'].includes(raw) ? raw : '7d';
 
     for (const url of upstreamBases().map((b) => `${b}/api/public/most-played?range=${encodeURIComponent(range)}`)) {
+        const started = Date.now();
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -20,34 +21,45 @@ export default async function handler(req, res) {
                 headers: { Accept: 'application/json' }
             });
             clearTimeout(timeoutId);
+            console.log(`[most-played] upstream ${url} -> ${upstream.status} in ${Date.now() - started}ms`);
             if (upstream.ok) {
                 const data = await upstream.json();
-                // Accept ONLY per-GAME payloads. Never map member leaderboards
-                // into game cards (that was the wrong-data bug).
-                if (data && Array.isArray(data.games)) {
-                    const games = data.games
-                        .filter((g) => g && (g.game_key || g.name))
-                        .slice(0, 9)
-                        .map((g, i) => ({
+                // Accept per-GAME payloads from the new bot API AND the legacy
+                // shape ({name, total_hours, unique_players, rich_cover}).
+                // Member leaderboards (voice_stats: display_name/total_seconds,
+                // no game name fields) are REJECTED — never map members to games.
+                const list = Array.isArray(data.games) ? data.games : [];
+                const games = list
+                    .filter((g) => g && (g.game_key || g.name || g.game_name))
+                    .slice(0, 9)
+                    .map((g, i) => {
+                        const name = g.name || g.game_name || 'Game';
+                        return {
                             rank: g.rank ?? i + 1,
-                            game_key: g.game_key || slug(g.name),
-                            name: g.name || 'Game',
+                            game_key: g.game_key || slug(name),
+                            name,
                             category: g.category || 'Gaming',
-                            image: g.image || 'images/games/fallback.svg',
+                            image: g.image || g.rich_cover || 'images/games/fallback.svg',
+                            rich_cover: g.rich_cover || null,
                             unique_players: g.unique_players ?? 0,
                             total_hours: g.total_hours ?? 0,
+                            sessions: g.sessions ?? 0,
                             top_players: Array.isArray(g.top_players) ? g.top_players.slice(0, 4) : []
-                        }));
+                        };
+                    });
+                if (games.length > 0) {
+                    console.log(`[most-played] serving ${games.length} games from ${url}`);
                     return res.status(200).json({
                         generated_at: data.generated_at || Date.now(),
-                        range: data.range || range,
+                        range: data.range || data.period || range,
                         games,
                         stale: false
                     });
                 }
+                console.log(`[most-played] ${url} returned no usable games`);
             }
         } catch (e) {
-            // try next upstream, then graceful empty below
+            console.log(`[most-played] upstream ${url} failed in ${Date.now() - started}ms: ${e.message}`);
         }
     }
 
@@ -63,7 +75,8 @@ export default async function handler(req, res) {
 function upstreamBases() {
     const env = (process.env.BOT_UPSTREAM || '').split(',').map((s) => s.trim()).filter(Boolean);
     if (env.length > 0) return env;
-    return ['http://92.118.206.166:30038', 'http://157.90.181.183:23063'];
+    // 157.90.181.183:23063 is the current bot host; 92.x is the legacy fallback.
+    return ['http://157.90.181.183:23063', 'http://92.118.206.166:30038'];
 }
 
 function slug(name) {

@@ -2527,7 +2527,7 @@
             "roblox": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kch.jpg",
             "fortnite": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2767.jpg",
             "genshin": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2040.jpg",
-            "wuthering waves": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6m58.jpg",
+            "wuthering waves": "images/games/cat-action-rpg.svg",
             "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
             "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
             "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
@@ -2556,7 +2556,18 @@
             "vscode": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
             "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
             "wallpaper engine": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
-            "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg"
+            "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
+            "fortnite": "images/games/cat-battle-royale.svg",
+            "f1": "images/games/cat-racing.svg",
+            "formula 1": "images/games/cat-racing.svg",
+            "wuthering": "images/games/cat-action-rpg.svg",
+            "call of duty": "images/games/cat-tactical-fps.svg",
+            "cod": "images/games/cat-tactical-fps.svg",
+            "warzone": "images/games/cat-battle-royale.svg",
+            "overwatch": "images/games/cat-tactical-fps.svg",
+            "fifa": "images/games/cat-sports.svg",
+            "ea sports fc": "images/games/cat-sports.svg",
+            "rocket league": "images/games/cat-sports.svg"
         };
 
         const GAME_METADATA = {
@@ -2588,14 +2599,28 @@
             "wuthering waves": { tag: "Action RPG", icon: "fa-bolt" },
             "league of legends": { tag: "MOBA Arena", icon: "fa-shield" },
             "arc raiders": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
-            "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" }
+            "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
+            "fortnite": { tag: "Battle Royale", icon: "fa-crosshairs" },
+            "f1": { tag: "Racing", icon: "fa-flag-checkered" },
+            "formula 1": { tag: "Racing", icon: "fa-flag-checkered" },
+            "call of duty": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "cod": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "warzone": { tag: "Battle Royale", icon: "fa-crosshairs" },
+            "overwatch": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "fifa": { tag: "Sports", icon: "fa-futbol" },
+            "ea sports fc": { tag: "Sports", icon: "fa-futbol" },
+            "rocket league": { tag: "Sports", icon: "fa-trophy" }
         };
 
+        const GENERIC_TAGS = ["", "gaming", "live gaming", "unknown"];
         function getGameTheme(gameName, categoryOverride) {
-            // API-provided category wins (fixes "LIVE GAMING everywhere" when
-            // member names were rendered as titles); icon still resolved locally.
-            let tag = (categoryOverride && String(categoryOverride).trim()) || "Gaming";
-            let tagFromApi = !!(categoryOverride && String(categoryOverride).trim());
+            // A specific API category wins. A generic one ("Gaming" — sent by
+            // older bot builds without metadata) is treated as no opinion so
+            // the local name lookup still yields the real label and icon.
+            const override = (categoryOverride && String(categoryOverride).trim()) || "";
+            let tag = override;
+            let tagFromApi = override !== "" && !GENERIC_TAGS.includes(override.toLowerCase());
+            if (!tagFromApi) tag = "Gaming";
             let icon = "fa-gamepad";
             if (gameName) {
                 const lower = gameName.toLowerCase();
@@ -2659,23 +2684,56 @@
         // Local static art first (images/games/*), remote existing art as the
         // automatic backup, neutral local fallback last. Missing local files
         // therefore never break a card — the cover just falls through.
+        function slugOf(name) {
+            return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+        // Safeguard: an exact slug hit always wins, so a short fragment key
+        // ("arc", "cod", "f1") can never hijack a game that has its own entry.
+        // Only falls back to fragment matching for genuinely unknown games.
         function getGameRemoteOverride(gameName) {
             const lower = (gameName || '').toLowerCase();
             if (!lower) return '';
+            const slug = slugOf(gameName);
+            if (slug) {
+                for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+                    if (slugOf(k) === slug) return url;
+                }
+            }
             for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
                 if (lower.includes(k)) return url;
             }
             return '';
         }
-        function coverImgHtml(coverUrl, gameName, alt) {
-            const primary = coverUrl || getGameRemoteOverride(gameName) || LOCAL_FALLBACK_COVER;
-            const backup = getGameRemoteOverride(gameName);
-            const fbAttr = (backup && backup !== primary) ? ` data-fb="${backup}"` : '';
-            return `<img src="${primary}" alt="${alt}" loading="lazy" decoding="async"${fbAttr} onerror="if(this.dataset.fb &amp;&amp; this.src !== this.dataset.fb){this.src = this.dataset.fb;}else{this.onerror=null;this.src='${LOCAL_FALLBACK_COVER}';}">`;
+        function isGenericCover(url) {
+            const u = (url || '').trim().toLowerCase();
+            return u === '' || u.endsWith('fallback.svg') || u.endsWith('fallback.jpg');
+        }
+        // Local curated art first, Discord rich art next, known remote art
+        // next, neutral local fallback last. A generic API value ("Gaming"-
+        // era fallback.svg) counts as no opinion and never wins.
+        function pickCover(game) {
+            const g = game || {};
+            const name = g.name || g.game_name || '';
+            if (g.image && !isGenericCover(g.image)) return { primary: g.image, name };
+            if (g.rich_cover) return { primary: g.rich_cover, name };
+            const remote = getGameRemoteOverride(name);
+            if (remote) return { primary: remote, name };
+            if (g.image) return { primary: g.image, name };
+            return { primary: LOCAL_FALLBACK_COVER, name };
+        }
+        function coverImgHtml(game, alt) {
+            const picked = pickCover(game);
+            const remote = getGameRemoteOverride(picked.name);
+            const fbAttr = (remote && remote !== picked.primary) ? ` data-fb="${remote}"` : '';
+            return `<img src="${picked.primary}" alt="${alt}" loading="lazy" decoding="async"${fbAttr} onerror="if(this.dataset.fb &amp;&amp; this.src !== this.dataset.fb){this.src = this.dataset.fb;}else{this.onerror=null;this.src='${LOCAL_FALLBACK_COVER}';}">`;
         }
         function getGameImageUrl(game) {
-            // New public API shape carries a local static cover (images/games/*).
-            if (game && typeof game === 'object' && game.image) return game.image;
+            // Specific covers win (local curated art, then Discord rich art).
+            // A generic fallback value from an older API counts as no opinion.
+            if (game && typeof game === 'object') {
+                if (game.image && !isGenericCover(game.image)) return game.image;
+                if (game.rich_cover) return game.rich_cover;
+            }
             if (typeof game === 'string') {
                 const lower = game.toLowerCase();
                 for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
@@ -2793,7 +2851,8 @@
                         player_details: details,
                         sample_detail: sample,
                         category: g.category || '',
-                        image: g.image || ''
+                        image: g.image || '',
+                        rich_cover: g.rich_cover || ''
                     };
                 })
                 .filter((g) => g.player_details.length > 0);
@@ -2936,7 +2995,7 @@
 
                 card.innerHTML = `
                     <div class="game-card-img-wrap">
-                        ${coverImgHtml(coverUrl, game.name, escapeHtml(game.name))}
+                        ${coverImgHtml(game, escapeHtml(game.name))}
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
@@ -3521,7 +3580,7 @@
             return `
                 <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-game-name="${escapeHtml(gameName)}" style="--game-accent: ${theme.accent}; --game-accent-border: ${theme.border};">
                     <div class="game-card-img-wrap">
-                        ${coverImgHtml(coverUrl, gameName, escapeHtml(gameName))}
+                        ${coverImgHtml(g, escapeHtml(gameName))}
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-gamepad'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
@@ -3597,16 +3656,17 @@
             });
         }
 
-        // Per-GAME payloads only. Member leaderboards (voice_stats shape:
-        // display_name/total_seconds, no game_key) are REJECTED here — mapping
-        // them into game cards was the wrong-data bug (member names as titles,
-        // "1 player", generic "LIVE GAMING" labels).
+        // Per-GAME payloads only. Accepts the new bot shape (game_key/name/
+        // category/image) AND the legacy bot shape (name/total_hours/
+        // unique_players/rich_cover, no game_key). Member leaderboards
+        // (voice_stats shape: display_name/total_seconds) are REJECTED here —
+        // mapping them into game cards was the wrong-data bug (member names
+        // as titles, "1 player", generic labels).
         function normalizeMostPlayed(data) {
             if (!data) return [];
             if (Array.isArray(data.games)) {
                 return data.games
-                    .filter((g) => g && (g.game_key || g.category || g.image)
-                        && (g.name || g.game_name)
+                    .filter((g) => g && (g.name || g.game_name)
                         && (g.total_hours !== undefined || g.unique_players !== undefined))
                     .slice(0, 9)
                     .map((g, i) => ({
@@ -3614,7 +3674,8 @@
                         game_key: g.game_key || '',
                         name: g.name || g.game_name || 'Game',
                         category: g.category || 'Gaming',
-                        image: g.image || 'images/games/fallback.svg',
+                        image: g.image || g.rich_cover || 'images/games/fallback.svg',
+                        rich_cover: g.rich_cover || null,
                         unique_players: g.unique_players ?? 0,
                         total_hours: g.total_hours ?? 0,
                         sessions: g.sessions ?? 0,

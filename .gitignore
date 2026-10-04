@@ -1,0 +1,13 @@
+# Playwright evidence shots are regenerated on demand (python scripts/e2e_live.py)
+# and must not be committed.
+scripts/e2e_shots/
+
+# Python bytecode / caches
+__pycache__/
+*.pyc
+
+# Secrets, env and runtime data — never commit.
+.env
+data/
+*.db
+logs/

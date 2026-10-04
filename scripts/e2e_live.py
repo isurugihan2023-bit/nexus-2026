@@ -44,24 +44,36 @@ LIVE_STUB = {
     "stale": False,
 }
 
+# Legacy bot shape (production today): name-only items, NO game_key /
+# category / image, Discord rich_cover for some games. The page must still
+# render real labels + real art from this shape (resilience path).
 MP_STUB = {
-    "generated_at": 1789744800000,
-    "range": "7d",
+    "period": "week",
     "games": [
-        {"rank": 1, "game_key": "valorant", "name": "VALORANT",
-         "category": "Tactical FPS", "image": "images/games/fallback.svg",
-         "unique_players": 6, "total_hours": 38, "sessions": 12, "top_players": []},
-        {"rank": 2, "game_key": "ceylon-roleplay", "name": "Ceylon Roleplay",
-         "category": "FiveM Roleplay", "image": "images/games/fallback.svg",
-         "unique_players": 5, "total_hours": 32, "sessions": 9, "top_players": []},
+        {"name": "Ceylon Roleplay", "total_hours": 10.1, "unique_players": 4,
+         "sessions": 12,
+         "rich_cover": "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png"},
+        {"name": "VALORANT", "total_hours": 3.6, "unique_players": 4,
+         "sessions": 5, "rich_cover": None},
+        {"name": "F1 25", "total_hours": 2.5, "unique_players": 2,
+         "sessions": 5, "rich_cover": None},
+        {"name": "Wuthering Waves", "total_hours": 1.7, "unique_players": 1,
+         "sessions": 1, "rich_cover": None},
     ],
     "stale": False,
 }
 
 
 def serve():
+    # Threaded: the page loads logo + audio + API + covers concurrently, and a
+    # single-threaded server aborts parallel connections (broken images).
     handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=ROOT)
-    httpd = socketserver.TCPServer(("127.0.0.1", 0), handler)
+
+    class QuietThreaded(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        daemon_threads = True
+        allow_reuse_address = True
+
+    httpd = QuietThreaded(("127.0.0.1", 0), handler)
     port = httpd.server_address[1]
     t = threading.Thread(target=httpd.serve_forever, daemon=True)
     t.start()
@@ -89,9 +101,15 @@ def check_width(pw, base, width, height, tag):
     browser = pw.chromium.launch()
     pg = browser.new_page(viewport={"width": width, "height": height})
     bad_urls = []
+    stream_404s = []
     pg.on("pageerror", lambda e: errors.append(str(e)))
     pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
-    pg.on("response", lambda r: bad_urls.append(r.url) if r.status >= 400 else None)
+    def _on_resp(r):
+        if r.status >= 400:
+            bad_urls.append(r.url)
+            if "live/stream" in r.url:
+                stream_404s.append(r.url)
+    pg.on("response", _on_resp)
     pg.route("**/api/**", handle_route)
     pg.goto(base + "/index.html#lounge", wait_until="domcontentloaded")
     pg.wait_for_timeout(2500)
@@ -107,18 +125,44 @@ def check_width(pw, base, width, height, tag):
     pg.wait_for_timeout(1500)
     mp_cards = pg.evaluate(
         "document.querySelectorAll('#lounge-most-played-container .game-card').length")
-    assert mp_cards == 2, f"[{tag}] expected 2 most-played cards, got {mp_cards}"
+    assert mp_cards == 4, f"[{tag}] expected 4 most-played cards, got {mp_cards}"
     mp_titles = pg.evaluate(
         "[...document.querySelectorAll('#lounge-most-played-container .game-card .game-name')].map(e=>e.textContent)")
     assert "VALORANT" in mp_titles and "Ceylon Roleplay" in mp_titles, mp_titles
+    assert "F1 25" in mp_titles and "Wuthering Waves" in mp_titles, mp_titles
     mp_head = pg.evaluate(
         "[...document.querySelectorAll('#lounge-most-played-container .game-player-name')].map(e=>e.textContent)")
-    assert any("6 players, 38 h" in h for h in mp_head), mp_head
+    assert any("4 players, 10.1 h" in h for h in mp_head), mp_head
     assert not any("kiri putha" in h for h in mp_head), mp_head
-    # Category label is the real one, not generic LIVE GAMING
+    # Real category labels even from the legacy name-only API shape
     mp_tags = pg.evaluate(
-        "[...document.querySelectorAll('#lounge-most-played-container .game-genre-tag')].map(e=>e.textContent)")
-    assert any("Tactical FPS" in t for t in mp_tags), mp_tags
+        "[...document.querySelectorAll('#lounge-most-played-container .game-genre-tag')].map(e=>e.textContent.trim().toLowerCase())")
+    assert "tactical fps" in mp_tags, mp_tags
+    assert "fivem roleplay" in mp_tags, mp_tags
+    assert "racing" in mp_tags, mp_tags
+    assert "action rpg" in mp_tags, mp_tags
+    assert "gaming" not in mp_tags, f"[{tag}] generic GAMING label leaked: {mp_tags}"
+    # Real covers: Discord rich art for Ceylon, known art (not the robot
+    # placeholder) for the rest
+    mp_imgs = pg.evaluate(
+        "[...document.querySelectorAll('#lounge-most-played-container .game-card-img-wrap img')].map(e=>e.currentSrc || e.src)")
+    assert any("app-assets/945695523376103484" in s for s in mp_imgs), mp_imgs
+    assert not any("fallback.svg" in s for s in mp_imgs), f"[{tag}] placeholder leaked: {mp_imgs}"
+    # Regression guard: Wuthering Waves must show action-RPG art, never the
+    # rally-car photo (co6m58), racing art, or the generic placeholder.
+    wuwa_src = pg.evaluate(
+        "[...document.querySelectorAll('#lounge-most-played-container .game-card')].find(c => (c.querySelector('.game-name') || {}).textContent === 'Wuthering Waves')?.querySelector('.game-card-img-wrap img')?.currentSrc || ''")
+    assert "action-rpg" in wuwa_src, f"[{tag}] WuWa has wrong art: {wuwa_src}"
+    assert "co6m58" not in wuwa_src and "racing" not in wuwa_src, f"[{tag}] WuWa art mismatch: {wuwa_src}"
+    # No raw Discord user IDs exposed: visible card text must not contain
+    # long digit runs (Discord CDN art-asset IDs inside image URLs are
+    # public game art, not member IDs — display name + avatar URL is the
+    # allowed public shape), and no id-bearing data attributes may exist.
+    import re as _re
+    card_text = pg.evaluate("document.getElementById('lounge-most-played-container').innerText")
+    assert not _re.search(r"\b\d{15,25}\b", card_text), "raw Discord ID leaked"
+    card_html = pg.evaluate("document.getElementById('lounge-most-played-container').innerHTML")
+    assert "user_id" not in card_html and "player_id" not in card_html, "id field leaked"
     pg.screenshot(path=os.path.join(SHOTS, f"mostplayed_{tag}.png"))
     # Modal opens on card click (who's in session)
     pg.click('.lounge-tab-btn[data-lounge-tab="live"]')
@@ -135,9 +179,19 @@ def check_width(pw, base, width, height, tag):
     # Benign on the static test host: no SSE proxy here (production nginx
     # proxies /api/public/live/stream to the bot; the page falls back to
     # 10s polling, which is exactly what this asserts).
-    real_errors = [e for e in errors if "favicon" not in e.lower() and "net::" not in e.lower()
-                   and "font" not in e.lower() and "cdn" not in e.lower()
-                   and "live/stream" not in e.lower()]
+    # Generic "404 (File not found)" console texts carry no URL; attribute
+    # them to the SSE probe when a stream 404 was actually observed.
+    real_errors = []
+    for e in errors:
+        le = e.lower()
+        if "favicon" in le or "net::" in le or "font" in le or "cdn" in le:
+            continue
+        if "live/stream" in le:
+            continue
+        if "404" in le and stream_404s:
+            stream_404s.pop(0)
+            continue
+        real_errors.append(e)
     # Any failed request that is NOT the (optionally unproxied) SSE stream
     # or favicon is a real problem.
     bad = [u for u in bad_urls if "live/stream" not in u and "favicon" not in u.lower()]

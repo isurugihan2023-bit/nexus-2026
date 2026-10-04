@@ -11,6 +11,7 @@ export default async function handler(req, res) {
     const upstreams = upstreamBases().map((b) => `${b}/api/public/live`);
 
     for (const url of upstreams) {
+        const started = Date.now();
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -19,14 +20,19 @@ export default async function handler(req, res) {
                 headers: { Accept: 'application/json' }
             });
             clearTimeout(timeoutId);
+            console.log(`[live] upstream ${url} -> ${upstream.status} in ${Date.now() - started}ms`);
             if (upstream.ok) {
                 const data = await upstream.json();
                 if (data && Array.isArray(data.games)) {
+                    console.log(`[live] serving ${data.games.length} games (${data.total_playing ?? 0} playing) from ${url}`);
                     return res.status(200).json({ ...data, stale: false });
                 }
+                console.log(`[live] ${url} returned no games array`);
+            } else if (upstream.status === 401) {
+                console.log(`[live] ${url} requires auth (401) — new bot API not deployed or route not whitelisted there`);
             }
         } catch (e) {
-            // try next upstream, then graceful empty below
+            console.log(`[live] upstream ${url} failed in ${Date.now() - started}ms: ${e.message}`);
         }
     }
 
@@ -43,5 +49,6 @@ export default async function handler(req, res) {
 function upstreamBases() {
     const env = (process.env.BOT_UPSTREAM || '').split(',').map((s) => s.trim()).filter(Boolean);
     if (env.length > 0) return env;
-    return ['http://92.118.206.166:30038', 'http://157.90.181.183:23063'];
+    // 157.90.181.183:23063 is the current bot host; 92.x is the legacy fallback.
+    return ['http://157.90.181.183:23063', 'http://92.118.206.166:30038'];
 }

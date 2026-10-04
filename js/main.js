@@ -263,7 +263,7 @@ const GAME_IMAGE_OVERRIDES = {
     "roblox": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kch.jpg",
     "fortnite": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2767.jpg",
     "genshin": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2040.jpg",
-    "wuthering waves": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6m58.jpg",
+    "wuthering waves": "images/games/cat-action-rpg.svg",
     "league of legends": "https://images.igdb.com/igdb/image/upload/t_cover_big/co49wp.jpg",
     "grand theft auto": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
     "gta": "https://steamcdn-a.akamaihd.net/steam/apps/271590/library_600x900_2x.jpg",
@@ -324,12 +324,24 @@ const GAME_METADATA = {
     "wuthering waves": { tag: "Action RPG", icon: "fa-bolt" },
     "league of legends": { tag: "MOBA Arena", icon: "fa-shield" },
     "arc raiders": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
-    "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" }
+    "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
+    "fortnite": { tag: "Battle Royale", icon: "fa-crosshairs" },
+    "f1": { tag: "Racing", icon: "fa-flag-checkered" },
+    "formula 1": { tag: "Racing", icon: "fa-flag-checkered" },
+    "call of duty": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+    "cod": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+    "warzone": { tag: "Battle Royale", icon: "fa-crosshairs" },
+    "overwatch": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+    "fifa": { tag: "Sports", icon: "fa-futbol" },
+    "ea sports fc": { tag: "Sports", icon: "fa-futbol" },
+    "rocket league": { tag: "Sports", icon: "fa-trophy" }
 };
 
+const GENERIC_TAGS = ["", "gaming", "live gaming", "unknown"];
 function getGameTheme(gameName, categoryOverride) {
-    let tag = (categoryOverride && String(categoryOverride).trim()) || "Gaming";
-    let tagFromApi = !!(categoryOverride && String(categoryOverride).trim());
+    const override = (categoryOverride && String(categoryOverride).trim()) || "";
+    let tagFromApi = override !== "" && !GENERIC_TAGS.includes(override.toLowerCase());
+    let tag = tagFromApi ? override : "Gaming";
     let icon = "fa-gamepad";
     if (gameName) {
         const lower = gameName.toLowerCase();
@@ -393,10 +405,23 @@ async function fetchGameMetadata(gameName) {
 }
 
 const LOCAL_FALLBACK_COVER = 'images/games/fallback.svg';
+function isGenericCover(url) {
+    const u = (url || '').trim().toLowerCase();
+    return u === '' || u.endsWith('fallback.svg') || u.endsWith('fallback.jpg');
+}
 function getGameImageUrl(game) {
-    if (game && typeof game === 'object' && game.image) return game.image;
+    if (game && typeof game === 'object') {
+        if (game.image && !isGenericCover(game.image)) return game.image;
+        if (game.rich_cover) return game.rich_cover;
+    }
     if (typeof game === 'string') {
         const lower = game.toLowerCase();
+        const slug = lower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (slug) {
+            for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+                if (key.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') === slug) return url;
+            }
+        }
         for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
             if (lower.includes(key)) return url;
         }
@@ -977,7 +1002,8 @@ function bindMostPlayedCards(container, gamesList) {
 function normalizeMostPlayed(data) {
     if (!data || !Array.isArray(data.games)) return [];
     return data.games
-        .filter((g) => g && (g.game_key || g.category || g.image) && (g.name || g.game_name))
+        .filter((g) => g && (g.name || g.game_name)
+            && (g.total_hours !== undefined || g.unique_players !== undefined))
         .slice(0, 9);
 }
 

@@ -56,17 +56,37 @@ def _avatar64(url: str) -> str:
 
 
 def _game_meta(game_key: str) -> Dict[str, str]:
+    """Category from games.json; image via artwork (local-first, no hotlink).
+
+    If the curated cover file is missing the artwork module returns the
+    category SVG (or generic fallback) instead of a dead relative path, so
+    cards never render a broken image.
+    """
+    category = "Gaming"
     try:
         from .game_tracker import load_tracker_config
         cfg = load_tracker_config()
         meta = (cfg.get("metadata") or {}).get((game_key or "").lower(), {})
-        fb = cfg.get("fallback") or {}
-        return {
-            "category": str(meta.get("category") or "Gaming"),
-            "image": str(meta.get("image") or fb.get("image") or "images/games/fallback.svg"),
-        }
+        category = str(meta.get("category") or "Gaming")
     except Exception:
-        return {"category": "Gaming", "image": "images/games/fallback.svg"}
+        pass
+    try:
+        from .artwork import image_for
+        return {"category": category, "image": image_for(game_key, category)}
+    except Exception:
+        return {"category": category, "image": "images/games/fallback.svg"}
+
+
+def _maybe_prefetch_artwork(game_key: str, game_name: str, image: str) -> None:
+    """Fire-and-forget RAWG cover download (no-op without RAWG_API_KEY)."""
+    try:
+        from .artwork import should_prefetch, ensure_cached
+        if not should_prefetch(game_key, image):
+            return
+        loop = asyncio.get_running_loop()
+        loop.create_task(ensure_cached(game_key, game_name))
+    except Exception:
+        pass
 
 
 def _parse_range(value: str) -> int:
@@ -169,6 +189,7 @@ class PublicApiRouter:
             g = grouped[key]
             g["players"].sort(key=lambda p: p["name"].lower())
             meta = _game_meta(key)
+            _maybe_prefetch_artwork(key, g["name"], meta["image"])
             games.append({
                 "game_key": key, "name": g["name"],
                 "category": meta["category"], "image": meta["image"],
@@ -187,6 +208,8 @@ class PublicApiRouter:
             top = [{"name": str(p.get("name") or "Member"),
                      "avatar": _avatar64(str(p.get("avatar") or ""))}
                    for p in (r.get("top_players") or [])[:4]]
+            _maybe_prefetch_artwork(str(r.get("game_key") or ""), str(r.get("name") or ""),
+                                    meta["image"])
             games.append({
                 "rank": int(r.get("rank") or 0),
                 "game_key": str(r.get("game_key") or ""),
