@@ -158,76 +158,13 @@ function updateLoungeStats(totalMembers, onlineNow, playingCount) {
     }
 }
 
-// ── Real-Time Verified Live Games Snapshot ──
-const FALLBACK_LIVE_GAMES = [
-    {
-        name: "Ceylon Roleplay",
-        count: 2,
-        players: ["Animo", "SL_LIDDA"],
-        player_details: [
-            {
-                name: "Animo",
-                username: "4nimo.",
-                avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024",
-                details: "Players 50/100",
-                state: "Players 50/100",
-                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                start_timestamp: 1789735569000
-            },
-            {
-                name: "SL_LIDDA",
-                username: "sl_lidda",
-                avatar: "https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=1024",
-                details: "Players 50/100",
-                state: "Players 50/100",
-                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                start_timestamp: 1789736471000
-            }
-        ],
-        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-        sample_detail: "Players 50/100"
-    },
-    {
-        name: "VALORANT",
-        count: 1,
-        players: ["Tr!pl3x ✘"],
-        player_details: [
-            {
-                name: "Tr!pl3x ✘",
-                username: "_diaa_x.",
-                avatar: "https://cdn.discordapp.com/avatars/1279080572504899684/d1f5a6199f68b381f2a6aa301dc496d0.png?size=1024",
-                details: "Competitive Match",
-                state: "",
-                rich_cover: null,
-                start_timestamp: 1789744260344
-            }
-        ],
-        rich_cover: null,
-        sample_detail: ""
-    },
-    {
-        name: "Dota 2",
-        count: 1,
-        players: ["local leclerc"],
-        player_details: [
-            {
-                name: "local leclerc",
-                username: "leda6605",
-                avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024",
-                details: "Ranked Match",
-                state: "",
-                rich_cover: null,
-                start_timestamp: 1789744868885
-            }
-        ],
-        rich_cover: null,
-        sample_detail: ""
-    }
-];
+// NOTE: served page is index.html (inline JS); this file is a kept-in-sync
+// reference copy. No mock games here — real data only via /api/public/live.
+// (Previous hardcoded member snapshots removed for privacy + wrong-data fix.)
+const FALLBACK_LIVE_GAMES = [];
 
-// Immediate initial render
+// Immediate initial render (empty grid; real cards arrive via fetchLiveGames)
 renderLiveGames(FALLBACK_LIVE_GAMES);
-updateLoungeStats(48, 12, 4);
 
 async function fetchBotData() {
     let d = null;
@@ -390,14 +327,15 @@ const GAME_METADATA = {
     "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" }
 };
 
-function getGameTheme(gameName) {
-    let tag = "Live Gaming";
+function getGameTheme(gameName, categoryOverride) {
+    let tag = (categoryOverride && String(categoryOverride).trim()) || "Gaming";
+    let tagFromApi = !!(categoryOverride && String(categoryOverride).trim());
     let icon = "fa-gamepad";
     if (gameName) {
         const lower = gameName.toLowerCase();
         for (const [k, meta] of Object.entries(GAME_METADATA)) {
             if (lower.includes(k)) {
-                tag = meta.tag;
+                if (!tagFromApi) tag = meta.tag;
                 icon = meta.icon;
                 break;
             }
@@ -454,7 +392,9 @@ async function fetchGameMetadata(gameName) {
     return null;
 }
 
+const LOCAL_FALLBACK_COVER = 'images/games/fallback.svg';
 function getGameImageUrl(game) {
+    if (game && typeof game === 'object' && game.image) return game.image;
     if (typeof game === 'string') {
         const lower = game.toLowerCase();
         for (const [key, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
@@ -464,13 +404,14 @@ function getGameImageUrl(game) {
             return GAME_METADATA_CACHE[lower].cover_url;
         }
         fetchGameMetadata(game);
-        return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';
+        return LOCAL_FALLBACK_COVER;
     }
     if (game && game.rich_cover) return game.rich_cover;
     if (game && game.player_details && game.player_details[0] && game.player_details[0].rich_cover) {
         return game.player_details[0].rich_cover;
     }
     const gameName = game && game.name ? game.name : '';
+    if (!gameName) return LOCAL_FALLBACK_COVER;
     return getGameImageUrl(gameName);
 }
 
@@ -598,7 +539,7 @@ function renderLiveGames(gamesList) {
             if (detailStr.includes('???') || !detailStr.trim()) detailStr = 'In Session';
 
             avatarsHtml += `
-                <img src="${avatarUrl}" alt="${escapeHtml(pName)}" title="${escapeHtml(pName)} - ${escapeHtml(detailStr)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                <img src="${avatarUrl}" alt="${escapeHtml(pName)}" title="${escapeHtml(pName)} - ${escapeHtml(detailStr)}" loading="lazy" decoding="async" width="34" height="34" onerror="this.onerror=null;this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
             `;
         });
         if (overflowCount > 0) {
@@ -610,7 +551,7 @@ function renderLiveGames(gamesList) {
 
         card.innerHTML = `
             <div class="game-card-img-wrap">
-                <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+                <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='images/games/fallback.svg';">
             </div>
             <div class="game-card-body">
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
@@ -699,7 +640,7 @@ function openGameModal(game, coverUrl, matchDetail) {
             const item = document.createElement('div');
             item.className = 'modal-player-item';
             item.innerHTML = `
-                <img class="modal-player-avatar" src="${avatarUrl}" alt="${escapeHtml(pName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                <img class="modal-player-avatar" src="${avatarUrl}" alt="${escapeHtml(pName)}" loading="lazy" decoding="async" width="44" height="44" onerror="this.onerror=null;this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
                 <div class="modal-player-info">
                     <div class="modal-player-name">${escapeHtml(pName)}</div>
                     <div class="modal-player-detail">${detailStr}</div>
@@ -955,7 +896,7 @@ let statsInterval = null;
 function startStatsPolling() {
     if (statsInterval) clearInterval(statsInterval);
     fetchPublicStats();
-    statsInterval = setInterval(fetchPublicStats, 4000);
+    statsInterval = setInterval(fetchPublicStats, 10000);
 }
 
 function stopStatsPolling() {
@@ -982,25 +923,22 @@ document.addEventListener('visibilitychange', () => {
 // Initialize real-time WebSocket client (falls back to polling automatically)
 liveSocketClient.connect();
 
-// ── Phase 5: Lounge Subnav & Community Stats Loader ──
-const FALLBACK_MOST_PLAYED = [
-    { game_name: 'PUBG: BATTLEGROUNDS', total_hours: '48.5', unique_players: 'Active Community' },
-    { game_name: 'Brawlhalla', total_hours: '32.1', unique_players: 'Active Community' },
-    { game_name: 'ARC Raiders', total_hours: '19.8', unique_players: 'Active Community' }
-];
+// ── Lounge Subnav & Community Stats Loader (real per-GAME data only) ──
+const FALLBACK_MOST_PLAYED = [];
 
 function renderMostPlayedCard(g, idx) {
-    const gameName = g.game_name || g.name || 'Game';
-    const totalHours = g.total_hours || '0';
-    const playersText = g.unique_players ? (typeof g.unique_players === 'number' ? `${g.unique_players} Players` : g.unique_players) : 'Active Community';
+    const gameName = g.name || g.game_name || 'Game';
+    const totalHours = (g.total_hours !== undefined && g.total_hours !== null) ? g.total_hours : 0;
+    const playerCount = g.unique_players || 0;
+    const playersText = `${playerCount} ${playerCount === 1 ? 'player' : 'players'}, ${totalHours} h`;
     const isHot = idx === 0;
-    const theme = getGameTheme(gameName);
-    const coverUrl = getGameImageUrl(gameName);
+    const theme = getGameTheme(gameName, g.category);
+    const coverUrl = getGameImageUrl(g.image ? g : gameName);
 
     return `
         <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-game-name="${escapeHtml(gameName)}" style="--game-accent: ${theme.accent}; --game-accent-border: ${theme.border};">
             <div class="game-card-img-wrap">
-                <img src="${coverUrl}" alt="${escapeHtml(gameName)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+                <img src="${coverUrl}" alt="${escapeHtml(gameName)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='images/games/fallback.svg';">
             </div>
             <div class="game-card-body">
                 <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-gamepad'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
@@ -1036,15 +974,23 @@ function bindMostPlayedCards(container, gamesList) {
     });
 }
 
+function normalizeMostPlayed(data) {
+    if (!data || !Array.isArray(data.games)) return [];
+    return data.games
+        .filter((g) => g && (g.game_key || g.category || g.image) && (g.name || g.game_name))
+        .slice(0, 9);
+}
+
 async function fetchMostPlayedStats() {
     const container = document.getElementById('lounge-most-played-container');
     if (!container) return;
 
     try {
-        const resp = await fetch('/api/stats/most-played?period=week');
+        const resp = await fetch('/api/public/most-played?range=7d', { cache: 'no-store' });
         if (!resp.ok) throw new Error('Stats API offline');
         const data = await resp.json();
-        const games = (data.games && data.games.length > 0) ? data.games : FALLBACK_MOST_PLAYED;
+        const games = normalizeMostPlayed(data);
+        if (games.length === 0) { container.innerHTML = ''; return; }
 
         let html = `<div class="live-games-grid ${games.length === 1 ? 'single-game' : ''}">`;
         games.forEach((g, idx) => {
@@ -1054,13 +1000,7 @@ async function fetchMostPlayedStats() {
         container.innerHTML = html;
         bindMostPlayedCards(container, games);
     } catch (err) {
-        let html = `<div class="live-games-grid ${FALLBACK_MOST_PLAYED.length === 1 ? 'single-game' : ''}">`;
-        FALLBACK_MOST_PLAYED.forEach((g, idx) => {
-            html += renderMostPlayedCard(g, idx);
-        });
-        html += '</div>';
-        container.innerHTML = html;
-        bindMostPlayedCards(container, FALLBACK_MOST_PLAYED);
+        container.innerHTML = '';
     }
 }
 
