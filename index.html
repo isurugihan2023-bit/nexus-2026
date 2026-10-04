@@ -2556,7 +2556,18 @@
             "vscode": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
             "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
             "wallpaper engine": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
-            "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg"
+            "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
+            "fortnite": "images/games/cat-battle-royale.svg",
+            "f1": "images/games/cat-racing.svg",
+            "formula 1": "images/games/cat-racing.svg",
+            "wuthering": "images/games/cat-action-rpg.svg",
+            "call of duty": "images/games/cat-tactical-fps.svg",
+            "cod": "images/games/cat-tactical-fps.svg",
+            "warzone": "images/games/cat-battle-royale.svg",
+            "overwatch": "images/games/cat-tactical-fps.svg",
+            "fifa": "images/games/cat-sports.svg",
+            "ea sports fc": "images/games/cat-sports.svg",
+            "rocket league": "images/games/cat-sports.svg"
         };
 
         const GAME_METADATA = {
@@ -2588,18 +2599,35 @@
             "wuthering waves": { tag: "Action RPG", icon: "fa-bolt" },
             "league of legends": { tag: "MOBA Arena", icon: "fa-shield" },
             "arc raiders": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
-            "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" }
+            "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
+            "fortnite": { tag: "Battle Royale", icon: "fa-crosshairs" },
+            "f1": { tag: "Racing", icon: "fa-flag-checkered" },
+            "formula 1": { tag: "Racing", icon: "fa-flag-checkered" },
+            "call of duty": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "cod": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "warzone": { tag: "Battle Royale", icon: "fa-crosshairs" },
+            "overwatch": { tag: "Tactical FPS", icon: "fa-crosshairs" },
+            "fifa": { tag: "Sports", icon: "fa-futbol" },
+            "ea sports fc": { tag: "Sports", icon: "fa-futbol" },
+            "rocket league": { tag: "Sports", icon: "fa-trophy" }
         };
 
-        function getGameTheme(gameName) {
-            let tag = "Live Gaming";
+        const GENERIC_TAGS = ["", "gaming", "live gaming", "unknown"];
+        function getGameTheme(gameName, categoryOverride) {
+            // A specific API category wins. A generic one ("Gaming" — sent by
+            // older bot builds without metadata) is treated as no opinion so
+            // the local name lookup still yields the real label and icon.
+            const override = (categoryOverride && String(categoryOverride).trim()) || "";
+            let tag = override;
+            let tagFromApi = override !== "" && !GENERIC_TAGS.includes(override.toLowerCase());
+            if (!tagFromApi) tag = "Gaming";
             let icon = "fa-gamepad";
             if (gameName) {
                 const lower = gameName.toLowerCase();
                 for (const [k, meta] of Object.entries(GAME_METADATA)) {
                     if (lower.includes(k)) {
-                        tag = meta.tag;
                         icon = meta.icon;
+                        if (!tagFromApi) tag = meta.tag;
                         break;
                     }
                 }
@@ -2652,7 +2680,48 @@
             return null;
         }
 
+        const LOCAL_FALLBACK_COVER = 'images/games/fallback.svg';
+        // Local static art first (images/games/*), remote existing art as the
+        // automatic backup, neutral local fallback last. Missing local files
+        // therefore never break a card — the cover just falls through.
+        function getGameRemoteOverride(gameName) {
+            const lower = (gameName || '').toLowerCase();
+            if (!lower) return '';
+            for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
+                if (lower.includes(k)) return url;
+            }
+            return '';
+        }
+        function isGenericCover(url) {
+            const u = (url || '').trim().toLowerCase();
+            return u === '' || u.endsWith('fallback.svg') || u.endsWith('fallback.jpg');
+        }
+        // Local curated art first, Discord rich art next, known remote art
+        // next, neutral local fallback last. A generic API value ("Gaming"-
+        // era fallback.svg) counts as no opinion and never wins.
+        function pickCover(game) {
+            const g = game || {};
+            const name = g.name || g.game_name || '';
+            if (g.image && !isGenericCover(g.image)) return { primary: g.image, name };
+            if (g.rich_cover) return { primary: g.rich_cover, name };
+            const remote = getGameRemoteOverride(name);
+            if (remote) return { primary: remote, name };
+            if (g.image) return { primary: g.image, name };
+            return { primary: LOCAL_FALLBACK_COVER, name };
+        }
+        function coverImgHtml(game, alt) {
+            const picked = pickCover(game);
+            const remote = getGameRemoteOverride(picked.name);
+            const fbAttr = (remote && remote !== picked.primary) ? ` data-fb="${remote}"` : '';
+            return `<img src="${picked.primary}" alt="${alt}" loading="lazy" decoding="async"${fbAttr} onerror="if(this.dataset.fb &amp;&amp; this.src !== this.dataset.fb){this.src = this.dataset.fb;}else{this.onerror=null;this.src='${LOCAL_FALLBACK_COVER}';}">`;
+        }
         function getGameImageUrl(game) {
+            // Specific covers win (local curated art, then Discord rich art).
+            // A generic fallback value from an older API counts as no opinion.
+            if (game && typeof game === 'object') {
+                if (game.image && !isGenericCover(game.image)) return game.image;
+                if (game.rich_cover) return game.rich_cover;
+            }
             if (typeof game === 'string') {
                 const lower = game.toLowerCase();
                 for (const [k, url] of Object.entries(GAME_IMAGE_OVERRIDES)) {
@@ -2662,13 +2731,14 @@
                     return GAME_METADATA_CACHE[lower].cover_url;
                 }
                 fetchGameMetadata(game);
-                return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';
+                return LOCAL_FALLBACK_COVER;
             }
             if (game && game.rich_cover) return game.rich_cover;
             if (game && game.player_details && game.player_details[0] && game.player_details[0].rich_cover) {
                 return game.player_details[0].rich_cover;
             }
             const gameName = game && game.name ? game.name : '';
+            if (!gameName) return LOCAL_FALLBACK_COVER;
             return getGameImageUrl(gameName);
         }
 
@@ -2728,6 +2798,54 @@
         let lastGamesDigest = '';
         window.currentLiveGamesState = [];
 
+        function avatar64(url) {
+            const u = (url || '').trim() || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            if (u.includes('cdn.discordapp.com')) return u.split('?')[0] + '?size=64';
+            return u;
+        }
+
+        // Normalize the new public API shape
+        // {game_key,name,category,image,server_players,players:[{name,avatar,details,state,since}],player_count}
+        // to the legacy card shape. Drops entries without a real game name.
+        function normalizeLiveGames(gamesList) {
+            if (!Array.isArray(gamesList)) return [];
+            return gamesList
+                .filter((g) => g && (g.name || g.game_key))
+                .map((g) => {
+                    const name = g.name || g.game_key;
+                    const players = Array.isArray(g.players)
+                        ? g.players
+                        : (Array.isArray(g.player_details) ? g.player_details : (g.players || []));
+                    const details = (g.player_details && g.player_details.length > 0)
+                        ? g.player_details
+                        : players.map((p) => (typeof p === 'string'
+                            ? { name: p, avatar: '', details: '', since: 0 }
+                            : {
+                                name: p.name || 'Member',
+                                avatar: avatar64(p.avatar || ''),
+                                details: p.details || '',
+                                state: p.state || '',
+                                start_timestamp: p.since || 0
+                            }));
+                    const count = g.player_count || g.count || details.length || 1;
+                    let sample = g.sample_detail || '';
+                    if (g.server_players && g.server_players.current !== undefined) {
+                        sample = `Players ${g.server_players.current}/${g.server_players.max || 100}`;
+                    }
+                    if (!sample && details[0]) sample = details[0].details || '';
+                    return {
+                        name, count,
+                        players: details.map((p) => p.name),
+                        player_details: details,
+                        sample_detail: sample,
+                        category: g.category || '',
+                        image: g.image || '',
+                        rich_cover: g.rich_cover || ''
+                    };
+                })
+                .filter((g) => g.player_details.length > 0);
+        }
+
         function renderLiveGames(gamesList) {
             window.hasRenderedLiveGames = true;
             const grid = document.getElementById('live-games-grid');
@@ -2752,7 +2870,10 @@
                 return;
             }
 
-            const games = gamesList;
+            const games = normalizeLiveGames(gamesList);
+            if (games.length === 0 && Array.isArray(gamesList) && gamesList.length > 0) {
+                return; // payload with no usable game rows: keep current cards
+            }
             window.currentLiveGamesState = games;
 
             if (games.length === 1) {
@@ -2797,11 +2918,11 @@
 
             games.forEach((game, idx) => {
                 const card = document.createElement('div');
-                const count = game.count || (game.players ? game.players.length : 1);
+            const count = game.player_count || game.count || (game.players ? game.players.length : 1);
                 const isLive = true;
                 const isHot = maxPlayers >= 2 && count === maxPlayers;
 
-                const theme = getGameTheme(game.name);
+                const theme = getGameTheme(game.name, game.category);
 
                 card.className = `game-card reveal visible ${isHot ? 'is-hot' : ''}`;
                 card.setAttribute('data-game-name', game.name);
@@ -2845,12 +2966,12 @@
                 let avatarsHtml = '<div class="avatar-stack">';
                 visiblePlayers.forEach(p => {
                     const pName = typeof p === 'string' ? p : (p.name || 'Member');
-                    const avatarUrl = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+                    const avatarUrl = avatar64(typeof p === 'string' ? '' : (p.avatar || ''));
                     let detailStr = p.details ? p.details : 'Playing';
                     if (detailStr.includes('???') || !detailStr.trim()) detailStr = 'In Session';
 
                     avatarsHtml += `
-                        <img src="${avatarUrl}" alt="${escapeHtml(pName)}" title="${escapeHtml(pName)} - ${escapeHtml(detailStr)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                        <img src="${avatarUrl}" alt="${escapeHtml(pName)}" title="${escapeHtml(pName)} - ${escapeHtml(detailStr)}" loading="lazy" decoding="async" width="34" height="34" onerror="this.onerror=null;this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
                     `;
                 });
                 if (overflowCount > 0) {
@@ -2862,7 +2983,7 @@
 
                 card.innerHTML = `
                     <div class="game-card-img-wrap">
-                        <img src="${coverUrl}" alt="${escapeHtml(game.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+                        ${coverImgHtml(game, escapeHtml(game.name))}
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
@@ -2924,8 +3045,15 @@
             const countEl = document.getElementById('modal-game-count');
             const listEl = document.getElementById('modal-players-list');
 
-            const count = game.count || (game.players ? game.players.length : 1);
-            if (coverEl) coverEl.src = coverUrl || getGameImageUrl(game);
+            const count = game.player_count || game.count || (game.players ? game.players.length : 1);
+            if (coverEl) {
+                const modalFb = getGameRemoteOverride(game.name);
+                coverEl.onerror = function () {
+                    if (modalFb && coverEl.src !== modalFb) { coverEl.src = modalFb; }
+                    else { coverEl.onerror = null; coverEl.src = LOCAL_FALLBACK_COVER; }
+                };
+                coverEl.src = coverUrl || getGameImageUrl(game);
+            }
             if (titleEl) titleEl.textContent = game.name;
             if (countEl) countEl.textContent = `${count} ${count === 1 ? 'Member' : 'Members'} Active in Session`;
 
@@ -2952,7 +3080,7 @@
                     const item = document.createElement('div');
                     item.className = 'modal-player-item';
                     item.innerHTML = `
-                        <img class="modal-player-avatar" src="${avatarUrl}" alt="${escapeHtml(pName)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                        <img class="modal-player-avatar" src="${avatar64(avatarUrl)}" alt="${escapeHtml(pName)}" loading="lazy" decoding="async" width="44" height="44" onerror="this.onerror=null;this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
                         <div class="modal-player-info">
                             <div class="modal-player-name">${escapeHtml(pName)}</div>
                             <div class="modal-player-detail">${detailStr}</div>
@@ -3017,7 +3145,7 @@
                 text.textContent = 'Real-Time Stream (Active)';
             } else if (mode === 'polling') {
                 dot.className = 'sync-status-dot polling-active';
-                text.textContent = 'Live Sync (4s Interval)';
+                text.textContent = 'Live Sync (10s Interval)';
             } else {
                 dot.className = 'sync-status-dot';
                 text.textContent = 'Sync Standby';
@@ -3218,116 +3346,111 @@
             }
         }
 
-        // ── Real-Time Verified Live Games Snapshot ──
-        // Static snapshot so LIVE never looks broken when the bot
-        // daemon is restarting / unreachable. Replaced by live data
-        // as soon as any /api/* endpoint returns real games.
-        const FALLBACK_LIVE_GAMES = [
-            {
-                name: "Ceylon Roleplay",
-                count: 2,
-                players: ["Animo", "SL_LIDDA"],
-                player_details: [
-                    {
-                        name: "Animo",
-                        username: "4nimo.",
-                        avatar: "https://cdn.discordapp.com/avatars/1226896502216069130/14b1a6863a88ad6d3ae93635f51c387b.png?size=1024",
-                        details: "Players 50/100",
-                        state: "Players 50/100",
-                        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                        start_timestamp: Date.now() - 1000 * 60 * 42
-                    },
-                    {
-                        name: "SL_LIDDA",
-                        username: "sl_lidda",
-                        avatar: "https://cdn.discordapp.com/avatars/1334780362731294812/694cbff5dfbe134c4a18dc78740f0236.png?size=1024",
-                        details: "Players 50/100",
-                        state: "Players 50/100",
-                        rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                        start_timestamp: Date.now() - 1000 * 60 * 31
-                    }
-                ],
-                rich_cover: "https://cdn.discordapp.com/app-assets/945695523376103484/1065968155949797427.png",
-                sample_detail: "Players 50/100"
-            },
-            {
-                name: "VALORANT",
-                count: 1,
-                players: ["Tr!pl3x"],
-                player_details: [
-                    {
-                        name: "Tr!pl3x",
-                        username: "_diaa_x.",
-                        avatar: "https://cdn.discordapp.com/avatars/1279080572504899684/d1f5a6199f68b381f2a6aa301dc496d0.png?size=1024",
-                        details: "Competitive Match",
-                        state: "",
-                        rich_cover: null,
-                        start_timestamp: Date.now() - 1000 * 60 * 12
-                    }
-                ],
-                rich_cover: null,
-                sample_detail: "Competitive Match"
-            },
-            {
-                name: "Dota 2",
-                count: 1,
-                players: ["local leclerc"],
-                player_details: [
-                    {
-                        name: "local leclerc",
-                        username: "leda6605",
-                        avatar: "https://cdn.discordapp.com/avatars/706113392167092276/46fcbfa2b31c84fd30d5f43131cac9dc.png?size=1024",
-                        details: "Ranked Match",
-                        state: "",
-                        rich_cover: null,
-                        start_timestamp: Date.now() - 1000 * 60 * 5
-                    }
-                ],
-                rich_cover: null,
-                sample_detail: "Ranked Match"
+        // ── Live Sessions: REAL data only (no mock/fallback games) ──
+        // Same-origin API (no mixed content on HTTPS). Shows a skeleton
+        // while loading, the friendly empty state when nobody plays, and
+        // the offline state with automatic retry on errors.
+        const LIVE_API_URL = '/api/public/live';
+        const LIVE_STREAM_URL = '/api/public/live/stream';
+        let liveGen = 0;
+        let liveBackoffMs = 0;
+        let liveSse = null;
+        let liveSseFailed = false;
+
+        function renderLiveSkeleton() {
+            const grid = document.getElementById('live-games-grid');
+            if (!grid || window.hasRenderedLiveGames) return;
+            grid.innerHTML = '<div class="live-games-grid">'
+                + '<div class="skeleton-card" aria-hidden="true"></div>'
+                + '<div class="skeleton-card" aria-hidden="true"></div>'
+                + '<div class="skeleton-card" aria-hidden="true"></div>'
+                + '</div>';
+        }
+
+        function pulseCount(el) {
+            try {
+                if (el && el.animate) {
+                    el.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 450, easing: 'ease-out' });
+                }
+            } catch (e) {}
+        }
+
+        async function fetchLiveGames() {
+            const gen = ++liveGen;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                const r = await fetch(LIVE_API_URL + '?_t=' + Date.now(), {
+                    signal: controller.signal, cache: 'no-store'
+                });
+                clearTimeout(timeoutId);
+                if (gen !== liveGen) return; // superseded: single loop only
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const data = await r.json();
+                liveBackoffMs = 0;
+                const games = Array.isArray(data.games) ? data.games : [];
+                const prevTotal = (window.currentLiveGamesState || []).reduce(
+                    (a, g) => a + (g.count || (g.players ? g.players.length : 0)), 0);
+                renderLiveGames(games);
+                const totalEl = document.getElementById('lounge-total-players');
+                const nowTotal = games.reduce(
+                    (a, g) => a + (g.player_count || g.count || (g.players ? g.players.length : 0)), 0);
+                if (totalEl && nowTotal !== prevTotal) pulseCount(totalEl);
+                updateLoungeStats(undefined, undefined, nowTotal);
+            } catch (err) {
+                if (gen !== liveGen) return;
+                // Backoff on errors (5s, 10s, 20s, max 60s); never endless spinner.
+                liveBackoffMs = Math.min(60000, (liveBackoffMs || 5000) * (liveBackoffMs ? 2 : 1));
+                if (!window.hasRenderedLiveGames) showOfflineLounge();
+                setTimeout(() => { if (gen === liveGen && !document.hidden) fetchLiveGames(); }, liveBackoffMs);
             }
-        ];
+        }
 
-        // Immediate initial render for instant live responsiveness
-        renderLiveGames(FALLBACK_LIVE_GAMES);
-        updateLoungeStats(48, 12, 4);
+        function tryLiveSSE() {
+            if (liveSse || liveSseFailed || typeof EventSource === 'undefined') return;
+            try {
+                const es = new EventSource(LIVE_STREAM_URL);
+                liveSse = es;
+                es.onmessage = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.data);
+                        if (data && Array.isArray(data.games)) renderLiveGames(data.games);
+                    } catch (e) {}
+                };
+                es.onerror = () => {
+                    try { es.close(); } catch (e) {}
+                    liveSse = null;
+                    liveSseFailed = true; // fall back to polling permanently
+                };
+            } catch (e) {
+                liveSseFailed = true;
+            }
+        }
 
-        // ── Real-Time Bot & Discord Synchronization Pipeline (Degrade Path) ──
+        renderLiveSkeleton();
+
+        // ── Hero/member stats only. Live game cards come EXCLUSIVELY from
+        // fetchLiveGames() (/api/public/live) so legacy voice/member payloads
+        // can never overwrite real presence cards.
         async function fetchBotData() {
             let d = null;
             const endpoints = [
                 '/api/public_stats?_t=' + Date.now(),
-                '/api/bot_data?_t=' + Date.now(),
-                '/api/voice_live?_t=' + Date.now()
+                '/api/bot_data?_t=' + Date.now()
             ];
 
             for (const url of endpoints) {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 3500);
-                    const r = await fetch(url, { 
+                    const r = await fetch(url, {
                         signal: controller.signal,
                         cache: 'no-store'
                     });
                     clearTimeout(timeoutId);
                     if (r.ok) {
                         const parsed = await r.json();
-                        // Normalize voice_live shape {members/games} to lounge shape
-                        if (parsed && !parsed.top_played_games && !parsed.playing_games) {
-                            const voiceGames = parsed.games || parsed.members || [];
-                            if (Array.isArray(voiceGames) && voiceGames.length > 0) {
-                                parsed.top_played_games = voiceGames;
-                            }
-                        }
-                        if (parsed && (parsed.top_played_games || parsed.playing_games || parsed.members || parsed.games || parsed.total_users || parsed.uptime || parsed.ping)) {
-                            // Skip stale empty payloads while we already show fallback games
-                            const hasLive = (parsed.top_played_games && parsed.top_played_games.length > 0) ||
-                                (parsed.playing_games && parsed.playing_games.length > 0) ||
-                                (parsed.games && parsed.games.length > 0) ||
-                                (parsed.members && parsed.members.length > 0);
-                            if (!hasLive && parsed.stale && window.hasRenderedLiveGames && (window.currentLiveGamesState || []).length > 0) {
-                                continue;
-                            }
+                        if (parsed && (parsed.total_users || parsed.ninja_nexus_members || parsed.uptime || parsed.ping || parsed.uptime_seconds !== undefined)) {
                             d = parsed;
                             break;
                         }
@@ -3352,10 +3475,6 @@
                     updateMemberDisplays(d.ninja_nexus_members);
                 }
 
-                const liveGames = (d.top_played_games && d.top_played_games.length > 0)
-                    ? d.top_played_games
-                    : (d.playing_games && d.playing_games.length > 0 ? d.playing_games : (d.games && d.games.length > 0 ? d.games : []));
-                
                 const totalMembers = (d.total_users !== undefined && d.total_users !== null)
                     ? d.total_users
                     : (d.ninja_nexus_members || currentNinjaNexusMembers || 0);
@@ -3363,29 +3482,7 @@
                     ? d.online_users
                     : (d.presence_count !== undefined ? d.presence_count : 0);
 
-                // Stale empty payload (bot offline) must not wipe live cards.
-                if (liveGames.length === 0 && d.stale && window.hasRenderedLiveGames && (window.currentLiveGamesState || []).length > 0) {
-                    return;
-                }
-
-                const playingCount = liveGames.reduce((acc, g) => acc + (g.count || (g.players ? g.players.length : 1)), 0);
-
-                updateLoungeStats(totalMembers, onlineNow, playingCount);
-                // Empty but fresh payload = genuinely nobody playing.
-                // Stale/failed payload = keep fallback cards, never the offline error.
-                if (liveGames.length > 0 || !d.stale) {
-                    renderLiveGames(liveGames);
-                } else if (!window.hasRenderedLiveGames || (window.currentLiveGamesState || []).length === 0) {
-                    renderLiveGames(FALLBACK_LIVE_GAMES);
-                }
-            } else {
-                // All endpoints unreachable (e.g. opened via file:// or bot
-                // restarting): keep the static fallback cards so LIVE still
-                // shows activity instead of the "feed is offline" error.
-                // showOfflineLounge() is kept for manual debugging only.
-                if (!window.hasRenderedLiveGames || (window.currentLiveGamesState || []).length === 0) {
-                    renderLiveGames(FALLBACK_LIVE_GAMES);
-                }
+                updateLoungeStats(totalMembers, onlineNow, undefined);
             }
         }
 
@@ -3416,19 +3513,28 @@
             fetchDiscordStats();
         }
 
-        // ── Visibility Change Awareness & Polling Fallback Manager ──
-        let statsInterval = null;
-        function startStatsPolling() {
-            if (statsInterval) clearInterval(statsInterval);
-            fetchPublicStats();
-            statsInterval = setInterval(fetchPublicStats, 4000);
+        // ── Single-loop live sync: SSE when reachable, else 10s poll ──
+        // Paused while the tab is hidden, resumed on focus/visibility.
+        let liveInterval = null;
+        let heroInterval = null;
+        function startLiveLoop() {
+            if (liveInterval) clearInterval(liveInterval);
+            tryLiveSSE();
+            fetchLiveGames();
+            liveInterval = setInterval(() => { if (!document.hidden) fetchLiveGames(); }, 10000);
         }
-
-        function stopStatsPolling() {
-            if (statsInterval) {
-                clearInterval(statsInterval);
-                statsInterval = null;
-            }
+        function stopLiveLoop() {
+            if (liveInterval) { clearInterval(liveInterval); liveInterval = null; }
+            liveGen++; // invalidate in-flight fetches: one loop only
+            if (liveSse) { try { liveSse.close(); } catch (e) {} liveSse = null; }
+        }
+        // Back-compat names used by the WS fallback client below.
+        function startStatsPolling() { startLiveLoop(); }
+        function stopStatsPolling() { stopLiveLoop(); }
+        function startHeroLoop() {
+            if (heroInterval) clearInterval(heroInterval);
+            fetchPublicStats();
+            heroInterval = setInterval(() => { if (!document.hidden) fetchPublicStats(); }, 30000);
         }
 
         const liveSocketClient = new NexusLiveSocketClient();
@@ -3436,35 +3542,33 @@
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 liveSocketClient.pause();
-                stopStatsPolling();
+                stopLiveLoop();
             } else {
                 liveSocketClient.resume();
-                if (liveSocketClient.usingFallbackPolling) {
-                    startStatsPolling();
-                }
+                startLiveLoop();
             }
         });
+        window.addEventListener('focus', () => { startLiveLoop(); });
 
-        // Initialize real-time WebSocket client (polling stays the default;
-        // the socket is only an opportunistic upgrade and the dead
-        // api.ninjanexus.duckdns.org host cannot work)
+        // SSE-first, polling fallback; hero stats on their own slow loop.
+        startLiveLoop();
+        startHeroLoop();
         liveSocketClient.connect();
-        startStatsPolling();
 
         // ── Phase 5: Lounge Subnav & Community Stats Loader (real aggregates) ──
         function renderMostPlayedCard(g, idx) {
-            const gameName = g.game_name || g.name || 'Game';
+            const gameName = g.name || g.game_name || 'Game';
             const totalHours = (g.total_hours !== undefined && g.total_hours !== null) ? g.total_hours : 0;
             const playerCount = g.unique_players || 0;
             const playersText = `${playerCount} ${playerCount === 1 ? 'player' : 'players'}, ${totalHours} h`;
             const isHot = idx === 0;
-            const theme = getGameTheme(gameName);
-            const coverUrl = getGameImageUrl(gameName);
+            const theme = getGameTheme(gameName, g.category);
+            const coverUrl = getGameImageUrl(g.image ? g : gameName);
 
             return `
                 <div class="game-card reveal visible ${isHot ? 'is-hot' : ''}" data-game-name="${escapeHtml(gameName)}" style="--game-accent: ${theme.accent}; --game-accent-border: ${theme.border};">
                     <div class="game-card-img-wrap">
-                        <img src="${coverUrl}" alt="${escapeHtml(gameName)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80';">
+                        ${coverImgHtml(g, escapeHtml(gameName))}
                     </div>
                     <div class="game-card-body">
                         <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-gamepad'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
@@ -3482,7 +3586,7 @@
 
         function openMostPlayedModal(g, coverUrl) {
             if (!gameModal) return;
-            const gameName = g.game_name || g.name || 'Game';
+            const gameName = g.name || g.game_name || 'Game';
             const totalHours = (g.total_hours !== undefined && g.total_hours !== null) ? g.total_hours : 0;
             const playerCount = g.unique_players || 0;
             const sessionCount = g.sessions || 0;
@@ -3491,7 +3595,14 @@
             const countEl = document.getElementById('modal-game-count');
             const listEl = document.getElementById('modal-players-list');
 
-            if (coverEl) coverEl.src = coverUrl || getGameImageUrl(gameName);
+            if (coverEl) {
+                const mpFb = getGameRemoteOverride(gameName);
+                coverEl.onerror = function () {
+                    if (mpFb && coverEl.src !== mpFb) { coverEl.src = mpFb; }
+                    else { coverEl.onerror = null; coverEl.src = LOCAL_FALLBACK_COVER; }
+                };
+                coverEl.src = coverUrl || getGameImageUrl(gameName);
+            }
             if (titleEl) titleEl.textContent = gameName;
             if (countEl) countEl.textContent = `${totalHours} h total this week`;
 
@@ -3525,48 +3636,39 @@
             container.querySelectorAll('.game-card').forEach((card, idx) => {
                 const g = gamesList[idx];
                 if (!g) return;
-                const gameName = g.game_name || g.name || 'Game';
-                const coverUrl = getGameImageUrl(gameName);
+                const gameName = g.name || g.game_name || 'Game';
+                const coverUrl = getGameImageUrl(g.image ? g : gameName);
                 card.addEventListener('click', () => {
                     openMostPlayedModal(g, coverUrl);
                 });
             });
         }
 
-        // Static weekly snapshot (mirrors api/public/most-played.js) so the
-        // "Most Played This Week" tab always renders, even when the bot
-        // daemon is restarting or the page is opened via file://.
-        const FALLBACK_MOST_PLAYED = [
-            { game_name: 'VALORANT', total_hours: 38, unique_players: 6, sessions: 12 },
-            { game_name: 'Ceylon Roleplay', total_hours: 32, unique_players: 5, sessions: 9 },
-            { game_name: 'PUBG: BATTLEGROUNDS', total_hours: 24, unique_players: 4, sessions: 8 },
-            { game_name: 'Dota 2', total_hours: 18, unique_players: 3, sessions: 6 },
-            { game_name: 'Minecraft', total_hours: 14, unique_players: 4, sessions: 5 },
-            { game_name: 'Roblox', total_hours: 11, unique_players: 3, sessions: 5 }
-        ];
-
+        // Per-GAME payloads only. Accepts the new bot shape (game_key/name/
+        // category/image) AND the legacy bot shape (name/total_hours/
+        // unique_players/rich_cover, no game_key). Member leaderboards
+        // (voice_stats shape: display_name/total_seconds) are REJECTED here —
+        // mapping them into game cards was the wrong-data bug (member names
+        // as titles, "1 player", generic labels).
         function normalizeMostPlayed(data) {
             if (!data) return [];
-            if (Array.isArray(data.games) && data.games.length > 0) return data.games;
-            // voice_stats shape: { leaderboard: [{ display_name, total_seconds }] }
-            if (Array.isArray(data.leaderboard) && data.leaderboard.length > 0) {
-                return data.leaderboard.slice(0, 6).map((u) => {
-                    const hours = Math.max(1, Math.round((u.total_seconds || 0) / 3600));
-                    return {
-                        game_name: u.display_name || u.handle || u.name || 'Game',
-                        total_hours: hours,
-                        unique_players: 1,
-                        sessions: Math.max(1, Math.round(hours / 2))
-                    };
-                });
-            }
-            if (Array.isArray(data.top) && data.top.length > 0) {
-                return data.top.slice(0, 6).map((t) => ({
-                    game_name: t.name || t.game_name || 'Game',
-                    total_hours: 4,
-                    unique_players: 1,
-                    sessions: 2
-                }));
+            if (Array.isArray(data.games)) {
+                return data.games
+                    .filter((g) => g && (g.name || g.game_name)
+                        && (g.total_hours !== undefined || g.unique_players !== undefined))
+                    .slice(0, 9)
+                    .map((g, i) => ({
+                        rank: g.rank ?? i + 1,
+                        game_key: g.game_key || '',
+                        name: g.name || g.game_name || 'Game',
+                        category: g.category || 'Gaming',
+                        image: g.image || g.rich_cover || 'images/games/fallback.svg',
+                        rich_cover: g.rich_cover || null,
+                        unique_players: g.unique_players ?? 0,
+                        total_hours: g.total_hours ?? 0,
+                        sessions: g.sessions ?? 0,
+                        top_players: Array.isArray(g.top_players) ? g.top_players : []
+                    }));
             }
             return [];
         }
@@ -3581,22 +3683,33 @@
             bindMostPlayedCards(container, games);
         }
 
+        let mostPlayedGen = 0;
         async function fetchMostPlayedStats() {
             const container = document.getElementById('lounge-most-played-container');
             if (!container) return;
+            const gen = ++mostPlayedGen;
 
+            // Skeleton while loading (same card grid, no layout shift).
+            container.innerHTML = '<div class="live-games-grid" aria-busy="true">'
+                + '<div class="skeleton-card" aria-hidden="true"></div>'
+                + '<div class="skeleton-card" aria-hidden="true"></div>'
+                + '<div class="skeleton-card" aria-hidden="true"></div>'
+                + '</div>';
+
+            // Same-origin only (no mixed content). Per-GAME endpoints only —
+            // voice_stats is intentionally NOT consulted (member shape).
             const endpoints = [
-                '/api/public/most-played?period=week',
-                '/api/stats/most-played?period=week',
-                '/api/voice_stats?range=week&limit=6'
+                '/api/public/most-played?range=7d',
+                '/api/stats/most-played?range=7d'
             ];
 
             for (const url of endpoints) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3500);
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
                     const resp = await fetch(url, { signal: controller.signal, cache: 'no-store' });
                     clearTimeout(timeoutId);
+                    if (gen !== mostPlayedGen) return; // superseded
                     if (!resp.ok) continue;
                     const data = await resp.json();
                     const games = normalizeMostPlayed(data);
@@ -3604,36 +3717,57 @@
                         renderMostPlayedGames(container, games);
                         return;
                     }
+                    // Valid empty (nobody tracked yet) or wrong shape: try next.
                 } catch (err) {}
             }
 
-            // All endpoints unreachable: render the static snapshot instead
-            // of the "Stats are unavailable" error so the tab always works.
-            renderMostPlayedGames(container, FALLBACK_MOST_PLAYED);
+            if (gen !== mostPlayedGen) return;
+            // Error/empty state: friendly empty cards + automatic retry in 30s.
+            // Never an endless spinner, never mock games.
+            container.innerHTML = '<div class="live-games-grid"><div class="empty-lounge-state">'
+                + '<div class="empty-lounge-box">'
+                + '<h3 class="empty-lounge-title">No playtime logged this week yet.</h3>'
+                + '<p class="empty-lounge-sub">Play a game on Discord and it will show up here.</p>'
+                + '<div class="empty-lounge-actions">'
+                + '<a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">'
+                + '<i class="fab fa-discord"></i></a></div></div></div>';
+            setTimeout(() => {
+                const mostPlayed = document.getElementById('lounge-most-played-container');
+                if (gen === mostPlayedGen && mostPlayed && mostPlayed.style.display !== 'none' && !document.hidden) {
+                    fetchMostPlayedStats();
+                }
+            }, 30000);
         }
 
-        // Subnav switcher
+        // Subnav switcher (selected tab persists across refreshes).
+        function setLoungeTab(tab) {
+            document.querySelectorAll('.lounge-tab-btn').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-lounge-tab') === tab);
+            });
+            const liveGrid = document.getElementById('live-games-grid');
+            const mostPlayed = document.getElementById('lounge-most-played-container');
+            if (tab === 'most-played') {
+                if (liveGrid) liveGrid.style.display = 'none';
+                if (mostPlayed) {
+                    mostPlayed.style.display = '';
+                    fetchMostPlayedStats();
+                }
+            } else {
+                if (liveGrid) liveGrid.style.display = '';
+                if (mostPlayed) mostPlayed.style.display = 'none';
+            }
+            try { localStorage.setItem('nexus-lounge-tab', tab); } catch (e) {}
+        }
         document.querySelectorAll('.lounge-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.lounge-tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                const tab = btn.getAttribute('data-lounge-tab');
-                const liveGrid = document.getElementById('live-games-grid');
-                const mostPlayed = document.getElementById('lounge-most-played-container');
-
-                if (tab === 'live') {
-                    if (liveGrid) liveGrid.style.display = '';
-                    if (mostPlayed) mostPlayed.style.display = 'none';
-                } else if (tab === 'most-played') {
-                    if (liveGrid) liveGrid.style.display = 'none';
-                    if (mostPlayed) {
-                        mostPlayed.style.display = '';
-                        fetchMostPlayedStats();
-                    }
-                }
+                setLoungeTab(btn.getAttribute('data-lounge-tab'));
             });
         });
+        // Restore the selected tab (default: live) without changing design.
+        try {
+            const savedTab = localStorage.getItem('nexus-lounge-tab');
+            if (savedTab === 'most-played') setLoungeTab('most-played');
+        } catch (e) {}
     </script>
 
     <!-- ── BACKGROUND MUSIC & CONTROLLER ─────────────────────── -->

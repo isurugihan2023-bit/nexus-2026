@@ -81,6 +81,45 @@ class GamingDatabase:
                 cursor.execute("ALTER TABLE voice_sessions ADD COLUMN channel_name TEXT")
             if "is_bot" not in existing_cols:
                 cursor.execute("ALTER TABLE voice_sessions ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
+            # ── Game sessions (Discord presence Playing/Competing). Additive only.
+            # started_at/last_seen/ended_at are UTC epoch MILLISECONDS. ended_at NULL = open.
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS game_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    guild_id TEXT NOT NULL DEFAULT '',
+                    user_id TEXT NOT NULL,
+                    username TEXT NOT NULL DEFAULT '',
+                    avatar_url TEXT NOT NULL DEFAULT '',
+                    game_key TEXT NOT NULL,
+                    game_name TEXT NOT NULL,
+                    details TEXT NOT NULL DEFAULT '',
+                    state TEXT NOT NULL DEFAULT '',
+                    started_at INTEGER NOT NULL,
+                    last_seen INTEGER NOT NULL,
+                    ended_at INTEGER
+                );
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_gamesess_game ON game_sessions(game_key);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_gamesess_user ON game_sessions(user_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_gamesess_started ON game_sessions(started_at);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_gamesess_open ON game_sessions(ended_at);")
+            gcols = {row[1] for row in cursor.execute("PRAGMA table_info(game_sessions)").fetchall()}
+            for _col, _ddl in (
+                ("guild_id", "ALTER TABLE game_sessions ADD COLUMN guild_id TEXT NOT NULL DEFAULT ''"),
+                ("avatar_url", "ALTER TABLE game_sessions ADD COLUMN avatar_url TEXT NOT NULL DEFAULT ''"),
+                ("details", "ALTER TABLE game_sessions ADD COLUMN details TEXT NOT NULL DEFAULT ''"),
+                ("state", "ALTER TABLE game_sessions ADD COLUMN state TEXT NOT NULL DEFAULT ''"),
+                ("last_seen", "ALTER TABLE game_sessions ADD COLUMN last_seen INTEGER NOT NULL DEFAULT 0"),
+            ):
+                if _col not in gcols:
+                    cursor.execute(_ddl)
+            # ── Privacy opt-outs. Additive only; public output excludes these users.
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS privacy_optouts (
+                    user_id TEXT PRIMARY KEY,
+                    created_at INTEGER NOT NULL
+                );
+            """)
             conn.commit()
             logger.info(f"[DB] Initialized SQLite database at {self.db_path}")
 
@@ -383,3 +422,190 @@ class GamingDatabase:
                 entry["rank"] = idx
                 entry["total_hours"] = round(entry["total_seconds"] / 3600, 1)
             return ranked
+
+    # ── Game sessions (presence Playing/Competing) ────────────────────
+    # UTC epoch MILLISECONDS everywhere. ended_at IS NULL = open session.
+
+    def open_game_session(self, guild_id: str, user_id: str, username: str,
+                          avatar_url: str, game_key: str, game_name: str,
+                          details: str = "", state: str = "",
+                          started_at: Optional[int] = None,
+                          now_ms: Optional[int] = None) -> int:
+        """Close this user's other open game rows, then open the new game."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        start = started_at if started_at is not None else now
+        if start > now:
+            start = now
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE game_sessions SET ended_at = ? WHERE user_id = ? AND ended_at IS NULL",
+                (now, str(user_id)),
+            )
+            cursor.execute(
+                """INSERT INTO game_sessions
+                   (guild_id, user_id, username, avatar_url, game_key, game_name,
+                    details, state, started_at, last_seen, ended_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)""",
+                (str(guild_id or ""), str(user_id), str(username or ""),
+                 str(avatar_url or ""), str(game_key), str(game_name),
+                 str(details or "")[:140], str(state or "")[:140], int(start), int(now)),
+            )
+            sid = cursor.lastrowid
+            conn.commit()
+            return int(sid)
+
+    def heartbeat_game_session(self, user_id: str, game_key: str,
+                               now_ms: Optional[int] = None,
+                               details: str = "", state: str = "") -> int:
+        """Refresh last_seen (60s heartbeat). Returns rows touched."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """UPDATE game_sessions SET last_seen = ?, details = ?, state = ?
+                   WHERE user_id = ? AND game_key = ? AND ended_at IS NULL""",
+                (int(now), str(details or "")[:140], str(state or "")[:140],
+                 str(user_id), str(game_key)),
+            )
+            conn.commit()
+            return cursor.rowcount
+
+    def close_user_game_sessions(self, user_id: str, ended_at: Optional[int] = None) -> int:
+        """Close all open game rows for a user (stop/switch/offline)."""
+        now = ended_at if ended_at is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, last_seen, started_at FROM game_sessions WHERE user_id = ? AND ended_at IS NULL",
+                (str(user_id),),
+            )
+            rows = cursor.fetchall()
+            for row in rows:
+                sane_end = max(int(now), int(row["last_seen"] or row["started_at"]))
+                cursor.execute("UPDATE game_sessions SET ended_at = ? WHERE id = ?",
+                               (sane_end, row["id"]))
+            conn.commit()
+            return len(rows)
+
+    def close_orphaned_game_sessions(self, now_ms: Optional[int] = None) -> int:
+        """On bot startup: close every still-open row at its last_seen (honest)."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, last_seen, started_at FROM game_sessions WHERE ended_at IS NULL")
+            rows = cursor.fetchall()
+            for row in rows:
+                end = int(row["last_seen"] or row["started_at"])
+                if end > now:
+                    end = now
+                cursor.execute("UPDATE game_sessions SET ended_at = ? WHERE id = ?",
+                               (end, row["id"]))
+            conn.commit()
+            return len(rows)
+
+    def prune_old_game_sessions(self, older_than_ms: Optional[int] = None,
+                                now_ms: Optional[int] = None) -> int:
+        """Delete sessions that ended (or started) more than 30 days ago."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        cutoff = now - (older_than_ms if older_than_ms is not None else 30 * 86400 * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "DELETE FROM game_sessions WHERE COALESCE(ended_at, started_at) < ?",
+                (int(cutoff),),
+            )
+            conn.commit()
+            return cursor.rowcount
+
+    def get_open_game_sessions(self) -> List[Dict[str, Any]]:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """SELECT id, guild_id, user_id, username, avatar_url, game_key,
+                          game_name, details, state, started_at, last_seen, ended_at
+                   FROM game_sessions WHERE ended_at IS NULL ORDER BY started_at ASC""")
+            return [dict(r) for r in cursor.fetchall()]
+
+    # ── Privacy opt-outs ────────────────────────────────────────────
+    def set_privacy_optout(self, user_id: str, opted_out: bool = True) -> None:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            if opted_out:
+                cursor.execute(
+                    "INSERT OR IGNORE INTO privacy_optouts (user_id, created_at) VALUES (?, ?)",
+                    (str(user_id), int(time.time() * 1000)),
+                )
+            else:
+                cursor.execute("DELETE FROM privacy_optouts WHERE user_id = ?",
+                               (str(user_id),))
+            conn.commit()
+
+    def get_privacy_optouts(self) -> List[str]:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id FROM privacy_optouts")
+            return [str(r["user_id"]) for r in cursor.fetchall()]
+
+    def get_game_most_played(self, range_ms: int = 7 * 86400 * 1000,
+                             limit: int = 9,
+                             now_ms: Optional[int] = None,
+                             exclude_user_ids: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """Per-GAME aggregation. Clips sessions overlapping the range edges;
+        active sessions count up to now. Sorted by total hours desc."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        start = int(now - range_ms)
+        excluded = set(str(u) for u in (exclude_user_ids or []))
+        try:
+            excluded.update(self.get_privacy_optouts())
+        except Exception:
+            pass
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """SELECT game_key, game_name, user_id, username, avatar_url,
+                          started_at, COALESCE(ended_at, ?) AS ended_at
+                   FROM game_sessions WHERE started_at < ? AND COALESCE(ended_at, ?) > ?""",
+                (now, now, now, start),
+            )
+            agg: Dict[str, Dict[str, Any]] = {}
+            users: Dict[str, Dict[str, set]] = {}
+            for row in cursor.fetchall():
+                uid = str(row["user_id"])
+                if uid in excluded:
+                    continue
+                s = max(int(row["started_at"]), start)
+                e = min(int(row["ended_at"]), now)
+                span_ms = e - s
+                if span_ms <= 0:
+                    continue
+                key = str(row["game_key"])
+                entry = agg.setdefault(key, {
+                    "game_key": key, "game_name": str(row["game_name"]),
+                    "total_ms": 0, "sessions": 0,
+                })
+                entry["total_ms"] += span_ms
+                entry["sessions"] += 1
+                bucket = users.setdefault(key, {})
+                if uid not in bucket:
+                    bucket[uid] = {"name": str(row["username"] or "Member"),
+                                   "avatar": str(row["avatar_url"] or "")}
+            ranked = sorted(agg.values(), key=lambda x: x["total_ms"], reverse=True)[:int(limit)]
+            out = []
+            for idx, entry in enumerate(ranked, 1):
+                sec = int(entry["total_ms"] // 1000)
+                members = users.get(entry["game_key"], {})
+                top = [{"name": v.get("name", "Member"), "avatar": v.get("avatar", "")}
+                       for uid, v in list(members.items())[:4]]
+                out.append({
+                    "rank": idx,
+                    "game_key": entry["game_key"],
+                    "name": entry["game_name"],
+                    "unique_players": len(members),
+                    "total_seconds": sec,
+                    "total_hours": round(sec / 3600, 1),
+                    "sessions": entry["sessions"],
+                    "top_players": top,
+                })
+            return out

@@ -11,8 +11,8 @@ from .db import GamingDatabase
 
 logger = logging.getLogger("nexus.metadata")
 
-DEFAULT_FALLBACK_COVER = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80"
-DEFAULT_FALLBACK_GENRE = "Live Gaming"
+DEFAULT_FALLBACK_COVER = "images/games/fallback.svg"
+DEFAULT_FALLBACK_GENRE = "Gaming"
 
 class GameMetadataResolver:
     def __init__(self, db: GamingDatabase, rawg_api_key: Optional[str] = None):
