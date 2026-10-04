@@ -16,6 +16,8 @@ from .live_ws import LiveGamesWebSocketManager, extract_game_activity
 from .stats_api import StatsApiRouter
 from .rawg import GameMetadataResolver
 from .logger import setup_nexus_logger
+from . import game_tracker
+from .public_api import PublicApiRouter
 from .voice_tracker import (
     reconcile_voice_sessions,
     handle_voice_state_update,
@@ -52,6 +54,7 @@ def get_current_live_games():
                     }
                 games_map[gname]["count"] += 1
                 games_map[gname]["players"].append(act["username"])
+                # Public payload: display name + avatar only, never raw IDs.
                 games_map[gname]["player_details"].append({
                     "name": act["username"],
                     "avatar": act["avatar"],
@@ -63,47 +66,48 @@ def get_current_live_games():
 # 3. Setup WebSocket manager and REST routers
 ws_manager = LiveGamesWebSocketManager(get_current_snapshot_callback=get_current_live_games)
 stats_router = StatsApiRouter(db, resolver)
+public_router = PublicApiRouter(db)
+_tracker_cfg = game_tracker.load_tracker_config()
 
-# 4. Hook into presenceUpdate event
+# 4. Hook into presenceUpdate event (REAL game sessions -> game_sessions table).
+# Requires the GuildPresences privileged intent BOTH in code (below) and in the
+# Discord Developer Portal (Bot > Privileged Gateway Intents > Presence Intent).
 @bot.event
 async def on_presence_update(before: discord.Member, after: discord.Member):
-    old_act = extract_game_activity(before)
-    new_act = extract_game_activity(after)
-
-    # Member started playing or switched game
-    if new_act and (not old_act or old_act["game_name"] != new_act["game_name"]):
-        # Update SQLite session
-        db.start_session(new_act["player_id"], new_act["username"], new_act["game_name"], new_act["start_timestamp"])
-        # Broadcast delta
-        await ws_manager.broadcast_delta(
-            action="PLAYER_JOINED",
-            game_name=new_act["game_name"],
-            player_data=new_act
-        )
-        logger.info(f"[PRESENCE] {new_act['username']} started playing {new_act['game_name']}")
-
-    # Member stopped playing
-    elif old_act and not new_act:
-        db.end_session(old_act["player_id"])
-        await ws_manager.broadcast_delta(
-            action="PLAYER_LEFT",
-            game_name=old_act["game_name"],
-            player_data=old_act
-        )
-        logger.info(f"[PRESENCE] {old_act['username']} stopped playing {old_act['game_name']}")
-
-    # Member updated details (e.g. changed map / in lobby)
-    elif old_act and new_act and old_act["details"] != new_act["details"]:
-        await ws_manager.broadcast_delta(
-            action="PLAYER_UPDATED",
-            game_name=new_act["game_name"],
-            player_data=new_act
-        )
+    now_ms = int(__import__("time").time() * 1000)
+    old_act, new_act = game_tracker.diff_presence(before, after, _tracker_cfg)
+    action = game_tracker.handle_presence_update(
+        db, before, after, now_ms=now_ms, cfg=_tracker_cfg,
+        guild_id=str(getattr(after.guild, "id", "") if getattr(after, "guild", None) else ""))
+    try:
+        public_router.invalidate_live()
+    except Exception:
+        pass
+    if action in ("START", "SWITCH") and new_act:
+        # Legacy sessions table kept for the old leaderboard endpoints.
+        try:
+            db.start_session(str(after.id), new_act["username"], new_act["game_name"],
+                             new_act.get("start_timestamp") or now_ms)
+        except Exception:
+            pass
+        await ws_manager.broadcast_delta(action="PLAYER_JOINED",
+                                         game_name=new_act["game_name"], player_data=new_act)
+    elif action == "STOP" and old_act:
+        try:
+            db.end_session(str(before.id if before is not None else after.id), now_ms)
+        except Exception:
+            pass
+        await ws_manager.broadcast_delta(action="PLAYER_LEFT",
+                                         game_name=old_act["game_name"], player_data=old_act)
+    elif action == "UPDATE" and new_act:
+        await ws_manager.broadcast_delta(action="PLAYER_UPDATED",
+                                         game_name=new_act["game_name"], player_data=new_act)
 
 # 5. Attach WebSocket & REST routes to existing aiohttp application
 def setup_web_server(app: web.Application):
     ws_manager.attach_routes(app, path="/ws/live-games")
     stats_router.attach_routes(app)
+    public_router.attach_routes(app, bot_guilds_provider=lambda: list(bot.guilds))
     # (Your existing routes /api/public_stats and /api/bot_data stay untouched)
 
     # ── Voice-live endpoint: same {"count", "members"} shape the dashboard
@@ -125,6 +129,69 @@ async def on_ready():
         "[VOICE] Reconcile on ready: closed=%d restarted=%d opened=%d",
         len(report["closed_stale"]), len(report["restarted"]), len(report["opened_fresh"])
     )
+    # Game sessions: close orphans at last_seen, rebuild live set from members,
+    # prune >30d history, then start the 60s heartbeat + daily prune loops.
+    try:
+        import time as _t
+        now_ms = int(_t.time() * 1000)
+        orphaned = db.close_orphaned_game_sessions(now_ms=now_ms)
+        live = game_tracker.scan_live_members(list(bot.guilds), _tracker_cfg)
+        for uid, act in live.items():
+            db.open_game_session(guild_id=act.get("guild_id", ""), user_id=uid,
+                                 username=act["username"], avatar_url=act["avatar"],
+                                 game_key=act["game_key"], game_name=act["game_name"],
+                                 details=act.get("details", ""), state=act.get("state", ""),
+                                 started_at=act.get("start_timestamp") or now_ms, now_ms=now_ms)
+        pruned = db.prune_old_game_sessions(now_ms=now_ms)
+        logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d",
+                    orphaned, len(live), pruned)
+    except Exception as e:
+        logger.warning("[GAMES] Boot rebuild failed: %s", e)
+    bot.loop.create_task(_game_heartbeat_loop())
+    bot.loop.create_task(_game_prune_loop())
+
+
+async def _game_heartbeat_loop():
+    """60s heartbeat: refresh last_seen for everyone still playing."""
+    import asyncio as _aio
+    import time as _t
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        try:
+            now_ms = int(_t.time() * 1000)
+            live = game_tracker.scan_live_members(list(bot.guilds), _tracker_cfg)
+            for uid, act in live.items():
+                try:
+                    db.heartbeat_game_session(uid, act["game_key"], now_ms=now_ms,
+                                              details=act.get("details", ""),
+                                              state=act.get("state", ""))
+                except Exception:
+                    pass
+            try:
+                public_router.invalidate_live()
+            except Exception:
+                pass
+        except Exception:
+            pass
+        try:
+            await _aio.sleep(60)
+        except Exception:
+            break
+
+
+async def _game_prune_loop():
+    import asyncio as _aio
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        try:
+            await _aio.sleep(24 * 3600)
+            try:
+                import time as _t
+                db.prune_old_game_sessions(now_ms=int(_t.time() * 1000))
+            except Exception:
+                pass
+        except Exception:
+            break
 
 
 @bot.event
