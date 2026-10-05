@@ -1,0 +1,128 @@
+// Shared website-proxy helpers (Vercel: `api/_*.js` is never routed).
+//
+// - Live bot host FIRST, dead legacy IPs removed from the defaults.
+//   Operators can still override via BOT_UPSTREAM (comma-separated).
+// - 2.5s per-upstream timeout; a host that times out/refuses is
+//   short-circuited for 30s so one dead upstream can't serialize delay.
+// - Local-first cover resolution: bot-provided absolute image URLs are
+//   NEVER trusted (the old same-origin /static/* URLs hang for 20s+ and
+//   http:// URLs are blocked as mixed content on the HTTPS page).
+
+const LIVE_UPSTREAM = 'http://157.90.181.183:23063';
+const DOWN_MS = 30000;
+const downUntil = new Map(); // best-effort per-instance short-circuit
+
+export function upstreamBases() {
+    const env = (process.env.BOT_UPSTREAM || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    if (env.length > 0) return env;
+    return [LIVE_UPSTREAM];
+}
+
+export function isDown(base) {
+    return (downUntil.get(base) || 0) > Date.now();
+}
+
+function markDown(base) {
+    downUntil.set(base, Date.now() + DOWN_MS);
+}
+
+function markUp(base) {
+    downUntil.delete(base);
+}
+
+// GET path from the first reachable upstream. Returns { res, base, ms }
+// or null when every upstream is down/skipped. Network errors and aborts
+// mark the host down for 30s; HTTP statuses do not (a 401/404 is an answer).
+export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy') {
+    for (const base of upstreamBases()) {
+        if (isDown(base)) {
+            console.log(`[${tag}] skip known-down ${base}`);
+            continue;
+        }
+        const url = `${base}${path}`;
+        const started = Date.now();
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            const res = await fetch(url, {
+                signal: controller.signal,
+                headers: { Accept: 'application/json' }
+            });
+            clearTimeout(timeoutId);
+            console.log(`[${tag}] upstream ${url} -> ${res.status} in ${Date.now() - started}ms`);
+            return { res, base, ms: Date.now() - started };
+        } catch (e) {
+            console.log(`[${tag}] upstream ${url} failed in ${Date.now() - started}ms: ${e.message}`);
+            markDown(base);
+        }
+    }
+    return null;
+}
+
+export function slugOf(name) {
+    return String(name || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+const ROBOT_FALLBACK = 'images/games/fallback.svg';
+
+// Category label (bot `category`, or the game name) -> shipped local art.
+// Everything here exists in images/games/*, so a card never renders blank.
+const CATEGORY_ART = [
+    [/fivem|roleplay|gta|ceylon/i, 'images/games/cat-fivem.svg'],
+    [/tactical|fps|shooter|cod|call of duty|overwatch/i, 'images/games/cat-tactical-fps.svg'],
+    [/battle royale|battlegrounds|pubg|fortnite|warzone|apex/i, 'images/games/cat-battle-royale.svg'],
+    [/platform|fighter|brawl/i, 'images/games/cat-platform.svg'],
+    [/rac|f1|formula|forza|driving/i, 'images/games/cat-racing.svg'],
+    [/moba|strategy|dota|league of legends/i, 'images/games/cat-moba.svg'],
+    [/action|wuther|wukong|rpg|adventure|genshin/i, 'images/games/cat-action-rpg.svg'],
+    [/sandbox|survival|craft|rust|minecraft|roblox/i, 'images/games/cat-sandbox.svg'],
+    [/sport|football|fifa|rocket league/i, 'images/games/cat-sports.svg']
+];
+
+export function categoryArt(category, name) {
+    const hay = `${category || ''} ${name || ''}`;
+    for (const [re, art] of CATEGORY_ART) {
+        if (re.test(hay)) return art;
+    }
+    return ROBOT_FALLBACK;
+}
+
+// Local-first cover for one game. `image` is a relative website path
+// (a per-game images/games/<game_key>.jpg drop-in when present, otherwise
+// the 404 falls through instantly to `fallback`). Absolute bot URLs are
+// deliberately discarded — never http://, never a hanging /static/* URL.
+export function localCover(game) {
+    const g = game || {};
+    const key = slugOf(g.game_key || g.name || g.game_name) || 'game';
+    const fallback = categoryArt(g.category, g.name || g.game_name);
+    return {
+        image: `images/games/${key}.jpg`,
+        fallback,
+        robot: ROBOT_FALLBACK
+    };
+}
+
+// Rewrite one proxied game row to the local-first cover shape.
+export function sanitizeGameRow(g, i) {
+    const name = g.name || g.game_name || 'Game';
+    const cover = localCover({ game_key: g.game_key, name, category: g.category });
+    return {
+        rank: g.rank ?? i + 1,
+        game_key: g.game_key || slugOf(name),
+        name,
+        category: g.category || 'Gaming',
+        image: cover.image,
+        fallback: cover.fallback,
+        rich_cover: null,
+        unique_players: g.unique_players ?? 0,
+        total_hours: g.total_hours ?? 0,
+        sessions: g.sessions ?? 0,
+        top_players: Array.isArray(g.top_players) ? g.top_players.slice(0, 4) : []
+    };
+}

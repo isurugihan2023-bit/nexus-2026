@@ -1,38 +1,51 @@
+import { fetchUpstream, sanitizeGameRow } from '../../_nexus.js';
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, If-None-Match');
-    res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=5, stale-while-revalidate=10');
+    res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=5, stale-while-revalidate=30');
 
     if (req.method === 'OPTIONS') {
         return res.status(204).end();
     }
 
-    const upstreams = upstreamBases().map((b) => `${b}/api/public/live`);
-
-    for (const url of upstreams) {
-        const started = Date.now();
+    const hit = await fetchUpstream('/api/public/live', 2500, 'live');
+    if (hit) {
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const upstream = await fetch(url, {
-                signal: controller.signal,
-                headers: { Accept: 'application/json' }
-            });
-            clearTimeout(timeoutId);
-            console.log(`[live] upstream ${url} -> ${upstream.status} in ${Date.now() - started}ms`);
-            if (upstream.ok) {
-                const data = await upstream.json();
-                if (data && Array.isArray(data.games)) {
-                    console.log(`[live] serving ${data.games.length} games (${data.total_playing ?? 0} playing) from ${url}`);
-                    return res.status(200).json({ ...data, stale: false });
-                }
-                console.log(`[live] ${url} returned no games array`);
-            } else if (upstream.status === 401) {
-                console.log(`[live] ${url} requires auth (401) — new bot API not deployed or route not whitelisted there`);
+            const data = await hit.res.json();
+            if (data && Array.isArray(data.games)) {
+                const games = data.games
+                    .filter((g) => g && (g.game_key || g.name || g.game_name))
+                    .map((g, i) => {
+                        const clean = sanitizeGameRow(
+                            { ...g, name: g.name || g.game_name },
+                            i
+                        );
+                        // Preserve live-session fields the cards need.
+                        return {
+                            ...clean,
+                            players: Array.isArray(g.players) ? g.players : [],
+                            player_details: Array.isArray(g.player_details)
+                                ? g.player_details
+                                : [],
+                            player_count: g.player_count ?? g.count ?? 0,
+                            count: g.player_count ?? g.count ?? 0,
+                            sample_detail: g.sample_detail || '',
+                            server_players: g.server_players || null
+                        };
+                    });
+                console.log(`[live] serving ${games.length} games from ${hit.base} in ${hit.ms}ms`);
+                return res.status(200).json({
+                    ...data,
+                    games,
+                    total_playing: data.total_playing ?? games.length,
+                    stale: false
+                });
             }
+            console.log(`[live] ${hit.base} returned no games array`);
         } catch (e) {
-            console.log(`[live] upstream ${url} failed in ${Date.now() - started}ms: ${e.message}`);
+            console.log(`[live] ${hit.base} bad JSON: ${e.message}`);
         }
     }
 
@@ -44,11 +57,4 @@ export default async function handler(req, res) {
         total_playing: 0,
         stale: true
     });
-}
-
-function upstreamBases() {
-    const env = (process.env.BOT_UPSTREAM || '').split(',').map((s) => s.trim()).filter(Boolean);
-    if (env.length > 0) return env;
-    // 157.90.181.183:23063 is the current bot host; 92.x is the legacy fallback.
-    return ['http://157.90.181.183:23063', 'http://92.118.206.166:30038'];
 }

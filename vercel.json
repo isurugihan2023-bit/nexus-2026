@@ -6,55 +6,38 @@
     },
     {
       "source": "/members",
-      "destination": "http://92.118.206.166:30038/members"
+      "destination": "http://157.90.181.183:23063/members"
     },
     {
       "source": "/admin_login",
-      "destination": "http://92.118.206.166:30038/admin_login"
+      "destination": "http://157.90.181.183:23063/admin_login"
     },
     {
       "source": "/dashboard",
-      "destination": "http://92.118.206.166:30038/dashboard"
+      "destination": "http://157.90.181.183:23063/dashboard"
     },
     {
       "source": "/admin_dashboard",
-      "destination": "http://92.118.206.166:30038/admin_dashboard"
+      "destination": "http://157.90.181.183:23063/admin_dashboard"
     },
     {
       "source": "/servers",
-      "destination": "http://92.118.206.166:30038/servers"
+      "destination": "http://157.90.181.183:23063/servers"
     },
     {
       "source": "/admin",
-      "destination": "http://92.118.206.166:30038/admin"
+      "destination": "http://157.90.181.183:23063/admin"
     },
     {
       "source": "/admin/:path*",
-      "destination": "http://92.118.206.166:30038/admin/:path*"
+      "destination": "http://157.90.181.183:23063/admin/:path*"
     },
     {
       "source": "/static/:path*",
-      "destination": "http://92.118.206.166:30038/static/:path*"
+      "destination": "http://157.90.181.183:23063/static/:path*"
     }
   ],
   "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate, max-age=0"
-        },
-        {
-          "key": "Pragma",
-          "value": "no-cache"
-        },
-        {
-          "key": "Expires",
-          "value": "0"
-        }
-      ]
-    },
     {
       "source": "/(.*)",
       "headers": [

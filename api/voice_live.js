@@ -1,3 +1,5 @@
+import { fetchUpstream } from './_nexus.js';
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -8,17 +10,10 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
-        const upstream = await fetch('http://92.118.206.166:30038/api/voice_live', {
-            signal: controller.signal,
-            headers: { 'Accept': 'application/json' }
-        });
-        clearTimeout(timeoutId);
-
-        if (upstream.ok) {
-            const data = await upstream.json();
+    const hit = await fetchUpstream('/api/voice_live', 2500, 'voice_live');
+    if (hit) {
+        try {
+            const data = await hit.res.json();
             // Normalize to every shape the frontend understands:
             // {count, members} (voice) + {games, top_played_games} (lounge).
             const members = Array.isArray(data.members) ? data.members : (Array.isArray(data.games) ? data.games : []);
@@ -31,9 +26,9 @@ export default async function handler(req, res) {
                 top_played_games: Array.isArray(data.top_played_games) ? data.top_played_games : games,
                 stale: false
             });
+        } catch (e) {
+            console.log(`[voice_live] ${hit.base} bad JSON: ${e.message}`);
         }
-    } catch (e) {
-        // Fall through to empty live state
     }
 
     return res.status(200).json({
