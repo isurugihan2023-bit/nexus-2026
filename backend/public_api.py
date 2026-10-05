@@ -156,9 +156,14 @@ def _empty_live_payload() -> Dict[str, Any]:
 
 
 class PublicApiRouter:
-    def __init__(self, db, fivem_address: str = ""):
+    def __init__(self, db, fivem_address: str = "", images_dir: str = ""):
         self.db = db
         self.fivem_address = fivem_address or os.getenv("FIVEM_SERVER_ADDRESS", "")
+        try:
+            from .asset_capture import resolve_dir as _resolve_dir
+            self.images_dir = images_dir or _resolve_dir()
+        except Exception:
+            self.images_dir = images_dir or os.path.join("images", "games", "auto")
         try:
             from .game_tracker import load_tracker_config
             self._tracker_cfg = load_tracker_config()
@@ -559,6 +564,33 @@ class PublicApiRouter:
                                            "range": label, "games": []})
         return self._serve_snap(request, snap, "public, max-age=60")
 
+    async def get_auto_asset(self, request: web.Request) -> web.Response:
+        """Serve one captured auto/ cover's bytes (sync bridge only).
+
+        Operator tooling (scripts/pull_auto_covers.py) pulls these bytes
+        into git so Vercel serves them. Browsers never fetch this - the
+        website only uses same-origin images/games/auto/*.jpg, so no
+        absolute bot URL is ever emitted to a page.
+        """
+        import re
+        name = (request.match_info.get("name") or "").strip().lower()
+        if not re.fullmatch(r"[a-z0-9-]+\.jpg", name):
+            return web.json_response({"error": "bad name"}, status=400)
+        path = os.path.join(self.images_dir, name)
+        if not os.path.isfile(path):
+            return web.json_response({"error": "not captured yet"}, status=404)
+        try:
+            with open(path, "rb") as f:
+                body = f.read()
+        except Exception:
+            return web.json_response({"error": "unreadable"}, status=404)
+        resp = web.Response(body=body, content_type="image/jpeg")
+        resp.headers["Cache-Control"] = "public, max-age=86400"
+        for k, v in _cors_headers(request).items():
+            if v:
+                resp.headers[k] = v
+        return resp
+
     async def live_stream(self, request: web.Request) -> web.Response:
         if self._rate_limited(request):
             return web.json_response({"error": "rate_limited"}, status=429)
@@ -624,4 +656,5 @@ class PublicApiRouter:
         app.router.add_route("OPTIONS", "/api/public/most-played", self._options)
         app.router.add_get("/api/public/most-played", self.get_most_played)
         app.router.add_get("/api/public/live/stream", self.live_stream)
-        logger.info("[API] Registered /api/public/live, /api/public/most-played, /api/public/live/stream")
+        app.router.add_get("/api/public/assets/{name}", self.get_auto_asset)
+        logger.info("[API] Registered /api/public/live, /api/public/most-played, /api/public/live/stream, /api/public/assets/{name}")

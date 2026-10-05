@@ -104,6 +104,85 @@ def should_ignore(name: str, cfg: Optional[Dict[str, Any]] = None) -> bool:
     return False
 
 
+# Discord CDN / media proxy hosts ONLY. Anything else is ignored, so a
+# rogue activity can never make the bot fetch (or the site display) an
+# off-site image.
+ASSET_HOSTS = ("cdn.discordapp.com", "media.discordapp.net")
+
+
+def _asset_direct_url(app_id: Any, asset: Any) -> Optional[str]:
+    """Resolve one raw activity asset value to an allowlisted https URL."""
+    raw = str(asset or "").strip()
+    if not raw or raw.startswith("spotify:"):
+        return None
+    if raw.startswith("mp:"):
+        # Media-proxy attachment path, e.g. mp:attachments/123/abc.png
+        return "https://media.discordapp.net/" + raw[3:].lstrip("/")
+    low = raw.lower()
+    if low.startswith("https://"):
+        host = low.split("://", 1)[1].split("/", 1)[0].split(":", 1)[0]
+        return raw if host in ASSET_HOSTS else None
+    if low.startswith("http://"):
+        return None  # plain http is never accepted, even on CDN hosts
+    # Bare asset name/hash: addressable only with the application id.
+    try:
+        aid = str(getattr(app_id, "id", app_id) or "").strip()
+    except Exception:
+        aid = ""
+    if not aid or not re.fullmatch(r"[A-Za-z0-9_-]+", raw):
+        return None
+    return f"https://cdn.discordapp.com/app-assets/{aid}/{raw}.png"
+
+
+def extract_activity_assets(act: Any) -> Optional[Dict[str, Any]]:
+    """Best-effort Rich Presence artwork for one activity.
+
+    Returns {"large": url|None, "small": url|None, "large_text": str,
+    "app_id": str}, or None when the activity carries no usable art.
+    Duck-typed (no discord.py import): reads Activity.assets dicts as
+    well as pre-resolved large_image_url / small_image_url properties.
+    """
+    if act is None:
+        return None
+    app_id = getattr(act, "application_id", None)
+    try:
+        app_str = str(getattr(app_id, "id", app_id) or "").strip()
+    except Exception:
+        app_str = ""
+    large = small = None
+    large_text = ""
+    assets = getattr(act, "assets", None)
+    if isinstance(assets, dict):
+        large = _asset_direct_url(app_id, assets.get("large_image"))
+        small = _asset_direct_url(app_id, assets.get("small_image"))
+        large_text = str(assets.get("large_text") or "")[:80]
+    if not large:
+        direct = _asset_direct_url(app_id, getattr(act, "large_image_url", None))
+        if direct:
+            large = direct
+    if not small:
+        direct = _asset_direct_url(app_id, getattr(act, "small_image_url", None))
+        if direct:
+            small = direct
+    if not (large or small):
+        return None
+    return {"large": large, "small": small, "large_text": large_text,
+            "app_id": app_str}
+
+
+def _log_activity_assets(new_act: Dict[str, Any]) -> None:
+    """TEMPORARY discovery log for the asset survey (remove afterwards).
+
+    Shows which games actually ship Rich Presence artwork. Read with:
+    journalctl / bot logs | grep ASSETS-TEMP
+    """
+    a = new_act.get("assets") or {}
+    logger.info("[ASSETS-TEMP] game=%s key=%s large=%s small=%s app=%s",
+                new_act.get("game_name"), new_act.get("game_key"),
+                a.get("large") or "-", a.get("small") or "-",
+                a.get("app_id") or "-")
+
+
 def extract_playing_activity(member: Any, cfg: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
     """Best Playing/Competing game activity for a member, or None."""
     if member is None or bool(getattr(member, "bot", False)):
@@ -145,6 +224,7 @@ def extract_playing_activity(member: Any, cfg: Optional[Dict[str, Any]] = None) 
             "start_timestamp": start_ms,
             "username": disp,
             "avatar": avatar_url,
+            "assets": extract_activity_assets(act),
         }
     return None
 
@@ -184,6 +264,8 @@ def handle_presence_update(db: Any, before: Any, after: Any,
         return "IGNORED"
     uid = str(getattr(member, "id"))
     old_act, new_act = diff_presence(before, after, cfg)
+    if new_act:
+        _log_activity_assets(new_act)
     gid = guild_id or str(getattr(getattr(member, "guild", None), "id", "") or "")
 
     if new_act and (not old_act or old_act["game_key"] != new_act["game_key"]):

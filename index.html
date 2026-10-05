@@ -823,6 +823,27 @@
             transform: scale(1.08);
             filter: grayscale(100%) contrast(1.15) brightness(1.1);
         }
+        /* Captured square logos (images/games/auto/*): contain-fit over a
+           darkened blurred copy of the same art. Same 100% x 175px box,
+           same grayscale-at-rest and hover treatment — no layout change. */
+        .game-card-img-wrap img.is-auto-art {
+            object-fit: contain;
+        }
+        .game-card-img-wrap.has-auto-art::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: var(--auto-bg);
+            background-size: cover;
+            background-position: center;
+            filter: grayscale(100%) blur(14px) brightness(0.35);
+            pointer-events: none;
+        }
+        .game-card-img-wrap.has-auto-art img.is-auto-art {
+            position: relative;
+            z-index: 1;
+        }
         /* Seamless dissolved gradient bleed without seam line */
         .game-card-img-wrap::after {
             content: '';
@@ -1263,6 +1284,22 @@
             height: 100%;
             object-fit: cover;
             filter: grayscale(100%) brightness(0.65) contrast(1.1);
+        }
+        .modal-banner img.is-auto-art {
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+        }
+        .modal-banner.has-auto-art::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: var(--auto-bg);
+            background-size: cover;
+            background-position: center;
+            filter: grayscale(100%) blur(14px) brightness(0.35);
+            pointer-events: none;
         }
         .modal-close-btn {
             position: absolute;
@@ -2714,23 +2751,67 @@
         // Resolve one game to its local-first cover chain.
         // primary: images/games/<game_key>.jpg (a 404 falls through
         //   instantly when no per-game file was dropped in yet)
-        // fallback 1: category art (always shipped) — never a blank box
-        // fallback 2: generic robot art
+        // fallback 1: images/games/auto/<game_key>.jpg (bot-captured Rich
+        //   Presence art, same instant 404 fall-through when not captured)
+        // fallback 2: category art (always shipped) — never a blank box
+        // fallback 3: generic robot art
         // Bot-provided absolute URLs are ignored on purpose (hang/mixed).
         function pickCover(game) {
             const g = game || {};
             const name = g.name || g.game_name || '';
             const key = slugOf(g.game_key || name) || 'game';
             const rel = (isLocalPath(g.image) && !isGenericCover(g.image)) ? g.image.split('?')[0] : '';
+            const autoGiven = g.auto_image || g.auto || '';
+            const autoRel = (isLocalPath(autoGiven) && !isGenericCover(autoGiven)) ? autoGiven.split('?')[0] : '';
             return {
                 primary: (rel || `images/games/${key}.jpg`) + '?v=2',
+                auto: (autoRel || `images/games/auto/${key}.jpg`) + '?v=2',
                 secondary: categoryArt(g.category, name),
                 name
             };
         }
-        function coverImgHtml(game, alt) {
+        // Ordered chain (deduped): manual -> captured auto/ -> category.
+        // The robot fallback terminates the chain in coverStep.
+        function coverChain(game) {
             const picked = pickCover(game);
-            return `<img src="${picked.primary}" alt="${alt}" width="350" height="175" loading="lazy" decoding="async" data-cat="${picked.secondary}" onerror="if(!this.dataset.step){this.dataset.step='1';this.src=this.dataset.cat;}else{this.onerror=null;this.src='${LOCAL_FALLBACK_COVER}';}">`;
+            return [picked.primary, picked.auto, picked.secondary]
+                .filter((u, i, a) => u && a.indexOf(u) === i);
+        }
+        // Captured square logos render contain-fit over a darkened blurred
+        // copy of themselves (CSS .is-auto-art); card box never changes.
+        function markAutoArt(img, url) {
+            img.classList.add('is-auto-art');
+            const wrap = img.closest('.game-card-img-wrap,.modal-banner');
+            if (wrap) {
+                wrap.classList.add('has-auto-art');
+                wrap.style.setProperty('--auto-bg', 'url("' + url + '")');
+            }
+        }
+        function resetAutoArt(img) {
+            img.classList.remove('is-auto-art');
+            const wrap = img.closest('.game-card-img-wrap,.modal-banner');
+            if (wrap) {
+                wrap.classList.remove('has-auto-art');
+                wrap.style.removeProperty('--auto-bg');
+            }
+        }
+        // Self-clearing chain stepper: each error advances one URL, the end
+        // falls back to the robot art. Shared by cards and the modal.
+        function coverStep(img) {
+            const next = (img.dataset.next || '').split('|').filter(Boolean);
+            if (!next.length) {
+                img.onerror = null;
+                img.src = LOCAL_FALLBACK_COVER;
+                return;
+            }
+            const url = next.shift();
+            img.dataset.next = next.join('|');
+            if (url.indexOf('/auto/') !== -1) markAutoArt(img, url);
+            img.src = url;
+        }
+        function coverImgHtml(game, alt) {
+            const chain = coverChain(game);
+            return `<img src="${chain[0]}" alt="${alt}" width="350" height="175" loading="lazy" decoding="async" data-next="${chain.slice(1).join('|')}" onerror="coverStep(this)">`;
         }
         function getGameImageUrl(game) {
             return pickCover(typeof game === 'string' ? { name: game } : game).primary;
@@ -3072,13 +3153,14 @@
 
             const count = game.player_count || game.count || (game.players ? game.players.length : 1);
             if (coverEl) {
-                const picked = pickCover(game);
-                coverEl.onerror = function () {
-                    if (!coverEl.dataset.step) { coverEl.dataset.step = '1'; coverEl.src = picked.secondary; }
-                    else { coverEl.onerror = null; coverEl.src = LOCAL_FALLBACK_COVER; }
-                };
-                coverEl.dataset.step = '';
-                coverEl.src = coverUrl || picked.primary;
+                const chain = coverChain(game);
+                resetAutoArt(coverEl);
+                coverEl.onerror = function () { coverStep(coverEl); };
+                coverEl.dataset.next = chain.slice(1).join('|');
+                coverEl.src = coverUrl || chain[0];
+                if ((coverUrl || chain[0]).indexOf('/auto/') !== -1) {
+                    markAutoArt(coverEl, coverUrl || chain[0]);
+                }
             }
             if (titleEl) titleEl.textContent = game.name;
             if (countEl) countEl.textContent = `${count} ${count === 1 ? 'Member' : 'Members'} Active in Session`;
@@ -3718,13 +3800,14 @@
             const listEl = document.getElementById('modal-players-list');
 
             if (coverEl) {
-                const picked = pickCover(g);
-                coverEl.onerror = function () {
-                    if (!coverEl.dataset.step) { coverEl.dataset.step = '1'; coverEl.src = picked.secondary; }
-                    else { coverEl.onerror = null; coverEl.src = LOCAL_FALLBACK_COVER; }
-                };
-                coverEl.dataset.step = '';
-                coverEl.src = coverUrl || picked.primary;
+                const chain = coverChain(g);
+                resetAutoArt(coverEl);
+                coverEl.onerror = function () { coverStep(coverEl); };
+                coverEl.dataset.next = chain.slice(1).join('|');
+                coverEl.src = coverUrl || chain[0];
+                if ((coverUrl || chain[0]).indexOf('/auto/') !== -1) {
+                    markAutoArt(coverEl, coverUrl || chain[0]);
+                }
             }
             if (titleEl) titleEl.textContent = gameName;
             if (countEl) countEl.textContent = `${totalHours} h total this week`;

@@ -123,6 +123,18 @@ class GamingDatabase:
                     created_at INTEGER NOT NULL
                 );
             """)
+            # ── Captured Rich Presence artwork, per GAME (never per user).
+            # No Discord user IDs in this table. image_url is always a
+            # discord CDN / media proxy URL; the website never hotlinks it -
+            # the bot downloads it once to images/games/auto/<key>.jpg.
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS game_assets (
+                    game_key TEXT PRIMARY KEY,
+                    image_url TEXT NOT NULL,
+                    source_app_id TEXT NOT NULL DEFAULT '',
+                    updated_at INTEGER NOT NULL
+                );
+            """)
             conn.commit()
             logger.info(f"[DB] Initialized SQLite database at {self.db_path}")
 
@@ -550,6 +562,54 @@ class GamingDatabase:
             cursor = conn.cursor()
             cursor.execute("SELECT user_id FROM privacy_optouts")
             return [str(r["user_id"]) for r in cursor.fetchall()]
+
+    # ── Captured game artwork (Rich Presence large/small image) ──────
+    # Per game_key only. Callers must skip opted-out members BEFORE
+    # calling save (their sessions must not create or update assets).
+
+    def save_game_asset(self, game_key: str, image_url: str,
+                        source_app_id: str = "") -> bool:
+        """Remember the artwork URL for a game. Writes ONLY when the URL
+        changed (or the row is new). Returns True when it changed."""
+        key, url = str(game_key or "").strip(), str(image_url or "").strip()
+        if not key or not url:
+            return False
+        now = int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT image_url FROM game_assets WHERE game_key = ?",
+                           (key,))
+            row = cursor.fetchone()
+            if row is not None and str(row["image_url"]) == url:
+                return False
+            cursor.execute(
+                """INSERT INTO game_assets (game_key, image_url, source_app_id, updated_at)
+                   VALUES (?, ?, ?, ?)
+                   ON CONFLICT(game_key) DO UPDATE SET
+                       image_url = excluded.image_url,
+                       source_app_id = excluded.source_app_id,
+                       updated_at = excluded.updated_at""",
+                (key, url, str(source_app_id or ""), now),
+            )
+            conn.commit()
+            return True
+
+    def get_game_asset(self, game_key: str) -> Optional[Dict[str, Any]]:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT game_key, image_url, source_app_id, updated_at"
+                " FROM game_assets WHERE game_key = ?", (str(game_key),))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
+    def get_game_assets(self) -> List[Dict[str, Any]]:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT game_key, image_url, source_app_id, updated_at"
+                " FROM game_assets ORDER BY game_key ASC")
+            return [dict(r) for r in cursor.fetchall()]
 
     def get_game_most_played(self, range_ms: int = 7 * 86400 * 1000,
                              limit: int = 9,

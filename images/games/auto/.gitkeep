@@ -1,0 +1,2 @@
+Bot-captured Rich Presence covers land here (images/games/auto/<game_key>.jpg).
+Sync: python scripts/pull_auto_covers.py — then commit + push to deploy on Vercel.

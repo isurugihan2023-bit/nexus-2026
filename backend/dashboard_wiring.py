@@ -12,6 +12,7 @@ only modified lines are the two one-line whitelist bypasses.
 Hunk 1 - imports (top of dashboard.py, next to the other backend imports):
     from backend.db import GamingDatabase
     from backend import game_tracker
+    from backend import asset_capture
     from backend.public_api import PublicApiRouter
     from backend.dashboard_wiring import (
         rebuild_game_sessions,
@@ -51,6 +52,24 @@ Hunk 5 - presence handler (module level, next to other @bot.event handlers):
             guild_id=str(getattr(getattr(after, "guild", None), "id", "") or ""))
         try:
             public_router.invalidate_live()
+        except Exception:
+            pass
+        # Captured artwork: remember the Rich Presence image URL on every
+        # START/SWITCH/HEARTBEAT and download it once (URL-change dedup).
+        # Opted-out members never create or update assets.
+        try:
+            member = after if after is not None else before
+            act = game_tracker.extract_playing_activity(member, _tracker_cfg)
+            assets = (act or {}).get("assets") or {}
+            url = assets.get("large") or assets.get("small")
+            uid = str(getattr(member, "id", ""))
+            if act and url and uid not in set(db.get_privacy_optouts()):
+                changed = db.save_game_asset(
+                    act["game_key"], url, assets.get("app_id", ""))
+                if changed or not asset_capture.cover_exists("", act["game_key"]):
+                    bot.loop.create_task(asset_capture.ensure_game_cover(
+                        "", act["game_key"], url, assets.get("app_id", ""),
+                        force=changed))
         except Exception:
             pass
 
@@ -97,6 +116,22 @@ Hunk 9 - tuning knobs (env vars, all optional; no .env file needed):
     FIVEM_SERVER_ADDRESS=""        # host:port or info URL (or games.json
                                      # fivem_server.address); empty = no lookup
     NEXUS_PUBLIC_RATELIMIT=120     # per-IP requests per minute
+    NEXUS_AUTO_ART_DIR=""          # captured auto/ covers dir (VPS layout);
+                                     # empty = images/games/auto under CWD.
+                                     # pip install Pillow for the capture.
+
+Hunk 10 - asset survey + sync (Rich Presence covers):
+    a. Restart the bot, have members play (FiveM/Ceylon first), then:
+           journalctl / bot logs | grep ASSETS-TEMP
+       Paste the lines back - that is the survey of which games ship
+       large_image artwork. Remove _log_activity_assets + its call in
+       backend/game_tracker.py afterwards (marked TEMPORARY).
+    b. Captured files land in $NEXUS_AUTO_ART_DIR (or images/games/auto).
+       Pull them into this repo and deploy:
+           python scripts/pull_auto_covers.py http://157.90.181.183:23063
+           git add images/games/auto && git commit -m "Captured art" && git push
+       The website then serves them as images/games/auto/<key>.jpg with
+       zero code changes (chain: manual -> auto -> category -> fallback).
 
 That is the whole patch. No other dashboard.py line needs to change.
 """
@@ -121,6 +156,11 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
     now = now_ms if now_ms is not None else int(time.time() * 1000)
     orphaned = db.close_orphaned_game_sessions(now_ms=now)
     live = game_tracker.scan_live_members(guilds, cfg)
+    try:
+        optouts = set(db.get_privacy_optouts())
+    except Exception:
+        optouts = set()
+    captured = 0
     for uid, act in live.items():
         db.open_game_session(
             guild_id=act.get("guild_id", ""), user_id=uid,
@@ -128,9 +168,20 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
             game_key=act["game_key"], game_name=act["game_name"],
             details=act.get("details", ""), state=act.get("state", ""),
             started_at=act.get("start_timestamp") or now, now_ms=now)
+        # Remember captured artwork URLs (no download here: this is sync;
+        # the heartbeat loop / on_presence downloads). Opted-out members
+        # never create or update assets.
+        try:
+            assets = act.get("assets") or {}
+            url = assets.get("large") or assets.get("small")
+            if url and uid not in optouts and hasattr(db, "save_game_asset"):
+                if db.save_game_asset(act["game_key"], url, assets.get("app_id", "")):
+                    captured += 1
+        except Exception:
+            pass
     pruned = db.prune_old_game_sessions(now_ms=now)
-    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d",
-                orphaned, len(live), pruned)
+    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d assets=%d",
+                orphaned, len(live), pruned, captured)
     return {"orphaned": orphaned, "live": len(live), "pruned": pruned}
 
 
@@ -145,11 +196,31 @@ async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,
         try:
             now_ms = int(time.time() * 1000)
             live = game_tracker.scan_live_members(list(bot.guilds), cfg)
+            try:
+                optouts = set(db.get_privacy_optouts())
+            except Exception:
+                optouts = set()
             for uid, act in live.items():
                 try:
                     db.heartbeat_game_session(uid, act["game_key"], now_ms=now_ms,
                                               details=act.get("details", ""),
                                               state=act.get("state", ""))
+                except Exception:
+                    pass
+                # Captured artwork: remember URL changes, download once.
+                # Opted-out members are skipped entirely here.
+                try:
+                    from . import asset_capture
+                    assets = act.get("assets") or {}
+                    url = assets.get("large") or assets.get("small")
+                    if url and uid not in optouts and hasattr(db, "save_game_asset"):
+                        changed = db.save_game_asset(
+                            act["game_key"], url, assets.get("app_id", ""))
+                        if changed or not asset_capture.cover_exists("", act["game_key"]):
+                            asyncio.get_running_loop().create_task(
+                                asset_capture.ensure_game_cover(
+                                    "", act["game_key"], url,
+                                    assets.get("app_id", ""), force=changed))
                 except Exception:
                     pass
             if public_router is not None:

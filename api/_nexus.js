@@ -107,7 +107,9 @@ export function categoryArt(category, name) {
 
 // Local-first cover for one game. `image` is a relative website path
 // (a per-game images/games/<game_key>.jpg drop-in when present, otherwise
-// the 404 falls through instantly to `fallback`). Absolute bot URLs are
+// the 404 falls through instantly to `auto`, then `fallback`). `auto`
+// is the bot-captured Rich Presence art (images/games/auto/<game_key>.jpg,
+// same instant fall-through when not captured yet). Absolute bot URLs are
 // deliberately discarded — never http://, never a hanging /static/* URL.
 export function localCover(game) {
     const g = game || {};
@@ -115,12 +117,15 @@ export function localCover(game) {
     const fallback = categoryArt(g.category, g.name || g.game_name);
     return {
         image: `images/games/${key}.jpg?v=2`,
+        auto: `images/games/auto/${key}.jpg?v=2`,
         fallback,
         robot: ROBOT_FALLBACK
     };
 }
 
 // Rewrite one proxied game row to the local-first cover shape.
+// `auto` rides along so the frontend can insert the captured-art step
+// (manual -> auto -> category -> robot) without extra requests.
 export function sanitizeGameRow(g, i) {
     const name = g.name || g.game_name || 'Game';
     const cover = localCover({ game_key: g.game_key, name, category: g.category });
@@ -130,6 +135,8 @@ export function sanitizeGameRow(g, i) {
         name,
         category: g.category || 'Gaming',
         image: cover.image,
+        auto: cover.auto,
+        auto_image: cover.auto,
         fallback: cover.fallback,
         rich_cover: null,
         unique_players: g.unique_players ?? 0,
