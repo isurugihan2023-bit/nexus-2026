@@ -22,6 +22,8 @@
 // site = mixed content + IP leak). All browser traffic goes through these
 // same-origin server routes, which dial the bot server-side with a 3s timeout.
 
+import crypto from 'crypto';
+
 // TTLs (ms). Heartbeat every 30s; 90s TTL tolerates ~2 missed beats.
 const HEARTBEAT_TTL_MS = 90000;
 // Short grace: keep serving the last known host briefly while the bot moves.
@@ -201,17 +203,75 @@ export async function getBotStatus() {
     const now = Date.now();
     const age = rec ? now - (rec.lastSeen || 0) : -1;
     const online = !!rec && age >= 0 && age <= HEARTBEAT_TTL_MS;
+    // PUBLIC probe: deliberately NO baseUrl / ip — the dial address (bot IP)
+    // must never leak to browsers. Server-side code resolves via
+    // getBotBaseUrl()/fetchBot(); server-side operators that need the dial
+    // address use the AUTHENTICATED GET /api/bot-status-full (HMAC over
+    // "<timestamp>.<nonce>.bot-status-full" with HEARTBEAT_SECRET).
     return {
         online,
-        // baseUrl is included so the dashboard/TS-server hosts (server-side)
-        // can discover the bot. Browsers must NOT dial it directly — all
-        // browser traffic goes through same-origin proxy routes (mixed
-        // content + IP-privacy). Frontend code never reads this field.
-        baseUrl: online || (rec && age <= GRACE_MS) ? rec?.baseUrl || null : null,
         lastSeen: rec?.lastSeen || null,
         stale: !online,
         version: rec?.version || null,
     };
+}
+
+// Full record for AUTHENTICATED callers only (see api/bot-status-full.js).
+// Same shape as getBotStatus() plus the discovery fields (baseUrl/ip/port).
+export async function getBotStatusFull() {
+    const rec = await loadBotRecord();
+    const now = Date.now();
+    const age = rec ? now - (rec.lastSeen || 0) : -1;
+    const online = !!rec && age >= 0 && age <= HEARTBEAT_TTL_MS;
+    return {
+        online,
+        lastSeen: rec?.lastSeen || null,
+        stale: !online,
+        version: rec?.version || null,
+        baseUrl: rec?.baseUrl || null,
+        ip: rec?.ip || null,
+        port: rec?.port || null,
+        startedAt: rec?.startedAt || null,
+        status: rec?.status || null,
+    };
+}
+
+// Shared HMAC-SHA256 auth for server endpoints (api/bot-status-full.js).
+// Canonical string: "<timestamp>.<nonce>.<context>" — the same scheme as
+// the heartbeat (which uses the bot's baseUrl as context), timing-safe.
+// Timestamp/nonce arrive in x-bot-timestamp / x-bot-nonce headers so they
+// never leak into access logs or URLs. Returns { ok, ... } with an HTTP
+// status + error code when rejected.
+export function verifyBotSignature(req, context, { skewMs = 60000 } = {}) {
+    const secret = process.env.HEARTBEAT_SECRET || '';
+    if (!secret) {
+        console.log('[registry] HEARTBEAT_SECRET not configured; rejecting authenticated request');
+        return { ok: false, status: 500, error: 'receiver not configured' };
+    }
+    const ts = Number(req.headers['x-bot-timestamp']);
+    const nonce = String(req.headers['x-bot-nonce'] || '');
+    if (!Number.isFinite(ts)) {
+        return { ok: false, status: 400, error: 'missing x-bot-timestamp' };
+    }
+    const now = Date.now();
+    if (now - ts > skewMs || ts - now > 30000) {
+        return { ok: false, status: 401, error: 'stale timestamp' };
+    }
+    if (nonce.length < 8 || nonce.length > 128) {
+        return { ok: false, status: 400, error: 'bad nonce' };
+    }
+    if (nonceSeen(nonce)) {
+        return { ok: false, status: 401, error: 'replayed nonce' };
+    }
+    const sig = req.headers['x-bot-signature'] || req.headers['x-heartbeat-signature'] || '';
+    const msg = `${ts}.${nonce}.${context}`;
+    const expected = crypto.createHmac('sha256', secret).update(msg).digest('hex');
+    const a = Buffer.from(String(sig).toLowerCase());
+    const b = Buffer.from(expected.toLowerCase());
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        return { ok: false, status: 401, error: 'bad signature' };
+    }
+    return { ok: true, ts, nonce };
 }
 
 // GET/POST path on the bot with a short timeout. Returns { res, base, ms }

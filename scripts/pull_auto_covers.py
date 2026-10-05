@@ -8,15 +8,20 @@ them on Vercel as images/games/auto/<key>.jpg.
 
 Usage:  python scripts/pull_auto_covers.py [bot_base]
 Bot address resolution: CLI arg > BOT_PUBLIC_URL env > website
-/api/bot-status discovery (WEBSITE_URL env) > http://127.0.0.1:30038 dev.
+/api/bot-status-full discovery (HMAC-signed with HEARTBEAT_SECRET +
+WEBSITE_URL env) > http://127.0.0.1:30038 dev.
 
 This script NEVER commits - inspect, then git add/commit/push yourself.
 """
 
+import hashlib
+import hmac
 import json
 import os
 import sys
+import time
 import urllib.request
+import uuid
 
 try:
     import requests as _requests
@@ -30,12 +35,33 @@ DEV_BOT = "http://127.0.0.1:30038"
 
 
 def _discover_via_website():
-    """Ask the website where the bot is (auto-discovery, no hardcoded IP)."""
+    """Ask the website where the bot is via the AUTHENTICATED status endpoint.
+
+    GET /api/bot-status-full with an HMAC-SHA256 signature over
+    "<timestamp>.<nonce>.bot-status-full" in x-bot-signature (+
+    x-bot-timestamp / x-bot-nonce headers). The public /api/bot-status no
+    longer exposes baseUrl (IP privacy), so unsigned callers get the
+    minimal liveness shape only.
+    """
     website = (os.getenv("WEBSITE_URL", "") or "").rstrip("/")
-    if not website:
+    secret = (os.getenv("HEARTBEAT_SECRET", "") or "").strip()
+    if not website or not secret:
         return ""
     try:
-        with urllib.request.urlopen(website + "/api/bot-status", timeout=5) as r:
+        ts = int(time.time() * 1000)
+        nonce = uuid.uuid4().hex[:16]
+        msg = f"{ts}.{nonce}.bot-status-full"
+        sig = hmac.new(secret.encode("utf-8"), msg.encode("utf-8"), hashlib.sha256).hexdigest()
+        req = urllib.request.Request(
+            website + "/api/bot-status-full",
+            headers={
+                "x-bot-timestamp": str(ts),
+                "x-bot-nonce": nonce,
+                "x-bot-signature": sig,
+                "User-Agent": "Nexus-Heartbeat/1.0",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=5) as r:
             data = json.loads(r.read().decode("utf-8"))
             if data.get("online") and data.get("baseUrl"):
                 return str(data["baseUrl"]).rstrip("/")

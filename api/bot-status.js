@@ -1,11 +1,11 @@
 // GET /api/bot-status — public liveness probe for operators + UX.
 //
-// Returns { online, baseUrl, lastSeen, stale, version }.
+// Returns { online, lastSeen, stale, version } ONLY — no baseUrl: the bot
+// dial address (IP) must not leak into client code. Server-side code
+// resolves via getBotBaseUrl()/fetchBot() in _bot_registry.js; server-side
+// operators that need the dial address use the AUTHENTICATED
+// /api/bot-status-full (HMAC-signed header, HEARTBEAT_SECRET).
 //   * online: true when a heartbeat arrived within ~90s.
-//   * baseUrl: current bot dial address (server-to-server discovery for the
-//     dashboard/TS hosts). BROWSERS MUST NOT dial it directly: the bot is
-//     plain HTTP while the site is HTTPS (mixed content) and the IP must not
-//     leak into client code. Browser traffic uses same-origin proxy routes.
 //   * Frontend "Bot Offline" state: poll this endpoint (same-origin, cheap,
 //     cacheable for seconds) and render the offline card when online=false
 //     instead of spinners or hanging requests.
