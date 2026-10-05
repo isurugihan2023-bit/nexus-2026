@@ -2721,9 +2721,9 @@
             const g = game || {};
             const name = g.name || g.game_name || '';
             const key = slugOf(g.game_key || name) || 'game';
-            const rel = (isLocalPath(g.image) && !isGenericCover(g.image)) ? g.image : '';
+            const rel = (isLocalPath(g.image) && !isGenericCover(g.image)) ? g.image.split('?')[0] : '';
             return {
-                primary: rel || `images/games/${key}.jpg`,
+                primary: (rel || `images/games/${key}.jpg`) + '?v=2',
                 secondary: categoryArt(g.category, name),
                 name
             };

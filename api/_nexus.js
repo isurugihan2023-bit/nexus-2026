@@ -114,7 +114,7 @@ export function localCover(game) {
     const key = slugOf(g.game_key || g.name || g.game_name) || 'game';
     const fallback = categoryArt(g.category, g.name || g.game_name);
     return {
-        image: `images/games/${key}.jpg`,
+        image: `images/games/${key}.jpg?v=2`,
         fallback,
         robot: ROBOT_FALLBACK
     };
