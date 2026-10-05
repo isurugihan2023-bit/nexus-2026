@@ -108,6 +108,9 @@ def setup_web_server(app: web.Application):
     ws_manager.attach_routes(app, path="/ws/live-games")
     stats_router.attach_routes(app)
     public_router.attach_routes(app, bot_guilds_provider=lambda: list(bot.guilds))
+    # Background refresh: live snapshot ~4s, most-played 60s. Requests serve
+    # pre-built bytes only; prewarmed on startup so the first request is warm.
+    public_router.start_background(app)
     # (Your existing routes /api/public_stats and /api/bot_data stay untouched)
 
     # ── Voice-live endpoint: same {"count", "members"} shape the dashboard

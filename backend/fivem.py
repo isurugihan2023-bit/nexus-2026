@@ -1,22 +1,48 @@
 """
 backend/fivem.py - Ceylon Roleplay (FiveM) live player-count lookup.
 
-Fetches the public FiveM server info endpoint with a short timeout,
-caches the result for 15 seconds, and falls back gracefully (None)
-when unreachable. Never blocks the bot event loop: callers must use
-the async helper with their own session/timeout budget.
+Blocking network I/O lives in fetch_player_count_sync (urllib, 2s timeout)
+so callers can run it in an executor via asyncio.to_thread without ever
+stalling the event loop. Results are cached 15-30s and the previous good
+value is kept when a lookup fails, so a FiveM outage never blanks the card.
 """
 
+import asyncio
+import json
 import logging
 import os
 import time
+import urllib.request
 from typing import Any, Dict, Optional
 
 logger = logging.getLogger("nexus.fivem")
 
 _cache: Dict[str, Any] = {"at": 0.0, "value": None}
 
-CACHE_SECONDS = 15
+MIN_CACHE_SECONDS = 15
+MAX_CACHE_SECONDS = 30
+FETCH_TIMEOUT_SECONDS = 2.0
+
+
+def cache_seconds() -> int:
+    """FiveM count cache TTL, clamped to [15, 30]s.
+
+    Reads backend/config/games.json fivem_server.cache_seconds (default 15);
+    NEXUS_FIVEM_CACHE_SECONDS overrides it.
+    """
+    raw = (os.getenv("NEXUS_FIVEM_CACHE_SECONDS", "") or "").strip()
+    try:
+        if raw:
+            return max(MIN_CACHE_SECONDS, min(MAX_CACHE_SECONDS, int(raw)))
+    except Exception:
+        pass
+    try:
+        from .game_tracker import load_tracker_config
+        cfg = load_tracker_config()
+        val = int(((cfg.get("fivem_server") or {}).get("cache_seconds")) or 15)
+        return max(MIN_CACHE_SECONDS, min(MAX_CACHE_SECONDS, val))
+    except Exception:
+        return MIN_CACHE_SECONDS
 
 
 def server_address() -> str:
@@ -37,45 +63,59 @@ def _candidate_urls(addr: str):
     return [f"{base}/dynamic.json", f"{base}/info.json", f"{base}/players.json"]
 
 
-async def fetch_player_count(session=None, address: str = "") -> Optional[Dict[str, int]]:
-    """Return {current, max} or None. Short timeout, 15s cache, never raises."""
+def _parse_count(data: Any) -> Optional[Dict[str, int]]:
+    try:
+        if isinstance(data, dict):
+            cur = data.get("clients") or data.get("current") or len(data.get("players", []) or [])
+            mx = data.get("sv_maxclients") or data.get("max") or data.get("maxClients")
+            if cur is not None:
+                return {"current": int(cur), "max": int(mx) if mx else 100}
+        elif isinstance(data, list):
+            return {"current": len(data), "max": 100}
+    except Exception:
+        pass
+    return None
+
+
+def _http_get_json(url: str) -> Optional[Any]:
+    req = urllib.request.Request(url, headers={"User-Agent": "NinjaNexus/1.0"})
+    with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT_SECONDS) as resp:
+        if resp.status != 200:
+            return None
+        return json.loads(resp.read().decode("utf-8", "replace"))
+
+
+def fetch_player_count_sync(address: str = "") -> Optional[Dict[str, int]]:
+    """Blocking lookup for executor use. Never raises; keeps previous value.
+
+    Fresh cache (< TTL) is returned without network. Otherwise one lookup is
+    attempted; on success the cache is updated, on failure the previous good
+    value (possibly older than TTL) is returned instead of None.
+    """
     global _cache
     now = time.monotonic()
-    if now - float(_cache.get("at", 0)) < CACHE_SECONDS and _cache.get("value") is not None:
+    ttl = cache_seconds()
+    if now - float(_cache.get("at", 0)) < ttl and _cache.get("value") is not None:
         return _cache["value"]
     addr = (address or server_address()).strip()
     if not addr:
-        return None
-    timeout_s = float(os.getenv("FIVEM_TIMEOUT_SECONDS", "3") or 3)
-    urls = _candidate_urls(addr)
+        return _cache.get("value")
     result: Optional[Dict[str, int]] = None
-    try:
-        import aiohttp
-        own = session is None
-        sess = session or aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=min(4.0, timeout_s)))
+    for url in _candidate_urls(addr):
         try:
-            for url in urls:
-                try:
-                    async with sess.get(url) as resp:
-                        if resp.status != 200:
-                            continue
-                        data = await resp.json()
-                        if isinstance(data, dict):
-                            cur = data.get("clients") or data.get("current") or len(data.get("players", []) or [])
-                            mx = data.get("sv_maxclients") or data.get("max") or data.get("maxClients")
-                            if cur is not None:
-                                result = {"current": int(cur), "max": int(mx) if mx else 100}
-                                break
-                        elif isinstance(data, list):
-                            result = {"current": len(data), "max": 100}
-                            break
-                except Exception:
-                    continue
-        finally:
-            if own:
-                await sess.close()
-    except Exception as e:  # never break the API on FiveM outage
-        logger.debug("[FiveM] lookup failed: %s", e)
-        result = None
-    _cache = {"at": now, "value": result}
-    return result
+            result = _parse_count(_http_get_json(url))
+        except Exception:
+            result = None
+        if result is not None:
+            break
+    if result is not None:
+        _cache = {"at": now, "value": result}
+        return result
+    logger.debug("[FiveM] lookup failed, keeping previous value: %s", _cache.get("value"))
+    return _cache.get("value")
+
+
+async def fetch_player_count(session=None, address: str = "") -> Optional[Dict[str, int]]:
+    """Async wrapper (kept for compatibility). Never blocks the event loop."""
+    _ = session  # sync core owns its connections; no shared session needed
+    return await asyncio.to_thread(fetch_player_count_sync, address)

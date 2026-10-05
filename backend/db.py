@@ -20,7 +20,10 @@ class GamingDatabase:
 
     @contextmanager
     def _get_conn(self):
-        conn = sqlite3.connect(self.db_path, timeout=10.0)
+        # check_same_thread=False: the public API runs SQLite reads in an
+        # executor (asyncio.to_thread); each call still opens and closes its
+        # own short-lived connection, so no connection crosses threads.
+        conn = sqlite3.connect(self.db_path, timeout=10.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         try:
             yield conn

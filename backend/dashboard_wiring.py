@@ -31,7 +31,15 @@ Hunk 3 - init (next to db = ... / app = web.Application(...)):
     public_router = PublicApiRouter(db)
 
 Hunk 4 - mount (inside your setup_web_server(app) / where routes attach):
-    public_router.attach_routes(app)
+    public_router.attach_routes(app, bot_guilds_provider=lambda: list(bot.guilds))
+    public_router.start_background(app)  # refresh loop: live ~4s, most-played 60s
+
+    start_background() hooks app.on_startup (prewarms both snapshots so the
+    first request is already warm) and app.on_cleanup (cancels the loops).
+    Requests then serve pre-built bytes only - nothing is computed inside a
+    request. The guild provider lets the loop resolve display names/avatars
+    via the member cache (fetch_member at most once per member per 10 min);
+    without it, DB-stored names/avatars are used.
 
 Hunk 5 - presence handler (module level, next to other @bot.event handlers):
     @bot.event
@@ -81,6 +89,14 @@ Hunk 8 - privacy command (wherever a user opts out / back in; the 5s live
 cache otherwise delays the effect by a few seconds):
     db.set_privacy_optout(str(member.id), opted_out)
     public_router.invalidate_live()
+
+Hunk 9 - tuning knobs (env vars, all optional; no .env file needed):
+    NEXUS_LIVE_REFRESH_SECONDS=4   # live snapshot cadence, clamped to 3-5s
+    NEXUS_MP_REFRESH_SECONDS=60    # most-played cadence, minimum 30s
+    NEXUS_FIVEM_CACHE_SECONDS=15   # FiveM count cache, clamped to 15-30s
+    FIVEM_SERVER_ADDRESS=""        # host:port or info URL (or games.json
+                                     # fivem_server.address); empty = no lookup
+    NEXUS_PUBLIC_RATELIMIT=120     # per-IP requests per minute
 
 That is the whole patch. No other dashboard.py line needs to change.
 """

@@ -66,12 +66,24 @@ def artwork_dir() -> str:
     return d
 
 
+def _public_base() -> str:
+    """Public base URL for bot-host artwork links. Always https.
+
+    The website resolves covers itself from relative paths, so this is only
+    a fallback for direct API consumers. An http:// base would be blocked as
+    mixed content on the HTTPS page, so http:// is upgraded to https://.
+    """
+    base = (os.getenv("NEXUS_PUBLIC_BASE", "https://ninjanexus.duckdns.org") or "").rstrip("/")
+    if base.lower().startswith("http://"):
+        base = "https://" + base[len("http://"):]
+    return base
+
+
 def _web_path_for(local_file: str) -> str:
     repo = _repo_images_dir()
     if repo and os.path.abspath(local_file).startswith(os.path.abspath(repo)):
         return "images/games/" + os.path.basename(local_file)
-    base = (os.getenv("NEXUS_PUBLIC_BASE", "https://ninjanexus.duckdns.org") or "").rstrip("/")
-    return f"{base}/static/games/" + os.path.basename(local_file)
+    return f"{_public_base()}/static/games/" + os.path.basename(local_file)
 
 
 def category_image(category: str) -> str:
@@ -82,8 +94,7 @@ def category_image(category: str) -> str:
             return "images/games/" + name
         # Bot host without the website tree: absolute public URL keeps
         # covers loading (HTTPS, no mixed content, no CORS needed for <img>).
-        base = (os.getenv("NEXUS_PUBLIC_BASE", "https://ninjanexus.duckdns.org") or "").rstrip("/")
-        return f"{base}/static/games/" + name
+        return f"{_public_base()}/static/games/" + name
     return FALLBACK_IMAGE
 
 
@@ -96,6 +107,26 @@ def image_for(game_key: str, category: str = "") -> str:
         if os.path.isfile(cand):
             return _web_path_for(cand)
     return category_image(category)
+
+
+def relative_image_for(game_key: str, category: str = "") -> str:
+    """Website-facing cover: always a RELATIVE images/games/* path.
+
+    The website resolves artwork itself (game_key -> local file -> category
+    art -> fallback), so the bot API must never emit absolute http://IP:port
+    URLs. Returns the curated filename when the file exists in the artwork
+    dir, otherwise the category SVG filename (shipped everywhere), otherwise
+    the generic fallback. Never an absolute URL.
+    """
+    key = (game_key or "").strip().lower() or "unknown"
+    d = artwork_dir()
+    for ext in (".jpg", ".png"):
+        if os.path.isfile(os.path.join(d, key + ext)):
+            return f"images/games/{key}{ext}"
+    name = CATEGORY_SVGS.get((category or "").strip().lower(), "")
+    if name:
+        return "images/games/" + name
+    return FALLBACK_IMAGE
 
 
 def is_generic_image(image: str) -> bool:
