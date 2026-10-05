@@ -10,7 +10,9 @@
 
 const LIVE_UPSTREAM = 'http://157.90.181.183:23063';
 const DOWN_MS = 30000;
+const FAILS_TO_MARK_DOWN = 2; // never poison on a single slow/cold response
 const downUntil = new Map(); // best-effort per-instance short-circuit
+const consecFails = new Map();
 
 export function upstreamBases() {
     const env = (process.env.BOT_UPSTREAM || '')
@@ -26,16 +28,25 @@ export function isDown(base) {
 }
 
 function markDown(base) {
-    downUntil.set(base, Date.now() + DOWN_MS);
+    const fails = (consecFails.get(base) || 0) + 1;
+    consecFails.set(base, fails);
+    // A single slow/cold timeout must NOT poison the host: only
+    // short-circuit after consecutive network failures. An actually
+    // dead host still trips after the 2nd consecutive failure.
+    if (fails >= FAILS_TO_MARK_DOWN) {
+        downUntil.set(base, Date.now() + DOWN_MS);
+    }
 }
 
 function markUp(base) {
     downUntil.delete(base);
+    consecFails.delete(base);
 }
 
 // GET path from the first reachable upstream. Returns { res, base, ms }
 // or null when every upstream is down/skipped. Network errors and aborts
-// mark the host down for 30s; HTTP statuses do not (a 401/404 is an answer).
+// count toward the consecutive-failure short-circuit (2+ in a row); HTTP
+// statuses reset it and do not mark down (a 401/404 is an answer).
 export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy') {
     for (const base of upstreamBases()) {
         if (isDown(base)) {
@@ -52,6 +63,7 @@ export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy') {
                 headers: { Accept: 'application/json' }
             });
             clearTimeout(timeoutId);
+            markUp(base);
             console.log(`[${tag}] upstream ${url} -> ${res.status} in ${Date.now() - started}ms`);
             return { res, base, ms: Date.now() - started };
         } catch (e) {

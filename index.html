@@ -68,14 +68,24 @@
 
         .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 
-        /* Gradient text - original beautiful gradient */
+        /* Gradient text - lime gradient where background-clip:text is
+           supported, plain lime text otherwise. The gradient background
+           must never paint without the clip (that is the solid-lime-box
+           bug), and the transparent fill must never apply without it
+           (that would be invisible text). */
         .grad {
-            background: linear-gradient(135deg, #D4EC5A 0%, #C6E32B 40%, #A8C41A 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            background: none;
             color: #C6E32B;
-            text-shadow: 0 0 25px rgba(198, 227, 43, 0.35);
+        }
+        @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+            .grad {
+                background: linear-gradient(135deg, #D4EC5A 0%, #C6E32B 40%, #A8C41A 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                color: transparent;
+                text-shadow: 0 0 25px rgba(198, 227, 43, 0.35);
+            }
         }
 
         /* Section label pill */
@@ -3383,6 +3393,7 @@
         const LIVE_CACHE_TTL_MS = 5 * 60 * 1000;
         let liveGen = 0;
         let liveBackoffMs = 0;
+        let liveConsecFails = 0;
         let liveSse = null;
         let liveSseFailed = false;
         let liveLastUpdatedAt = 0;
@@ -3459,7 +3470,20 @@
                 const data = await fetchJson(LIVE_API_URL + '?_t=' + Date.now(), 5000);
                 if (gen !== liveGen) return; // superseded: single loop only
                 liveBackoffMs = 0;
+                liveConsecFails = 0;
                 const games = Array.isArray(data.games) ? data.games : [];
+                // A stale-empty proxy payload (one upstream blip) is NOT
+                // "nobody playing" — keep the last good cards on screen.
+                // Genuinely-empty (stale:false, []) still renders the
+                // "Nobody is playing" empty state via renderLiveGames.
+                if (games.length === 0 && data && data.stale === true
+                    && (window.currentLiveGamesState || []).length > 0) {
+                    if (gen === liveGen) {
+                        liveUpdating = false;
+                        paintUpdated();
+                    }
+                    return;
+                }
                 const prevTotal = (window.currentLiveGamesState || []).reduce(
                     (a, g) => a + (g.count || (g.players ? g.players.length : 0)), 0);
                 renderLiveGames(games);
@@ -3472,9 +3496,16 @@
                 writeLiveCache(games);
             } catch (err) {
                 if (gen !== liveGen) return;
+                liveConsecFails++;
                 // Backoff on errors (5s, 10s, 20s, max 60s); never endless spinner.
                 liveBackoffMs = Math.min(60000, (liveBackoffMs || 5000) * (liveBackoffMs ? 2 : 1));
-                if (!window.hasRenderedLiveGames) showOfflineLounge();
+                // "Offline" only after repeated failures AND only when there
+                // is no good data on screen — cached/last-good cards stay
+                // visible through transient blips.
+                const liveGrid = document.getElementById('live-games-grid');
+                const hasCardsOnScreen = (window.currentLiveGamesState || []).length > 0
+                    || (liveGrid && liveGrid.querySelector('.game-card'));
+                if (liveConsecFails >= 3 && !hasCardsOnScreen) showOfflineLounge();
                 setTimeout(() => { if (gen === liveGen && !document.hidden) fetchLiveGames(); }, liveBackoffMs);
             } finally {
                 if (gen === liveGen) {
