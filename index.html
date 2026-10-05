@@ -2753,20 +2753,23 @@
         //   instantly when no per-game file was dropped in yet)
         // fallback 1: images/games/auto/<game_key>.jpg (bot-captured Rich
         //   Presence art, same instant 404 fall-through when not captured)
-        // fallback 2: category art (always shipped) — never a blank box
+        // fallback 2: images/games/default.jpg (shared house cover)
         // fallback 3: generic robot art
-        // Bot-provided absolute URLs are ignored on purpose (hang/mixed).
+        // Bot-provided absolute URLs are ignored on purpose (hang/mixed),
+        // and legacy category art (cat-*.svg) is never used as a cover -
+        // the genre label on the card is text and stays untouched.
         function pickCover(game) {
             const g = game || {};
             const name = g.name || g.game_name || '';
             const key = slugOf(g.game_key || name) || 'game';
-            const rel = (isLocalPath(g.image) && !isGenericCover(g.image)) ? g.image.split('?')[0] : '';
+            const relRaw = (isLocalPath(g.image) && !isGenericCover(g.image)) ? g.image.split('?')[0] : '';
+            const rel = (relRaw && relRaw.indexOf('/cat-') === -1) ? relRaw : '';
             const autoGiven = g.auto_image || g.auto || '';
             const autoRel = (isLocalPath(autoGiven) && !isGenericCover(autoGiven)) ? autoGiven.split('?')[0] : '';
             return {
                 primary: (rel || `images/games/${key}.jpg`) + '?v=2',
                 auto: (autoRel || `images/games/auto/${key}.jpg`) + '?v=2',
-                secondary: categoryArt(g.category, name),
+                secondary: 'images/games/default.jpg?v=2',
                 name
             };
         }

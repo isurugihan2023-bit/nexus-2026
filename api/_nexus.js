@@ -84,7 +84,10 @@ export function slugOf(name) {
 const ROBOT_FALLBACK = 'images/games/fallback.svg';
 
 // Category label (bot `category`, or the game name) -> shipped local art.
-// Everything here exists in images/games/*, so a card never renders blank.
+// NOTE: category art (cat-*.svg) is NO LONGER used as a card cover - the
+// shared images/games/default.jpg is the cover fallback instead. The
+// genre label on cards still comes from the category text. This helper
+// stays for reference; localCover below is the cover authority.
 const CATEGORY_ART = [
     [/fivem|roleplay|gta|ceylon/i, 'images/games/cat-fivem.svg'],
     [/tactical|fps|shooter|cod|call of duty|overwatch/i, 'images/games/cat-tactical-fps.svg'],
@@ -114,11 +117,10 @@ export function categoryArt(category, name) {
 export function localCover(game) {
     const g = game || {};
     const key = slugOf(g.game_key || g.name || g.game_name) || 'game';
-    const fallback = categoryArt(g.category, g.name || g.game_name);
     return {
         image: `images/games/${key}.jpg?v=2`,
         auto: `images/games/auto/${key}.jpg?v=2`,
-        fallback,
+        fallback: `images/games/default.jpg?v=2`,
         robot: ROBOT_FALLBACK
     };
 }
