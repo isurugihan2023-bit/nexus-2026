@@ -35,6 +35,7 @@ STEAM_COVERS = {
     "pubg-battlegrounds": 578080,   # PUBG: BATTLEGROUNDS
     "brawlhalla": 291550,           # Brawlhalla
     "dota-2": 570,                  # Dota 2
+    "mirror-s-edge-catalyst": 1233570,  # Mirror's Edge Catalyst
 }
 
 # game_key -> why it must be supplied by hand.
