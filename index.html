@@ -1287,8 +1287,11 @@
         }
         .modal-banner img.is-auto-art {
             object-fit: contain;
+            object-position: center center;
             position: relative;
             z-index: 1;
+            padding: 14px 24px;
+            box-sizing: border-box;
         }
         .modal-banner.has-auto-art::before {
             content: '';
@@ -2810,6 +2813,7 @@
             const url = next.shift();
             img.dataset.next = next.join('|');
             if (url.indexOf('/auto/') !== -1) markAutoArt(img, url);
+            else resetAutoArt(img);
             img.src = url;
         }
         function coverImgHtml(game, alt) {
