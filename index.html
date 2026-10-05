@@ -3275,13 +3275,21 @@
                 this.maxReconnectDelay = 30000;
                 this.isExplicitlyPaused = false;
 
-                const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '157.90.181.183:23063');
-                this.url = window.NEXUS_WS_URL || `${proto}//${host}/ws/live-games`;
+                // Auto-discovery: browsers NEVER dial the bot directly
+                // (plain-HTTP bot vs HTTPS site = mixed content + IP leak).
+                // Live updates come from same-origin /api/public/live +
+                // /api/public/live/stream (server-side resolver). Direct WS
+                // is opt-in only via window.NEXUS_WS_URL.
+                this.url = window.NEXUS_WS_URL || null;
             }
 
             connect() {
                 if (this.isExplicitlyPaused) return;
+
+                if (!this.url) {
+                    this.engageFallbackPolling();
+                    return;
+                }
 
                 if (window.location.protocol === 'https:' && this.url.startsWith('ws://')) {
                     console.warn('[NEXUS Live] Mixed content blocked: ws:// cannot run on HTTPS. Engaging fallback polling.');

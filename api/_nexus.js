@@ -1,26 +1,27 @@
 // Shared website-proxy helpers (Vercel: `api/_*.js` is never routed).
 //
-// - Live bot host FIRST, dead legacy IPs removed from the defaults.
-//   Operators can still override via BOT_UPSTREAM (comma-separated).
+// - Bot host is dynamic (signed heartbeats). Optional env fallback via
+//   BOT_FALLBACK_URL (legacy BOT_UPSTREAM first entry still honoured).
 // - 2.5s per-upstream timeout; a host that times out/refuses is
 //   short-circuited for 30s so one dead upstream can't serialize delay.
 // - Local-first cover resolution: bot-provided absolute image URLs are
 //   NEVER trusted (the old same-origin /static/* URLs hang for 20s+ and
 //   http:// URLs are blocked as mixed content on the HTTPS page).
 
-const LIVE_UPSTREAM = 'http://157.90.181.183:23063';
+import { getBotBaseUrl } from './_bot_registry.js';
+
+// Dynamic bot address: learned from signed heartbeats (see _bot_registry.js
+// + /api/bot-heartbeat). No hardcoded IP here — getBotBaseUrl() returns the
+// fresh heartbeat (<=90s), then a short stale grace, then the optional
+// BOT_FALLBACK_URL env, then null (offline).
 const DOWN_MS = 30000;
 const FAILS_TO_MARK_DOWN = 2; // never poison on a single slow/cold response
 const downUntil = new Map(); // best-effort per-instance short-circuit
 const consecFails = new Map();
 
-export function upstreamBases() {
-    const env = (process.env.BOT_UPSTREAM || '')
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-    if (env.length > 0) return env;
-    return [LIVE_UPSTREAM];
+export async function upstreamBases() {
+    const base = await getBotBaseUrl();
+    return base ? [base] : [];
 }
 
 export function isDown(base) {
@@ -43,12 +44,13 @@ function markUp(base) {
     consecFails.delete(base);
 }
 
-// GET path from the first reachable upstream. Returns { res, base, ms }
-// or null when every upstream is down/skipped. Network errors and aborts
-// count toward the consecutive-failure short-circuit (2+ in a row); HTTP
-// statuses reset it and do not mark down (a 401/404 is an answer).
+// GET path from the dynamically-resolved bot. Returns { res, base, ms }
+// or null when offline/skipped. Short 2.5-3s timeout so a dead host never
+// causes long hangs (4s delays / 20s image hangs of the past). Network
+// errors and aborts count toward the consecutive-failure short-circuit
+// (2+ in a row); HTTP statuses reset it and do not mark down.
 export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy') {
-    for (const base of upstreamBases()) {
+    for (const base of await upstreamBases()) {
         if (isDown(base)) {
             console.log(`[${tag}] skip known-down ${base}`);
             continue;

@@ -745,14 +745,22 @@ class NexusLiveSocketClient {
         this.maxReconnectDelay = 30000;
         this.isExplicitlyPaused = false;
 
-        // Auto-detect TLS: wss:// if HTTPS, ws:// if HTTP
-        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.NEXUS_WS_HOST || (window.location.protocol === 'https:' ? 'api.ninjanexus.duckdns.org' : '92.118.206.166:30038');
-        this.url = window.NEXUS_WS_URL || `${proto}//${host}/ws/live-games`;
+        // Auto-discovery: browsers NEVER dial the bot directly (plain-HTTP
+        // bot vs HTTPS site = mixed content + IP leak). Live updates come
+        // from same-origin /api/public/live + /api/public/live/stream,
+        // which resolve the bot server-side. Direct WS is opt-in only via
+        // window.NEXUS_WS_URL (operators with their own TLS domain).
+        this.url = window.NEXUS_WS_URL || null;
     }
 
     connect() {
         if (this.isExplicitlyPaused) return;
+
+        // No direct bot WS by default: use same-origin SSE/polling.
+        if (!this.url) {
+            this.engageFallbackPolling();
+            return;
+        }
 
         // Security check: Never attempt plain ws:// on HTTPS to avoid browser console error
         if (window.location.protocol === 'https:' && this.url.startsWith('ws://')) {

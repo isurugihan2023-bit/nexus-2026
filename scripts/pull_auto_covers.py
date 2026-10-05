@@ -7,26 +7,59 @@ changed files into images/games/auto/ so the next commit + push deploys
 them on Vercel as images/games/auto/<key>.jpg.
 
 Usage:  python scripts/pull_auto_covers.py [bot_base]
-Default bot_base: http://157.90.181.183:23063
+Bot address resolution: CLI arg > BOT_PUBLIC_URL env > website
+/api/bot-status discovery (WEBSITE_URL env) > http://127.0.0.1:30038 dev.
 
 This script NEVER commits - inspect, then git add/commit/push yourself.
 """
 
+import json
 import os
 import sys
+import urllib.request
 
-import requests
+try:
+    import requests as _requests
+except ImportError:
+    _requests = None
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "images", "games", "auto")
 
-DEFAULT_BOT = "http://157.90.181.183:23063"
+DEV_BOT = "http://127.0.0.1:30038"
+
+
+def _discover_via_website():
+    """Ask the website where the bot is (auto-discovery, no hardcoded IP)."""
+    website = (os.getenv("WEBSITE_URL", "") or "").rstrip("/")
+    if not website:
+        return ""
+    try:
+        with urllib.request.urlopen(website + "/api/bot-status", timeout=5) as r:
+            data = json.loads(r.read().decode("utf-8"))
+            if data.get("online") and data.get("baseUrl"):
+                return str(data["baseUrl"]).rstrip("/")
+    except Exception as e:  # noqa: BLE001 - operator tooling, report plainly
+        print(f"Website discovery ({website}) failed: {e}")
+    return ""
+
+
+def _default_bot():
+    return (
+        (os.getenv("BOT_PUBLIC_URL", "") or "").rstrip("/")
+        or _discover_via_website()
+        or DEV_BOT
+    )
 
 
 def main(argv):
-    bot = (argv[1] if len(argv) > 1 else DEFAULT_BOT).rstrip("/")
+    if _requests is None:
+        print("Missing 'requests' package - run: pip install requests")
+        return 2
+    # CLI arg > BOT_PUBLIC_URL env > website /api/bot-status > dev (see above).
+    bot = (argv[1] if len(argv) > 1 else _default_bot()).rstrip("/")
     try:
-        live = requests.get(f"{bot}/api/public/live", timeout=15)
+        live = _requests.get(f"{bot}/api/public/live", timeout=15)
         live.raise_for_status()
         games = live.json().get("games", [])
     except Exception as e:  # noqa: BLE001 - one-time script, report plainly
@@ -41,7 +74,7 @@ def main(argv):
             continue
         dest = os.path.join(OUT_DIR, f"{key}.jpg")
         try:
-            r = requests.get(f"{bot}/api/public/assets/{key}.jpg", timeout=15)
+            r = _requests.get(f"{bot}/api/public/assets/{key}.jpg", timeout=15)
         except Exception as e:
             print(f"{key:<24} bridge error: {e}")
             continue

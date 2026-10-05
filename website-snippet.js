@@ -3,7 +3,7 @@
  * bot IP is needed in the browser. Shows a clean "Bot offline" card when the
  * bot/panel is unreachable instead of zeros or empty boxes. No secrets here. */
 const NEXUS_CONFIG = {
-  API_BASE: '/api',           // proxied by nginx to http://157.90.181.183:23063
+  API_BASE: '/api',           // same-origin server routes (bot resolved server-side)
   STATS_ENDPOINT: '/api/public_stats',
   MOST_PLAYED_ENDPOINT: '/api/public/most-played?period=week',
   HEALTH_ENDPOINT: '/api/health',

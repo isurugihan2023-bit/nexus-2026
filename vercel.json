@@ -6,35 +6,35 @@
     },
     {
       "source": "/members",
-      "destination": "http://157.90.181.183:23063/members"
+      "destination": "/api/bot-proxy?path=/members"
     },
     {
       "source": "/admin_login",
-      "destination": "http://157.90.181.183:23063/admin_login"
+      "destination": "/api/bot-proxy?path=/admin_login"
     },
     {
       "source": "/dashboard",
-      "destination": "http://157.90.181.183:23063/dashboard"
+      "destination": "/api/bot-proxy?path=/dashboard"
     },
     {
       "source": "/admin_dashboard",
-      "destination": "http://157.90.181.183:23063/admin_dashboard"
+      "destination": "/api/bot-proxy?path=/admin_dashboard"
     },
     {
       "source": "/servers",
-      "destination": "http://157.90.181.183:23063/servers"
+      "destination": "/api/bot-proxy?path=/servers"
     },
     {
       "source": "/admin",
-      "destination": "http://157.90.181.183:23063/admin"
+      "destination": "/api/bot-proxy?path=/admin"
     },
     {
       "source": "/admin/:path*",
-      "destination": "http://157.90.181.183:23063/admin/:path*"
+      "destination": "/api/bot-proxy?path=/admin/:path*"
     },
     {
       "source": "/static/:path*",
-      "destination": "http://157.90.181.183:23063/static/:path*"
+      "destination": "/api/bot-proxy?path=/static/:path*"
     }
   ],
   "headers": [
