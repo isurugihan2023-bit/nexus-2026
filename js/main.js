@@ -288,9 +288,9 @@ const GAME_IMAGE_OVERRIDES = {
     "arc raiders": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg",
     "arc": "https://steamcdn-a.akamaihd.net/steam/apps/1808500/library_600x900_2x.jpg",
     "brawlhalla": "https://steamcdn-a.akamaihd.net/steam/apps/291550/library_600x900_2x.jpg",
-    "visual studio code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
-    "vscode": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
-    "code": "https://cdn.discordapp.com/app-assets/1127365366977396867/1127401490118623423.png",
+    "visual studio code": "images/games/code.jpg",
+    "vscode": "images/games/code.jpg",
+    "code": "images/games/code.jpg",
     "wallpaper engine": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg",
     "wallpaper": "https://steamcdn-a.akamaihd.net/steam/apps/431960/library_600x900_2x.jpg"
 };
