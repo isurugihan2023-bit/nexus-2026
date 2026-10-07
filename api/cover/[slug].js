@@ -27,14 +27,7 @@ export default async function handler(req, res) {
 
     const raw = req.query?.slug;
     const slug = String(Array.isArray(raw) ? raw[0] : raw || '').trim();
-    if (
-        !slug ||
-        slug.length > 128 ||
-        slug.includes('/') ||
-        slug.includes('\\') ||
-        slug.includes('..') ||
-        !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug)
-    ) {
+    if (!/^[a-z0-9-]+$/.test(slug) || slug.length > 128) {
         return res.status(400).end();
     }
 
