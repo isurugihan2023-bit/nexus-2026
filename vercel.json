@@ -1,4 +1,16 @@
 {
+  "redirects": [
+    {
+      "source": "/dashboard",
+      "destination": "http://panelnexus.duckdns.org:3000/dashboard",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/",
+      "destination": "http://panelnexus.duckdns.org:3000/dashboard",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/bot_data",
@@ -19,10 +31,6 @@
     {
       "source": "/admin_login",
       "destination": "/api/bot-proxy?path=/admin_login"
-    },
-    {
-      "source": "/dashboard",
-      "destination": "/api/bot-proxy?path=/dashboard"
     },
     {
       "source": "/admin_dashboard",
