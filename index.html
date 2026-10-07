@@ -1797,9 +1797,11 @@
             .cmd-card-name { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
             .cmd-card-desc { overflow-wrap: anywhere; }
             /* Live tabs + cards */
-            .lounge-tab-btn { flex: 1 1 auto; justify-content: center; }
-            .lounge-subnav { flex-wrap: wrap; max-width: 100%; row-gap: 8px; }
-            .lounge-tab-btn { padding: 8px 14px; font-size: 0.78rem; }
+            /* Live tabs: single equal row on phones (grid never wraps) */
+            .lounge-subnav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; width: 100%; max-width: 420px; margin-inline: auto; }
+            .lounge-tab-btn { min-height: 44px; min-width: 0; padding: 8px 6px; font-size: 12px; font-weight: 700; white-space: nowrap; text-align: center; justify-content: center; align-items: center; gap: 6px; }
+            .lounge-tab-btn i { font-size: 12px; }
+            .tab-extra { display: none; }
             .live-games-grid, .spotify-grid { grid-template-columns: repeat(1, minmax(0, 340px)); }
             #lounge-most-played-container .live-games-grid,
             #lounge-most-played-container .live-games-grid.single-game { grid-template-columns: repeat(1, minmax(0, 340px)); }
@@ -1824,6 +1826,13 @@
             /* Lighter paint on phones */
             .ambient-orb, .hero-glow { display: none; }
             .footer-grid { gap: 28px; }
+        }
+
+        /* ── Tiny phones ≤360px: tab icons off + tighter type so all 3 tabs
+           always fit one row (text never wraps, page never scrolls sideways) ── */
+        @media (max-width: 360px) {
+            .lounge-tab-btn { font-size: 11.5px; gap: 4px; }
+            .lounge-tab-btn i { display: none; }
         }
 
         /* ── Phone landscape (short screens) ── */
@@ -1987,7 +1996,7 @@
                 </p>
                 <div class="lounge-subnav">
                     <button class="lounge-tab-btn active" data-lounge-tab="live"><i class="fas fa-bolt"></i> Live Sessions</button>
-                    <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played This Week</button>
+                    <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played<span class="tab-extra"> This Week</span></button>
                     <button class="lounge-tab-btn" data-lounge-tab="listening"><i class="fab fa-spotify"></i> Listening</button>
                 </div>
                 <div class="lounge-updated" id="lounge-updated" role="status"></div>
