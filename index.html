@@ -25,7 +25,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -49,8 +49,8 @@
             --muted:    #8A8A8A;
             --sub:      #B5B5B5;
             --text:     #FFFFFF;
-            --font:     'Manrope', system-ui, sans-serif;
-            --mono:     'JetBrains Mono', monospace;
+            --font:     "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            --mono:     "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
         html { background: #0F0F0F; }
@@ -460,7 +460,7 @@
         .cmd-card:hover { background: rgba(198,227,43,0.05); border-color: var(--border2); }
         .cmd-card-name {
             display: inline-block;
-            font-family: var(--mono); color: #fff;
+            font-family: var(--font); color: #fff;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.12);
             padding: 4px 10px; border-radius: 6px;
@@ -1073,15 +1073,12 @@
             margin: 0;
             border-radius: 50%;
         }
-        /* Small unobtrusive freshness indicator under the lounge tabs. */
+        /* Freshness indicator under the lounge tabs: visually hidden but
+           kept in the DOM with role="status" so screen readers still get
+           the live updates. Absolutely positioned so it takes no space. */
         .lounge-updated {
-            margin-top: 10px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            color: var(--muted);
-            min-height: 1.1em;
-            text-align: center;
+            position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
         }
         .game-players-strip .game-player-headline {
             margin-bottom: 0;
@@ -1577,8 +1574,9 @@
         }
         .ts-ip-port {
             color: #8A8A8A;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font);
             font-size: 0.68rem;
+            font-weight: 700;
         }
         .ts-ip-row {
             display: flex;
@@ -1590,7 +1588,7 @@
             padding: 8px 12px;
         }
         .ts-ip-text {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font);
             font-size: 1.05rem;
             font-weight: 700;
             color: #D4EC5A;
@@ -1985,7 +1983,7 @@
             <div class="sec-head reveal" style="text-align: center;">
                 <h2 class="sec-title">CURRENTLY PLAYING IN <span class="grad">NINJA NEXUS</span></h2>
                 <p class="sec-sub">
-                    Live gaming sessions from community members online right now. Click any game to see who's in session and join the squad!
+                    See what the community is playing and listening to right now. Browse live sessions, this week's top games, and what members are listening to on Spotify.
                 </p>
                 <div class="lounge-subnav">
                     <button class="lounge-tab-btn active" data-lounge-tab="live"><i class="fas fa-bolt"></i> Live Sessions</button>

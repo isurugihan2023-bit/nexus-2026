@@ -15,12 +15,16 @@
     <meta name="theme-color" content="#0F0F0F">
     <link rel="icon" href="favicon.ico">
     <link rel="icon" type="image/png" href="images/favicon.png?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        button, input, select, textarea { font-family: inherit; }
         :root {
             --bg:#0F0F0F; --bg2:#161616; --border:rgba(255,255,255,0.08);
             --p400:#D4EC5A; --p500:#C6E32B; --muted:#8A8A8A; --sub:#B5B5B5; --text:#FFFFFF;
-            --font:'Manrope', system-ui, sans-serif;
+            --font:"Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         }
         html { background:#0F0F0F; }
         body { font-family:var(--font); background-color:var(--bg); color:var(--text); line-height:1.7; min-height:100vh; display:flex; flex-direction:column; -webkit-font-smoothing:antialiased; }
@@ -34,7 +38,7 @@
         h2 { font-size:1.15rem; margin:32px 0 10px; color:var(--p400); }
         p, li { color:var(--sub); font-size:0.98rem; }
         ul { margin:8px 0 8px 20px; list-style:disc; display:flex; flex-direction:column; gap:6px; }
-        code { font-family:ui-monospace, monospace; background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:6px; color:var(--text); }
+        code { font-family:var(--font); font-weight:700; background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:6px; color:var(--text); }
         footer.mini { border-top:1px solid var(--border); padding:24px 0 32px; color:var(--muted); font-size:0.85rem; }
         footer.mini nav { display:flex; gap:18px; margin-top:8px; }
         footer.mini a { color:var(--muted); text-decoration:none; }
