@@ -1218,28 +1218,34 @@
         /* Grid, card width, image area and radii mirror .live-games-grid /
            .game-card exactly so a Listening card is visually identical in
            size to a Live Sessions / Most Played card on desktop + mobile.
-           Only the body rows differ (track/artist/progress/user/open). */
+           Measured reference (headless Chromium, Ceylon Roleplay card with
+           match-detail line): 380x341 desktop. .spotify-card is locked to
+           that fixed height; the compact body (track/artist/progress/footer)
+           fits inside with margin-top:auto absorbing slack. Only the body
+           rows differ (track/artist/progress/user/open). */
+        #lounge-spotify-container { width: 100%; }
         .spotify-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 26px; margin-top: 36px; min-height: 280px; width: 100%; }
+        #lounge .spotify-grid { margin-top: 0; min-height: auto; width: 100%; justify-content: center; }
         .spotify-grid.single-track { display: flex; justify-content: center; max-width: 380px; margin-left: auto; margin-right: auto; }
         .spotify-grid.single-track .spotify-card { width: 380px; max-width: 100%; flex: 0 1 380px; }
-        .spotify-card { width: 350px; max-width: 100%; flex: 0 1 350px; background: #1A1A1A; border: none; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.2s ease; position: relative; }
+        .spotify-card { width: 350px; max-width: 100%; flex: 0 1 350px; height: 341px; background: #1A1A1A; border: none; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.2s ease; position: relative; }
         .spotify-card:hover { border: none; background: #222222; }
-        .spotify-art-wrap { position: relative; width: 100%; height: 175px; overflow: hidden; background: #121212; }
+        .spotify-art-wrap { position: relative; width: 100%; height: 175px; flex: 0 0 auto; overflow: hidden; background: #121212; }
         .spotify-art-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center center; transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
         .spotify-card:hover .spotify-art-wrap img { transform: scale(1.08); }
         .spotify-art-wrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,26,26,0.02) 0%, rgba(26,26,26,0.25) 40%, rgba(26,26,26,0.85) 70%, #1A1A1A 90%, #1A1A1A 100%); pointer-events: none; }
         .spotify-live-pill { position: absolute; top: 12px; left: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; background: rgba(15,15,15,0.75); border: 1px solid rgba(198,227,43,0.35); color: #D4EC5A; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
         .spotify-live-pill .lounge-live-dot { width: 6px; height: 6px; }
-        .spotify-body { padding: 18px 22px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; flex-grow: 1; position: relative; z-index: 3; margin-top: -2px; background: #1A1A1A; border-top: none; }
+        .spotify-body { padding: 18px 22px 20px; display: flex; flex-direction: column; align-items: stretch; text-align: center; flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; z-index: 3; margin-top: -2px; background: #1A1A1A; border-top: none; }
         .spotify-track { font-size: 1.25rem; font-weight: 850; color: #fff; letter-spacing: -0.02em; margin-bottom: 5px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; width: 100%; }
-        .spotify-artist { font-size: 0.9rem; font-weight: 600; color: #D4EC5A; margin-bottom: 2px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .spotify-album { font-size: 0.78rem; font-weight: 500; color: var(--muted); margin-bottom: 8px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .spotify-progress { width: 100%; height: 4px; border-radius: 100px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 4px; }
+        .spotify-artist { font-size: 0.9rem; font-weight: 600; color: #D4EC5A; margin-bottom: 2px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+        .spotify-progress-row { display: flex; align-items: center; gap: 8px; width: 100%; margin: 6px 0 8px; }
+        .spotify-progress { flex: 1 1 auto; min-width: 0; height: 4px; border-radius: 100px; background: rgba(255,255,255,0.08); overflow: hidden; }
         .spotify-progress-fill { height: 100%; width: 0%; border-radius: 100px; background: linear-gradient(135deg, #C6E32B 0%, #D4EC5A 100%); transition: width 0.3s linear; }
-        .spotify-times { display: flex; justify-content: space-between; width: 100%; font-size: 0.68rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 10px; }
-        .spotify-user-row { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: auto; }
-        .spotify-user-name { font-size: 0.86rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .spotify-open { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 7px 14px; border-radius: 100px; background: rgba(198,227,43,0.1); border: 1px solid rgba(198,227,43,0.25); color: #D4EC5A; font-size: 0.78rem; font-weight: 700; transition: background 0.2s ease, transform 0.2s ease; }
+        .spotify-times { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; font-size: 0.68rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .spotify-user-row { display: flex; align-items: center; gap: 8px; width: 100%; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: auto; }
+        .spotify-user-name { flex: 1 1 auto; min-width: 0; font-size: 0.86rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+        .spotify-open { flex: 0 0 auto; width: 30px; height: 30px; padding: 0; margin: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(198,227,43,0.1); border: 1px solid rgba(198,227,43,0.25); color: #D4EC5A; font-size: 0.85rem; transition: background 0.2s ease, transform 0.2s ease; }
         .spotify-open:hover { background: rgba(198,227,43,0.2); transform: translateY(-2px); }
         @media (max-width: 600px) { .spotify-card, .spotify-grid.single-track .spotify-card { flex-basis: 100%; width: 100%; } }
 
@@ -4044,24 +4050,21 @@
             listeners.slice(0, 12).forEach((l) => {
                 const title = l.title || 'Unknown track';
                 const artist = l.artist || 'Unknown artist';
-                const album = l.album || '';
                 const art = (l.art || '').trim();
                 const artImg = art
                     ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(title)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='images/games/fallback.svg';">`
                     : `<img src="images/games/fallback.svg" alt="${escapeHtml(title)}" loading="lazy" decoding="async">`;
                 const openLink = l.track_url
-                    ? `<a class="spotify-open" href="${escapeHtml(l.track_url)}" target="_blank" rel="noopener noreferrer"><i class="fab fa-spotify"></i> Open in Spotify</a>`
+                    ? `<a class="spotify-open" href="${escapeHtml(l.track_url)}" target="_blank" rel="noopener noreferrer" title="Open in Spotify" aria-label="Open in Spotify"><i class="fab fa-spotify"></i></a>`
                     : '';
                 html += `<div class="spotify-card reveal visible">`
                     + `<div class="spotify-art-wrap">${artImg}<span class="spotify-live-pill"><span class="lounge-live-dot"></span> Listening</span></div>`
                     + `<div class="spotify-body">`
                     + `<div class="spotify-track" title="${escapeHtml(title)}">${escapeHtml(title)}</div>`
                     + `<div class="spotify-artist" title="${escapeHtml(artist)}">${escapeHtml(artist)}</div>`
-                    + (album ? `<div class="spotify-album" title="${escapeHtml(album)}">${escapeHtml(album)}</div>` : '')
-                    + `<div class="spotify-progress"><div class="spotify-progress-fill" data-sp-start="${l.start ?? ''}" data-sp-end="${l.end ?? ''}"></div></div>`
-                    + `<div class="spotify-times"><span data-sp-elapsed>0:00</span><span>${fmtTrackTime((l.end && l.start) ? (l.end - l.start) : 0)}</span></div>`
-                    + `<div class="spotify-user-row">${spotifyAvatar(l.avatar, l.name)}<span class="spotify-user-name">${escapeHtml(l.name || 'Member')}</span></div>`
-                    + openLink
+                    + `<div class="spotify-progress-row"><div class="spotify-progress"><div class="spotify-progress-fill" data-sp-start="${l.start ?? ''}" data-sp-end="${l.end ?? ''}"></div></div>`
+                    + `<div class="spotify-times"><span data-sp-elapsed>0:00</span><span>${fmtTrackTime((l.end && l.start) ? (l.end - l.start) : 0)}</span></div></div>`
+                    + `<div class="spotify-user-row">${spotifyAvatar(l.avatar, l.name)}<span class="spotify-user-name">${escapeHtml(l.name || 'Member')}</span>${openLink}</div>`
                     + `</div></div>`;
             });
             html += '</div>';
