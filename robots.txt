@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ninjanexus.duckdns.org/sitemap.xml

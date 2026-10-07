@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         ninja_nexus_members: 48,
         online_users: 0,
         total_servers: 1,
-        total_commands: 150,
+        total_commands: null,
         ping: null,
         top_played_games: [],
         playing_games: [],
