@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/bot_data",
+      "destination": "/api/public_stats"
+    },
+    {
+      "source": "/api/stats/most-played",
+      "destination": "/api/public/most-played"
+    },
+    {
       "source": "/api/discord_stats",
       "destination": "https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true"
     },
