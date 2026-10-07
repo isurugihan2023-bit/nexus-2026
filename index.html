@@ -2810,6 +2810,21 @@
             const g = game || {};
             const name = g.name || g.game_name || '';
             const key = slugOf(g.game_key || name) || 'game';
+            // Bot-captured auto cover: the bot sends its own public path
+            // (/api/public/cover/<slug>). Browsers must use the same-origin
+            // proxy (/api/cover/<game_key>) instead - never the bot prefix -
+            // with the game fallback if the capture is gone (404 via onerror).
+            const rawImage = String(g.image || '').trim();
+            if (rawImage.indexOf('/api/public/cover/') === 0) {
+                const fb = isLocalPath(g.fallback) ? g.fallback.split('?')[0]
+                    : 'images/games/default.jpg';
+                return {
+                    primary: '/api/cover/' + key,
+                    auto: '',
+                    secondary: fb || 'images/games/default.jpg',
+                    name
+                };
+            }
             const relRaw = (isLocalPath(g.image) && !isGenericCover(g.image)) ? g.image.split('?')[0] : '';
             const rel = (relRaw && relRaw.indexOf('/cat-') === -1) ? relRaw : '';
             const autoGiven = g.auto_image || g.auto || '';
