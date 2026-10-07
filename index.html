@@ -118,7 +118,7 @@
         }
         .btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(198,227,43,0.3); }
         .btn:active { transform: translateY(0); }
-        .btn:focus-visible, .nav-invite:focus-visible, .cmd-filter:focus-visible, .lounge-tab-btn:focus-visible, .ts-copy-btn:focus-visible { outline: 2px solid #C6E32B; outline-offset: 2px; }
+        .btn:focus-visible, .nav-dashboard:focus-visible, .cmd-filter:focus-visible, .lounge-tab-btn:focus-visible, .ts-copy-btn:focus-visible { outline: 2px solid #C6E32B; outline-offset: 2px; }
 
         .btn-primary {
             background: linear-gradient(135deg, #C6E32B 0%, #D4EC5A 100%);
@@ -159,13 +159,23 @@
 
         .nav-cta { display: flex; gap: 10px; align-items: center; }
 
-        .nav-invite {
+        .nav-dashboard {
+            display: inline-flex; align-items: center; gap: 8px;
             padding: 8px 18px; border-radius: 9px;
-            background: linear-gradient(135deg, var(--p600), var(--p500));
-            color: #0F0F0F; font-size: 0.87rem; font-weight: 600;
-            transition: opacity 200ms;
+            background: #000000;
+            border: 1px solid #b5d121;
+            color: #b5d121; font-size: 0.87rem; font-weight: 600;
+            transition: border-color 200ms, color 200ms, box-shadow 200ms;
         }
-        .nav-invite:hover { opacity: 0.85; }
+        .nav-dashboard i { color: #b5d121; }
+        .nav-dashboard:hover {
+            background: #000000;
+            border-color: #d4ec5a;
+            color: #d4ec5a;
+            box-shadow: 0 0 12px rgba(181, 209, 33, 0.25);
+        }
+        .nav-dashboard:hover i { color: #d4ec5a; }
+        .nav-dashboard:focus-visible { outline: 2px solid #C6E32B; outline-offset: 2px; }
 
         .nav-links a.active { color: var(--text); border-bottom: 2px solid var(--p500); padding-bottom: 4px; }
 
@@ -708,8 +718,8 @@
             margin-left: 4px;
         }
         .live-games-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 310px);
+            display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
             margin-top: 36px;
@@ -718,23 +728,22 @@
         .live-games-grid .game-card,
         .live-games-grid .skeleton-card {
             width: 100%;
+            flex: 0 0 calc((100% - 40px) / 3);
             max-width: 310px;
-        }
-        #lounge-most-played-container .live-games-grid {
-            grid-template-columns: repeat(3, 290px);
         }
         #lounge-most-played-container .live-games-grid .game-card,
         #lounge-most-played-container .live-games-grid .skeleton-card {
+            flex: 0 0 calc((100% - 40px) / 3);
             max-width: 290px;
         }
         .live-games-grid.single-game {
-            grid-template-columns: minmax(0, 340px);
             justify-content: center;
             max-width: 340px;
             margin-left: auto;
             margin-right: auto;
         }
         .live-games-grid.single-game .game-card {
+            flex: 0 0 100%;
             width: 100%;
             max-width: 340px;
         }
@@ -1246,14 +1255,14 @@
            absorbing slack. Only the body rows differ. */
         #lounge-spotify-container { width: 100%; }
         #lounge-most-played-container { width: 100%; }
-        .spotify-grid { display: grid; grid-template-columns: repeat(3, 310px); justify-content: center; gap: 20px; margin-top: 36px; min-height: 280px; width: 100%; }
+        .spotify-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 36px; min-height: 280px; width: 100%; }
         #lounge .spotify-grid { margin-top: 0; min-height: auto; width: 100%; justify-content: center; }
-        .spotify-grid.single-track { grid-template-columns: minmax(0, 340px); justify-content: center; max-width: 340px; margin-left: auto; margin-right: auto; }
-        .spotify-grid.single-track .spotify-card { width: 100%; max-width: 340px; }
-        .spotify-card { width: 100%; max-width: 310px; background: #1A1A1A; border: none; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.2s ease; position: relative; }
+        .spotify-grid.single-track { justify-content: center; max-width: 340px; margin-left: auto; margin-right: auto; }
+        .spotify-grid.single-track .spotify-card { flex: 0 0 100%; width: 100%; max-width: 340px; }
+        .spotify-card { flex: 0 0 calc((100% - 40px) / 3); width: 100%; max-width: 310px; background: #1A1A1A; border: none; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.2s ease; position: relative; }
         .spotify-card:hover { border: none; background: #222222; }
         .spotify-art-wrap { position: relative; width: 100%; aspect-ratio: 2 / 1; height: auto; flex: 0 0 auto; overflow: hidden; background: #121212; }
-        .spotify-art-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center center; transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        .spotify-art-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center center; transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); filter: grayscale(100%) brightness(0.85); }
         .spotify-card:hover .spotify-art-wrap img { transform: scale(1.08); }
         .spotify-art-wrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,26,26,0.02) 0%, rgba(26,26,26,0.25) 40%, rgba(26,26,26,0.85) 70%, #1A1A1A 90%, #1A1A1A 100%); pointer-events: none; }
         .spotify-live-pill { position: absolute; top: 12px; left: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; background: rgba(15,15,15,0.75); border: 1px solid rgba(198,227,43,0.35); color: #D4EC5A; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -1693,7 +1702,7 @@
             /* Dynamic viewport units: no address-bar jump (desktop keeps 100vh) */
             .hero { height: auto; min-height: 560px; min-height: 100svh; min-height: 100dvh; }
             /* 44px minimum tap targets */
-            .btn, .nav-invite, .cmd-filter, .lounge-tab-btn,
+            .btn, .nav-dashboard, .cmd-filter, .lounge-tab-btn,
             .ts-copy-btn, .modal-close-btn, .hamburger, .empty-lounge-discord-btn { min-height: 44px; }
             .cmd-filter, .lounge-tab-btn { display: inline-flex; align-items: center; }
             .modal-close-btn { width: 44px; height: 44px; }
@@ -1716,9 +1725,12 @@
             .cmd-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-leaderboard-grid { grid-template-columns: repeat(2, 1fr); }
             .hero-chips { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 720px; }
-            .live-games-grid, .spotify-grid { grid-template-columns: repeat(2, minmax(0, 310px)); }
-            #lounge-most-played-container .live-games-grid { grid-template-columns: repeat(2, minmax(0, 290px)); }
-            #lounge-most-played-container .live-games-grid.single-game { grid-template-columns: minmax(0, 340px); max-width: 340px; }
+            .live-games-grid .game-card,
+            .live-games-grid .skeleton-card,
+            .spotify-grid .spotify-card { flex: 0 0 calc((100% - 20px) / 2); max-width: 310px; }
+            #lounge-most-played-container .live-games-grid .game-card,
+            #lounge-most-played-container .live-games-grid .skeleton-card { flex: 0 0 calc((100% - 20px) / 2); max-width: 290px; }
+            #lounge-most-played-container .live-games-grid.single-game { max-width: 340px; }
             .stats-strip-inner { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .stats-strip-inner .stat-item { padding: 0 16px; border-right: 1px solid var(--border); border-bottom: none; }
             .stats-strip-inner .stat-item:last-child { border-right: none; }
@@ -1750,11 +1762,20 @@
             }
             .mobile-nav a:active { background: rgba(198, 227, 43, 0.12); }
             .mobile-nav a i { width: 20px; text-align: center; color: var(--p400); }
-            .mobile-nav .mobile-nav-join {
+            .mobile-nav .mobile-nav-dashboard {
                 justify-content: center; margin-top: 6px;
-                background: linear-gradient(135deg, #C6E32B 0%, #D4EC5A 100%);
-                color: #0F0F0F; font-weight: 800;
+                background: #000000;
+                border: 1px solid #b5d121;
+                color: #b5d121; font-weight: 700;
             }
+            .mobile-nav .mobile-nav-dashboard i { color: #b5d121; }
+            .mobile-nav .mobile-nav-dashboard:hover {
+                background: #000000;
+                border-color: #d4ec5a;
+                color: #d4ec5a;
+                box-shadow: 0 0 12px rgba(181, 209, 33, 0.25);
+            }
+            .mobile-nav .mobile-nav-dashboard:hover i { color: #d4ec5a; }
         }
 
         /* ── Phone ≤600px ── */
@@ -1802,12 +1823,11 @@
             .lounge-tab-btn { min-height: 44px; min-width: 0; padding: 8px 6px; font-size: 12px; font-weight: 700; white-space: nowrap; text-align: center; justify-content: center; align-items: center; gap: 6px; }
             .lounge-tab-btn i { font-size: 12px; }
             .tab-extra { display: none; }
-            .live-games-grid, .spotify-grid { grid-template-columns: repeat(1, minmax(0, 340px)); }
-            #lounge-most-played-container .live-games-grid,
-            #lounge-most-played-container .live-games-grid.single-game { grid-template-columns: repeat(1, minmax(0, 340px)); }
             .live-games-grid .game-card, .live-games-grid.single-game .game-card,
+            .live-games-grid .skeleton-card,
             #lounge-most-played-container .live-games-grid .game-card,
-            .spotify-card, .spotify-grid.single-track .spotify-card { width: 100%; max-width: 340px; }
+            #lounge-most-played-container .live-games-grid .skeleton-card,
+            .spotify-grid .spotify-card, .spotify-grid.single-track .spotify-card { flex: 0 0 100%; width: 100%; max-width: 340px; }
             /* Modal */
             .modal-banner { height: 140px; }
             .modal-body { padding: 18px 16px; }
@@ -1887,8 +1907,8 @@
                     <li><a href="#lounge">LIVE</a></li>
                 </ul>
                 <div class="nav-cta">
-                    <a href="https://discord.gg/fZNDG5sfhf" class="nav-invite" target="_blank">
-                        <i class="fab fa-discord"></i> Join Server
+                    <a href="http://panelnexus.duckdns.org:3000/dashboard" class="nav-dashboard" aria-label="Open dashboard" target="_blank" rel="noopener">
+                        <i class="fas fa-table-columns"></i> Dashboard
                     </a>
                 </div>
                 <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><i class="fas fa-bars"></i></button>
@@ -1899,9 +1919,7 @@
                 <a href="#commands">Commands</a>
                 <a href="#stats">Stats</a>
                 <a href="#lounge">LIVE</a>
-                <a href="https://discord.gg/fZNDG5sfhf" class="mobile-nav-join" target="_blank" rel="noopener">
-                    <i class="fab fa-discord"></i> Join Server
-                </a>
+                <a href="http://panelnexus.duckdns.org:3000/dashboard" class="mobile-nav-dashboard" aria-label="Open dashboard" target="_blank" rel="noopener"><i class="fas fa-table-columns"></i> Dashboard</a>
             </nav>
         </div>
     </nav>
