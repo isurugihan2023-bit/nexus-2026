@@ -1,10 +1,12 @@
-import { getBotBaseUrl } from '../_bot_registry.js';
+import { fetchUpstream } from '../_nexus.js';
 
 // GET /api/cover/:slug — same-origin auto-cover proxy for game cards.
-// Fetches getBotBaseUrl() + "/api/public/cover/" + slug (bot-captured
-// Rich Presence JPEG) with a 3s timeout and forwards the bytes.
-// - Cache-Control: public, max-age=86400, s-maxage=86400 (covers are
-//   content-addressed per game and change rarely).
+// Same pattern as api/spotify.js: resolve the bot via getBotBaseUrl()
+// (inside fetchUpstream) and proxy server-side with a 3s timeout, so the
+// browser never dials the bot directly (no mixed content, no IP leak).
+// Fetches "/api/public/cover/" + slug (bot-captured Rich Presence JPEG)
+// and forwards the bytes with Content-Type image/jpeg and
+// Cache-Control public, max-age=86400, s-maxage=86400.
 // - Bot 404 (not captured yet) passes through as 404 so the card's
 //   onerror chain falls back to the game fallback cover.
 // - Bot offline / any upstream error also becomes a bare 404 (never 502,
@@ -31,35 +33,27 @@ export default async function handler(req, res) {
         return res.status(400).end();
     }
 
-    const base = await getBotBaseUrl();
-    if (!base) {
+    const hit = await fetchUpstream(
+        `/api/public/cover/${encodeURIComponent(slug)}`,
+        TIMEOUT_MS,
+        'cover'
+    );
+    if (!hit) {
         return res.status(404).end();
     }
-
-    const url = `${base}/api/public/cover/${encodeURIComponent(slug)}`;
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-        const upstream = await fetch(url, {
-            signal: controller.signal,
-            headers: { Accept: 'image/*' },
-        });
-        clearTimeout(timeoutId);
-        if (upstream.status === 404) {
+        if (hit.res.status === 404) {
             return res.status(404).end();
         }
-        if (!upstream.ok) {
-            console.log(`[cover] ${slug} upstream HTTP ${upstream.status}`);
+        if (!hit.res.ok) {
+            console.log(`[cover] ${slug} upstream HTTP ${hit.res.status}`);
             return res.status(404).end();
         }
-        const buf = Buffer.from(await upstream.arrayBuffer());
+        const buf = Buffer.from(await hit.res.arrayBuffer());
         if (!buf.length) {
             return res.status(404).end();
         }
-        res.setHeader(
-            'Content-Type',
-            upstream.headers.get('content-type') || 'image/jpeg'
-        );
+        res.setHeader('Content-Type', 'image/jpeg');
         res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
         return res.status(200).send(buf);
     } catch (e) {
