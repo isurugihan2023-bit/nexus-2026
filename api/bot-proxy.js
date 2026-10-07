@@ -14,6 +14,35 @@ import { getBotBaseUrl } from './_bot_registry.js';
 
 const TIMEOUT_MS = 3000;
 
+const SITE_ORIGIN = 'https://ninjanexus.duckdns.org';
+// Local dev origins: GET-only, and only for public read-only bot paths.
+const LOCAL_ORIGINS = new Set(['http://127.0.0.1:5500', 'http://localhost:5500']);
+
+// Only bot paths that serve public, read-only data may be read cross-origin
+// from a localhost dev server. Everything else (dashboard / admin / members /
+// servers, and any write) is same-origin-site only.
+function isLocalhostReadable(target) {
+    return target.startsWith('/static/');
+}
+
+function applyCors(req, res, target) {
+    const origin = req.headers.origin || '';
+    res.setHeader('Vary', 'Origin');
+    if (origin === SITE_ORIGIN) {
+        res.setHeader('Access-Control-Allow-Origin', SITE_ORIGIN);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return;
+    }
+    const readOnly = req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS';
+    if (readOnly && LOCAL_ORIGINS.has(origin) && isLocalhostReadable(target)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    }
+    // else: no ACAO header — the browser blocks the cross-origin read.
+}
+
 function readRawBody(req) {
     return new Promise((resolve, reject) => {
         const chunks = [];
@@ -34,17 +63,15 @@ function offlinePage() {
 }
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    if (req.method === 'OPTIONS') return res.status(204).end();
-
     const sub = req.query?.path || '/';
     const target = String(Array.isArray(sub) ? sub[0] : sub);
     if (!target.startsWith('/') || target.includes('..')) {
         return res.status(400).send('bad path');
     }
+
+    applyCors(req, res, target);
+
+    if (req.method === 'OPTIONS') return res.status(204).end();
 
     const base = await getBotBaseUrl();
     if (!base) {

@@ -6,14 +6,30 @@ Mounts onto the existing bot aiohttp application without altering /api/public_st
 from aiohttp import web
 import json
 import logging
-from typing import Optional
+import os
+from typing import List, Optional
 from .db import GamingDatabase
 from .rawg import GameMetadataResolver
 
 logger = logging.getLogger("nexus.api")
 
-def set_cors_and_no_cache_headers(response: web.Response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
+def _allowed_origins() -> List[str]:
+    raw = os.getenv("NEXUS_WEBSITE_ORIGINS",
+                    "https://ninjanexus.duckdns.org,https://nexus-2026.vercel.app")
+    return [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+
+def set_cors_and_no_cache_headers(response: web.Response, request: Optional[web.Request] = None):
+    origin = ""
+    try:
+        origin = (request.headers.get("Origin") or "").strip().rstrip("/") if request is not None else ""
+    except Exception:
+        origin = ""
+    allowed = _allowed_origins()
+    response.headers["Vary"] = "Origin"
+    if origin and origin in allowed:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    # else: no ACAO header (same-origin needs none; unlisted origins stay blocked;
+    # curl/non-browser clients still read the body).
     response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
@@ -37,7 +53,7 @@ class StatsApiRouter:
             "count": len(games),
             "games": games
         })
-        return set_cors_and_no_cache_headers(res)
+        return set_cors_and_no_cache_headers(res, request)
 
     async def get_leaderboard(self, request: web.Request) -> web.Response:
         """GET /api/stats/leaderboard?period=week|month|all"""
@@ -50,13 +66,13 @@ class StatsApiRouter:
             "count": len(leaderboard),
             "leaderboard": leaderboard
         })
-        return set_cors_and_no_cache_headers(res)
+        return set_cors_and_no_cache_headers(res, request)
 
     async def get_user_history(self, request: web.Request) -> web.Response:
         """GET /api/stats/user/{discord_id}"""
         discord_id = request.match_info.get("discord_id", "").strip()
         if not discord_id:
-            return set_cors_and_no_cache_headers(web.json_response({"error": "Missing discord_id"}, status=400))
+            return set_cors_and_no_cache_headers(web.json_response({"error": "Missing discord_id"}, status=400), request)
 
         history = self.db.get_user_history(discord_user_id=discord_id, limit=25)
         res = web.json_response({
@@ -65,20 +81,20 @@ class StatsApiRouter:
             "session_count": len(history),
             "sessions": history
         })
-        return set_cors_and_no_cache_headers(res)
+        return set_cors_and_no_cache_headers(res, request)
 
     async def get_game_metadata(self, request: web.Request) -> web.Response:
         """GET /api/games/{name}"""
         game_name = request.match_info.get("name", "").strip()
         if not game_name:
-            return set_cors_and_no_cache_headers(web.json_response({"error": "Missing game name"}, status=400))
+            return set_cors_and_no_cache_headers(web.json_response({"error": "Missing game name"}, status=400), request)
 
         metadata = await self.resolver.resolve(game_name)
         res = web.json_response({
             "status": "success",
             "game": metadata
         })
-        return set_cors_and_no_cache_headers(res)
+        return set_cors_and_no_cache_headers(res, request)
 
     def attach_routes(self, app: web.Application):
         """Attaches additive stats and games routes to the main bot aiohttp application."""

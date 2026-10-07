@@ -197,19 +197,6 @@ def extract_activity_assets(act: Any) -> Optional[Dict[str, Any]]:
             "app_id": app_str}
 
 
-def _log_activity_assets(new_act: Dict[str, Any]) -> None:
-    """TEMPORARY discovery log for the asset survey (remove afterwards).
-
-    Shows which games actually ship Rich Presence artwork. Read with:
-    journalctl / bot logs | grep ASSETS-TEMP
-    """
-    a = new_act.get("assets") or {}
-    logger.info("[ASSETS-TEMP] game=%s key=%s large=%s small=%s app=%s",
-                new_act.get("game_name"), new_act.get("game_key"),
-                a.get("large") or "-", a.get("small") or "-",
-                a.get("app_id") or "-")
-
-
 def extract_playing_activity(member: Any, cfg: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
     """Best Playing/Competing game activity for a member, or None."""
     if member is None or bool(getattr(member, "bot", False)):
@@ -291,8 +278,6 @@ def handle_presence_update(db: Any, before: Any, after: Any,
         return "IGNORED"
     uid = str(getattr(member, "id"))
     old_act, new_act = diff_presence(before, after, cfg)
-    if new_act:
-        _log_activity_assets(new_act)
     gid = guild_id or str(getattr(getattr(member, "guild", None), "id", "") or "")
 
     if new_act and (not old_act or old_act["game_key"] != new_act["game_key"]):

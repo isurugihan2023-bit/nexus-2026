@@ -73,10 +73,8 @@ Hunk 5 - presence handler (module level, next to other @bot.event handlers):
                     bot.loop.create_task(asset_capture.ensure_game_cover(
                         "", act["game_key"], url, assets.get("app_id", ""),
                         force=changed))
-        except Exception as _e:
-            # TEMPORARY (survey only): print instead of pass so the real
-            # error shows in the panel console. Revert to pass afterwards.
-            print(f"[ASSETS] capture block error: {type(_e).__name__}: {_e}")
+        except Exception:
+            pass
 
 Hunk 6 - THE FIX: whitelist GET /api/public/* in BOTH auth middlewares,
 exactly the way /static is already excluded. Find each middleware's early
