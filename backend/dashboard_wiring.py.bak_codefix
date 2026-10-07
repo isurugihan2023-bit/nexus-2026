@@ -177,9 +177,7 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
     """Boot-time rebuild (call from on_ready). Shared by bot and test harness.
 
     Closes orphaned rows at last_seen, rebuilds the live set from
-    guild.members, closes any still-open rows for ignored apps (e.g. VS Code
-    "Code" sessions stranded by older builds), prunes history older than
-    30 days. Returns counts.
+    guild.members, prunes history older than 30 days. Returns counts.
     """
     from . import game_tracker
 
@@ -210,21 +208,9 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
         except Exception:
             pass
     pruned = db.prune_old_game_sessions(now_ms=now)
-    # Stranded ignored-app rows (e.g. "Code" opened by a build before the
-    # ignore entry): the orphan close above already ended them, but close by
-    # name/key explicitly so no path can leave one open across a restart.
-    ignored_closed = 0
-    try:
-        ignore_names = [str(x).lower().strip()
-                        for x in ((cfg or {}).get("ignore_apps") or []) if str(x).strip()]
-        if ignore_names and hasattr(db, "close_open_game_sessions_for_names"):
-            ignored_closed = db.close_open_game_sessions_for_names(ignore_names, now_ms=now)
-    except Exception:
-        pass
-    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d assets=%d ignored_closed=%d",
-                orphaned, len(live), pruned, captured, ignored_closed)
-    return {"orphaned": orphaned, "live": len(live), "pruned": pruned,
-            "ignored_closed": ignored_closed}
+    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d assets=%d",
+                orphaned, len(live), pruned, captured)
+    return {"orphaned": orphaned, "live": len(live), "pruned": pruned}
 
 
 async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,

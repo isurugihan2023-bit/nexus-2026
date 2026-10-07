@@ -136,19 +136,12 @@ def run_tests():
         assert _presence(db, cfg, guild, botty, NOW_MS) == "IGNORED"
         assert _presence(db, cfg, guild, spoty, NOW_MS) == "IGNORED"
 
-        print("[TEST] shipped config ignores editors (exact), games untouched...")
+        print("[TEST] shipped config ignores no apps (only hardcoded types)...")
         assert game_tracker.should_ignore("Freebuff", cfg) is False
         assert game_tracker.should_ignore("BlueStacks 5", cfg) is False
-        assert game_tracker.should_ignore("Code", cfg) is True
-        assert game_tracker.should_ignore("Visual Studio Code", cfg) is True
-        assert game_tracker.should_ignore("Code Vein", cfg) is False
+        assert game_tracker.should_ignore("Visual Studio Code", cfg) is False
         assert game_tracker.should_ignore("Spotify", cfg) is True
         assert game_tracker.should_ignore("Custom Status", cfg) is True
-
-        print("[TEST] 'Code' never aliases to a real game...")
-        assert game_tracker.normalize_game("Code", "Not in a file!", "", cfg) == ("code", "Code")
-        assert game_tracker.normalize_game("Code Vein", "", "", cfg) == ("code-vein", "Code Vein")
-        assert game_tracker.normalize_game("CoD", "", "", cfg) == ("call-of-duty", "Call of Duty")
 
         router = PublicApiRouter(db)
         router._guilds_provider = lambda: [guild]
@@ -174,9 +167,9 @@ def run_tests():
             assert _re.search(rf"(?<![\w/]){_uid}(?![\w])", scrubbed) is None, \
                 f"raw member id {_uid} leaked: {scrubbed[:300]}"
 
-        print("[TEST] unknown category is 'Other' with clean fallback art...")
+        print("[TEST] unknown category is 'Gaming' with clean fallback art...")
         fb = next(g for g in live["games"] if g["game_key"] == "freebuff")
-        assert fb["category"] == "Other", fb
+        assert fb["category"] == "Gaming", fb
         assert fb["image"] == "images/games/fallback.svg", fb
         assert fb["players"][0]["name"] == "Bob", fb
         assert "embed/avatars/0.png?size=64" in fb["players"][0]["avatar"], fb

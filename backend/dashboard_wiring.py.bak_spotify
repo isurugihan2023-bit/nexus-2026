@@ -3,9 +3,6 @@ backend/dashboard_wiring.py - EXACT patch guide for the VPS bot (dashboard.py).
 
 Goal: GET /api/public/live, /api/public/most-played and /api/public/live/stream
 answer WITHOUT auth (today they 401), while every other route stays protected.
-Spotify "Now Listening" (GET /api/public/spotify + /api/public/spotify/stream)
-is included: same whitelist, same in-memory instant updates, never touches
-game sessions / Most Played / history.
 
 Apply the 6 numbered hunks below to /home/container/dashboard.py (or wherever
 your bot creates its aiohttp web.Application and its TWO auth middlewares).
@@ -98,17 +95,14 @@ bypass (the line mentioning '/static') and add '/api/public/' to it:
           if request.path.startswith(("/static/", "/login", "/api/public/")):
               return await handler(request)
 
-      If your middlewares instead match explicit route lists, add these five
+      If your middlewares instead match explicit route lists, add these three
       paths to the public/allow list (GET only is fine):
           /api/public/live
           /api/public/most-played
           /api/public/live/stream
-          /api/public/spotify
-          /api/public/spotify/stream
 
 Hunk 7 - boot rebuild (inside on_ready, after your existing reconcile):
     report = rebuild_game_sessions(list(bot.guilds), db, _tracker_cfg)
-    rebuild_spotify_sessions(list(bot.guilds))
     bot.loop.create_task(game_heartbeat_loop(bot, db, _tracker_cfg, public_router))
     bot.loop.create_task(game_prune_loop(bot, db))
 
@@ -116,26 +110,6 @@ Hunk 8 - privacy command (wherever a user opts out / back in; the 5s live
 cache otherwise delays the effect by a few seconds):
     db.set_privacy_optout(str(member.id), opted_out)
     public_router.invalidate_live()
-
-Hunk 8b - Spotify presence (ADD to the on_presence_update from Hunk 5, right
-after the game_tracker.handle_presence_update block - updates instantly,
-no waiting for the 60s loop; Spotify never touches game sessions):
-    spotify_action = handle_spotify_presence(before, after, public_router)
-
-Hunk 8c - !spotify off/on (per-user; independent of global privacy opt-out):
-    # inside on_message (or your command handler), before other commands:
-    if content.strip().lower() in ("!spotify off", "!spotify on"):
-        opted_out = content.strip().lower().endswith("off")
-        db.set_spotify_optout(str(message.author.id), opted_out)
-        try:
-            public_router.invalidate_spotify()
-        except Exception:
-            pass
-        await message.channel.send(
-            "Spotify sharing turned OFF. Use !spotify on to re-enable."
-            if opted_out else "Spotify sharing turned ON.")
-        return
-    # Env flag (default true): NEXUS_SHOW_SPOTIFY=false blanks /api/public/spotify.
 
 Hunk 9 - tuning knobs (env vars, all optional; no .env file needed):
     NEXUS_LIVE_REFRESH_SECONDS=4   # live snapshot cadence, clamped to 3-5s
@@ -167,7 +141,7 @@ That is the whole patch. No other dashboard.py line needs to change.
 import asyncio
 import logging
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 logger = logging.getLogger("nexus.wiring")
 
@@ -177,9 +151,7 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
     """Boot-time rebuild (call from on_ready). Shared by bot and test harness.
 
     Closes orphaned rows at last_seen, rebuilds the live set from
-    guild.members, closes any still-open rows for ignored apps (e.g. VS Code
-    "Code" sessions stranded by older builds), prunes history older than
-    30 days. Returns counts.
+    guild.members, prunes history older than 30 days. Returns counts.
     """
     from . import game_tracker
 
@@ -210,21 +182,9 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
         except Exception:
             pass
     pruned = db.prune_old_game_sessions(now_ms=now)
-    # Stranded ignored-app rows (e.g. "Code" opened by a build before the
-    # ignore entry): the orphan close above already ended them, but close by
-    # name/key explicitly so no path can leave one open across a restart.
-    ignored_closed = 0
-    try:
-        ignore_names = [str(x).lower().strip()
-                        for x in ((cfg or {}).get("ignore_apps") or []) if str(x).strip()]
-        if ignore_names and hasattr(db, "close_open_game_sessions_for_names"):
-            ignored_closed = db.close_open_game_sessions_for_names(ignore_names, now_ms=now)
-    except Exception:
-        pass
-    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d assets=%d ignored_closed=%d",
-                orphaned, len(live), pruned, captured, ignored_closed)
-    return {"orphaned": orphaned, "live": len(live), "pruned": pruned,
-            "ignored_closed": ignored_closed}
+    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d assets=%d",
+                orphaned, len(live), pruned, captured)
+    return {"orphaned": orphaned, "live": len(live), "pruned": pruned}
 
 
 async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,
@@ -270,17 +230,6 @@ async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,
                     public_router.invalidate_live()
                 except Exception:
                     pass
-            # Spotify cache scan: pick up song changes missed between presence
-            # events + expire finished tracks (end + 15s). Never touches games.
-            try:
-                changed = sync_spotify_from_scan(list(bot.guilds), now_ms=now_ms)
-                if changed and public_router is not None:
-                    try:
-                        public_router.invalidate_spotify()
-                    except Exception:
-                        pass
-            except Exception:
-                pass
         except Exception:
             pass
         try:
@@ -301,83 +250,3 @@ async def game_prune_loop(bot: Any, db: Any) -> None:
                 pass
         except Exception:
             break
-
-
-# ── Spotify "Now Listening" wiring (additive; games untouched) ──────
-
-def handle_spotify_presence(before: Any, after: Any,
-                            public_router: Any = None,
-                            now_ms: int = None) -> str:
-    """Presence hook for Spotify. Call on EVERY on_presence_update.
-
-    Updates _SPOTIFY_LIVE immediately on song change (no 60s wait),
-    removes on STOP/offline, then invalidates the 2s Spotify snapshot
-    + wakes the Spotify SSE stream. Returns START | UPDATE | STOP | IGNORED.
-    """
-    from . import spotify_tracker
-
-    action = spotify_tracker.handle_spotify_presence(
-        before, after, now_ms=now_ms if now_ms is not None else int(time.time() * 1000))
-    if action in ("START", "UPDATE", "STOP") and public_router is not None:
-        try:
-            inv = getattr(public_router, "invalidate_spotify", None)
-            if callable(inv):
-                inv()
-            else:
-                public_router.invalidate_live()
-        except Exception:
-            pass
-    return action
-
-
-def rebuild_spotify_sessions(guilds: List[Any], now_ms: int = None) -> int:
-    """Boot/cache-scan sync for Spotify (call from on_ready + scans)."""
-    from . import spotify_tracker
-
-    return spotify_tracker.rebuild_spotify(
-        guilds, now_ms=now_ms if now_ms is not None else int(time.time() * 1000))
-
-
-def sync_spotify_from_scan(guilds: List[Any], now_ms: int = None) -> bool:
-    """Heartbeat helper: merge a member scan into _SPOTIFY_LIVE.
-
-    Returns True when the map changed (caller invalidates SSE).
-   TTL (end + 15s) is pruned here too. Never touches game sessions.
-    """
-    from . import spotify_tracker
-
-    now = now_ms if now_ms is not None else int(time.time() * 1000)
-    before_keys = set(spotify_tracker._SPOTIFY_LIVE.keys())
-    before_tracks = {u: (e.get("track_id"), e.get("title"))
-                     for u, e in spotify_tracker._SPOTIFY_LIVE.items()}
-    live = spotify_tracker.scan_spotify_members(guilds, now_ms=now)
-    for uid, entry in live.items():
-        if len(spotify_tracker._SPOTIFY_LIVE) >= spotify_tracker.MAX_ENTRIES \
-                and uid not in spotify_tracker._SPOTIFY_LIVE:
-            break
-        prev = spotify_tracker._SPOTIFY_LIVE.get(uid)
-        if prev != entry:
-            spotify_tracker._SPOTIFY_LIVE.pop(uid, None)
-            spotify_tracker._SPOTIFY_LIVE[uid] = entry
-    # Remove entries whose user is no longer listening (STOP/offline).
-    for uid in list(spotify_tracker._SPOTIFY_LIVE.keys()):
-        if uid not in live:
-            # Keep rows with no end yet for one more cycle only if they were
-            # just added by a racing presence event; otherwise drop. The
-            # scan is authoritative for offline/STOP, so drop missing users.
-            spotify_tracker._SPOTIFY_LIVE.pop(uid, None)
-    dropped = spotify_tracker.prune_expired(now_ms=now)
-    after_keys = set(spotify_tracker._SPOTIFY_LIVE.keys())
-    after_tracks = {u: (e.get("track_id"), e.get("title"))
-                    for u, e in spotify_tracker._SPOTIFY_LIVE.items()}
-    return before_keys != after_keys or before_tracks != after_tracks or dropped > 0
-
-
-def parse_spotify_opt_command(content: str) -> Optional[str]:
-    """'!spotify off' -> 'off', '!spotify on' -> 'on', else None."""
-    text = (content or "").strip().lower()
-    if text in ("!spotify off", "!spotify disable", "!spotify hide"):
-        return "off"
-    if text in ("!spotify on", "!spotify enable", "!spotify show"):
-        return "on"
-    return None

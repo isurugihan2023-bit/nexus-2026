@@ -1,5 +1,5 @@
 {
-  "_comment": "Ninja Nexus game tracking config. Editable without code changes. 'aliases' keys are lowercase match fragments (word-boundary matched, see game_tracker._frag_match) -> canonical display name. 'metadata' keys are game_key slugs (see game_tracker._slug) -> category + local cover under images/games/. Drop a cover as images/games/<game_key>.jpg (JPG preferred, .png also read); anything missing falls back to the shared placeholder. No hotlinks here. 'ignore_apps' entries are EXACT case-insensitive app names (game_tracker.should_ignore): 'code' hides VS Code without touching the real game 'Code Vein'. Only bots, Spotify/Listening, Watching, Custom Status (game_tracker.py) and opted-out members are otherwise excluded.",
+  "_comment": "Ninja Nexus game tracking config. Editable without code changes. 'aliases' keys are lowercase match fragments -> canonical display name. 'metadata' keys are game_key slugs (see game_tracker._slug) -> category + local cover under images/games/. Drop a cover as images/games/<game_key>.jpg (JPG preferred, .png also read); anything missing falls back to the category SVG, then images/games/fallback.svg. No hotlinks here. 'ignore_apps' is INTENTIONALLY EMPTY: every Playing/Competing activity shows, including non-game apps. Only bots, Spotify/Listening, Watching, Custom Status (game_tracker.py) and opted-out members are excluded.",
   "aliases": {
     "valorant": "VALORANT",
     "val": "VALORANT",
@@ -43,7 +43,7 @@
     "arc raiders": "ARC Raiders",
     "brawlhalla": "Brawlhalla"
   },
-  "ignore_apps": ["code", "visual studio code"],
+  "ignore_apps": [],
   "metadata": {
     "ceylon-roleplay": { "category": "FiveM Roleplay", "image": "images/games/ceylon-roleplay.jpg" },
     "valorant": { "category": "Tactical FPS", "image": "images/games/valorant.jpg" },
@@ -71,7 +71,7 @@
     "_comment": "Intentional franchise shares: these game_keys may resolve to the same file without tripping the uniqueness test.",
     "images/games/gta-v.jpg": ["gta-v", "fivem", "dream-creation"]
   },
-  "fallback": { "category": "Other", "image": "images/games/fallback.svg" },
+  "fallback": { "category": "Gaming", "image": "images/games/fallback.svg" },
   "fivem_server": {
     "_comment": "Public FiveM server info endpoint for Ceylon Roleplay live count. Override with FIVEM_SERVER_ADDRESS env var (host:port or info URL).",
     "address": "",

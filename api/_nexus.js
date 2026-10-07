@@ -137,7 +137,7 @@ export function sanitizeGameRow(g, i) {
         rank: g.rank ?? i + 1,
         game_key: g.game_key || slugOf(name),
         name,
-        category: g.category || 'Gaming',
+        category: g.category || 'Other',
         image: cover.image,
         auto: cover.auto,
         auto_image: cover.auto,

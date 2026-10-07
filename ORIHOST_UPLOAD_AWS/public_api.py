@@ -115,14 +115,14 @@ def _game_meta(game_key: str) -> Dict[str, str]:
     """
     category = "Other"
     try:
-        from .game_tracker import load_tracker_config
+        from game_tracker import load_tracker_config
         cfg = load_tracker_config()
         meta = (cfg.get("metadata") or {}).get((game_key or "").lower(), {})
         category = str(meta.get("category") or "Other")
     except Exception:
         pass
     try:
-        from .artwork import relative_image_for, category_image
+        from artwork import relative_image_for, category_image
         image = relative_image_for(game_key, category)
         return {"category": category, "image": image,
                 "fallback": category_image(category)
@@ -136,7 +136,7 @@ def _game_meta(game_key: str) -> Dict[str, str]:
 def _maybe_prefetch_artwork(game_key: str, game_name: str, image: str) -> None:
     """Fire-and-forget RAWG cover download (no-op without RAWG_API_KEY)."""
     try:
-        from .artwork import should_prefetch, ensure_cached
+        from artwork import should_prefetch, ensure_cached
         if not should_prefetch(game_key, image):
             return
         loop = asyncio.get_running_loop()
@@ -163,12 +163,12 @@ class PublicApiRouter:
         self.db = db
         self.fivem_address = fivem_address or os.getenv("FIVEM_SERVER_ADDRESS", "")
         try:
-            from .asset_capture import resolve_dir as _resolve_dir
+            from asset_capture import resolve_dir as _resolve_dir
             self.images_dir = images_dir or _resolve_dir()
         except Exception:
             self.images_dir = images_dir or os.path.join("images", "games", "auto")
         try:
-            from .game_tracker import load_tracker_config
+            from game_tracker import load_tracker_config
             self._tracker_cfg = load_tracker_config()
         except Exception:
             self._tracker_cfg = {"aliases": {}, "ignore_apps": []}
@@ -395,7 +395,7 @@ class PublicApiRouter:
         except Exception:
             optouts = set()
         try:
-            from .fivem import fetch_player_count_sync
+            from fivem import fetch_player_count_sync
             server_players_raw = await asyncio.wait_for(
                 asyncio.to_thread(fetch_player_count_sync, self.fivem_address),
                 timeout=DB_TIMEOUT_SECONDS)
@@ -510,12 +510,9 @@ class PublicApiRouter:
     async def _snapshot_spotify(self) -> Dict[str, Any]:
         """Full Spotify payload. In-memory + opt-out DB reads only."""
         try:
-            from . import spotify_tracker as _sp
+            import spotify_tracker as _sp
         except Exception:
-            try:
-                import backend.spotify_tracker as _sp  # type: ignore
-            except Exception:
-                return self._empty_spotify_payload()
+            return self._empty_spotify_payload()
         if not _sp.show_spotify_enabled():
             return self._empty_spotify_payload()
         hidden = await self._spotify_optouts()

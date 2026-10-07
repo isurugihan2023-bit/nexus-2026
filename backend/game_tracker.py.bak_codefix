@@ -54,22 +54,6 @@ def _config_ignore(cfg: Optional[Dict[str, Any]] = None) -> List[str]:
     return [str(x).lower().strip() for x in (cfg.get("ignore_apps") or []) if str(x).strip()]
 
 
-def _frag_match(lname: str, frag: str) -> bool:
-    """Word-boundary fragment match (never a mid-word false positive).
-
-    Plain `frag in lname` misfires on short aliases: "cod" matches "code"
-    (VS Code wrongly became Call of Duty / Tactical FPS) and even the real
-    game "Code Vein". Word boundaries keep "CoD" -> Call of Duty working
-    while "Code" / "Code Vein" fall through to their own (unknown) entries.
-    """
-    if not frag:
-        return False
-    try:
-        return re.search(r"\b" + re.escape(frag) + r"\b", lname) is not None
-    except Exception:
-        return frag in lname
-
-
 def normalize_game(name: str, details: str = "", state: str = "",
                    cfg: Optional[Dict[str, Any]] = None) -> Tuple[str, str]:
     """Return (game_key, game_name). Special-cases FiveM/Ceylon Roleplay."""
@@ -84,7 +68,7 @@ def normalize_game(name: str, details: str = "", state: str = "",
         canon = aliases[lname]
         return (_slug(canon), canon)
     for frag, canon in aliases.items():
-        if _frag_match(lname, frag):
+        if frag and frag in lname:
             return (_slug(canon), canon)
     canon = raw_name or "Unknown"
     return (_slug(canon), canon)
@@ -116,17 +100,11 @@ def _activity_type_name(act: Any) -> str:
 
 
 def should_ignore(name: str, cfg: Optional[Dict[str, Any]] = None) -> bool:
-    """Exact (case-insensitive) ignore match - never a substring.
-
-    Substring matching would wrongly swallow real games: ignoring "code"
-    (VS Code) must NOT ignore "Code Vein". Exact equality keeps each entry
-    scoped to precisely the app named.
-    """
     lname = (name or "").lower().strip()
     if not lname or lname in ("custom status", "customstatus", "spotify"):
         return True
-    for entry in _config_ignore(cfg):
-        if entry and lname == entry:
+    for frag in _config_ignore(cfg):
+        if frag and frag in lname:
             return True
     return False
 

@@ -149,7 +149,7 @@ def should_prefetch(game_key: str, image: str) -> bool:
 async def ensure_cached(game_key: str, game_name: str) -> Optional[str]:
     """Download the RAWG cover into the artwork dir. Never raises."""
     try:
-        from .rawg import GameMetadataResolver  # local import: stdlib-only tests
+        from rawg import GameMetadataResolver  # local import: stdlib-only tests
     except Exception:
         return None
     key = (game_key or "").strip().lower() or "unknown"

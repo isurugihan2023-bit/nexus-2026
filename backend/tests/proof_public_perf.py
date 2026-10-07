@@ -248,7 +248,7 @@ def main():
                for g in live["games"])
     assert "Freebuff" in json.dumps(live), "non-game app missing from live"
     fb = next(g for g in live["games"] if g["game_key"] == "freebuff")
-    assert fb["category"] == "Gaming" and fb["image"] == "images/games/fallback.svg", fb
+    assert fb["category"] == "Other" and fb["image"] == "images/games/fallback.svg", fb
     assert '"user_id"' not in json.dumps(live) and not re.search(r"\b1[1-5]\b(?![\w/])", "x"), ""
     print(f"  players={names} total={live['total_playing']} images=relative non-game=shown IDs=none OK")
 

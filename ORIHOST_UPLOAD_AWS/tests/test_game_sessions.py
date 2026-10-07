@@ -4,9 +4,9 @@ import sys
 import tempfile
 import time
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from backend.db import GamingDatabase
-from backend import game_tracker as gt
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from db import GamingDatabase
+import game_tracker as gt
 
 H = 3600 * 1000
 NOW = 1789744800000
@@ -140,7 +140,7 @@ def run_tests():
         assert db4.prune_old_game_sessions(now_ms=NOW) == 1
 
         print("[TEST] boot closes stranded ignored-app sessions...")
-        from backend.dashboard_wiring import rebuild_game_sessions
+        from dashboard_wiring import rebuild_game_sessions
         db5 = GamingDatabase(os.path.join(tmp, "bootclose.db"))
         db5.open_game_session("g", "u7", "Coder", "av", "code", "Code",
                               "Not in a file!", "", NOW - H, NOW - H)

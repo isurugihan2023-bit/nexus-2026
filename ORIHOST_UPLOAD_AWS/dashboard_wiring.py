@@ -1,5 +1,8 @@
 """
-backend/dashboard_wiring.py - EXACT patch guide for the VPS bot (dashboard.py).
+dashboard_wiring.py - EXACT patch guide for the FLAT VPS bot (/home/container).
+
+FLAT layout: every module sits next to bot.py / dashboard.py - NO "backend."
+imports anywhere, spotify_tracker.py in root, games.json in root.
 
 Goal: GET /api/public/live, /api/public/most-played and /api/public/live/stream
 answer WITHOUT auth (today they 401), while every other route stays protected.
@@ -7,18 +10,28 @@ Spotify "Now Listening" (GET /api/public/spotify + /api/public/spotify/stream)
 is included: same whitelist, same in-memory instant updates, never touches
 game sessions / Most Played / history.
 
-Apply the 6 numbered hunks below to /home/container/dashboard.py (or wherever
-your bot creates its aiohttp web.Application and its TWO auth middlewares).
-Nothing here changes existing behavior: all additions are additive, and the
+Word-boundary alias fix + "Code" ignore (VS Code no longer becomes Call of
+Duty / TACTICAL FPS; "Code Vein" still maps to itself) and unknown-app
+category "Other" are included via game_tracker.py + games.json.
+
+Apply the numbered hunks below to /home/container/dashboard.py (or wherever
+your bot creates its aiohttp web.Application and its TWO auth middlewares)
+and to bot.py (presence + commands). Nothing here changes existing behavior:
+all additions are additive - your earlier fixes (get_combined_live,
+scan-miss guard, no-fetch_member reconcile, boot race fix, !live_debug,
+!cleanup_live, ignore_apps, live_cleanup_on_boot) are untouched, and the
 only modified lines are the two one-line whitelist bypasses.
 
-Hunk 1 - imports (top of dashboard.py, next to the other backend imports):
-    from backend.db import GamingDatabase
-    from backend import game_tracker
-    from backend import asset_capture
-    from backend.public_api import PublicApiRouter
-    from backend.dashboard_wiring import (
+Hunk 1 - imports (top of dashboard.py / bot.py, flat - no package prefix):
+    from db import GamingDatabase
+    import game_tracker
+    import asset_capture
+    import spotify_tracker
+    from public_api import PublicApiRouter
+    from dashboard_wiring import (
         rebuild_game_sessions,
+        rebuild_spotify_sessions,
+        handle_spotify_presence,
         game_heartbeat_loop,
         game_prune_loop,
     )
@@ -31,7 +44,7 @@ Without them on_presence_update never fires and guild.members is empty.
     intents.members = True
 
 Hunk 3 - init (next to db = ... / app = web.Application(...)):
-    _tracker_cfg = game_tracker.load_tracker_config()  # backend/config/games.json
+    _tracker_cfg = game_tracker.load_tracker_config()  # ./games.json (flat root)
     public_router = PublicApiRouter(db)
 
 Hunk 4 - mount (inside your setup_web_server(app) / where routes attach):
@@ -152,8 +165,8 @@ Hunk 10 - asset survey + sync (Rich Presence covers):
     a. Restart the bot, have members play (FiveM/Ceylon first), then:
            journalctl / bot logs | grep ASSETS-TEMP
        Paste the lines back - that is the survey of which games ship
-       large_image artwork. Remove _log_activity_assets + its call in
-       backend/game_tracker.py afterwards (marked TEMPORARY).
+        large_image artwork. Remove _log_activity_assets + its call in
+        game_tracker.py afterwards (marked TEMPORARY).
     b. Captured files land in $NEXUS_AUTO_ART_DIR (or images/games/auto).
        Pull them into this repo and deploy:
            python scripts/pull_auto_covers.py http://157.90.181.183:23063
@@ -181,7 +194,7 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
     "Code" sessions stranded by older builds), prunes history older than
     30 days. Returns counts.
     """
-    from . import game_tracker
+    import game_tracker
 
     now = now_ms if now_ms is not None else int(time.time() * 1000)
     orphaned = db.close_orphaned_game_sessions(now_ms=now)
@@ -231,7 +244,7 @@ async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,
                               public_router: Any = None,
                               interval: float = 60.0) -> None:
     """60s heartbeat: refresh last_seen for everyone still playing."""
-    from . import game_tracker
+    import game_tracker
 
     await bot.wait_until_ready()
     while not bot.is_closed():
@@ -252,7 +265,7 @@ async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,
                 # Captured artwork: remember URL changes, download once.
                 # Opted-out members are skipped entirely here.
                 try:
-                    from . import asset_capture
+                    import asset_capture
                     assets = act.get("assets") or {}
                     url = assets.get("large") or assets.get("small")
                     if url and uid not in optouts and hasattr(db, "save_game_asset"):
@@ -314,7 +327,7 @@ def handle_spotify_presence(before: Any, after: Any,
     removes on STOP/offline, then invalidates the 2s Spotify snapshot
     + wakes the Spotify SSE stream. Returns START | UPDATE | STOP | IGNORED.
     """
-    from . import spotify_tracker
+    import spotify_tracker
 
     action = spotify_tracker.handle_spotify_presence(
         before, after, now_ms=now_ms if now_ms is not None else int(time.time() * 1000))
@@ -332,7 +345,7 @@ def handle_spotify_presence(before: Any, after: Any,
 
 def rebuild_spotify_sessions(guilds: List[Any], now_ms: int = None) -> int:
     """Boot/cache-scan sync for Spotify (call from on_ready + scans)."""
-    from . import spotify_tracker
+    import spotify_tracker
 
     return spotify_tracker.rebuild_spotify(
         guilds, now_ms=now_ms if now_ms is not None else int(time.time() * 1000))
@@ -344,7 +357,7 @@ def sync_spotify_from_scan(guilds: List[Any], now_ms: int = None) -> bool:
     Returns True when the map changed (caller invalidates SSE).
    TTL (end + 15s) is pruned here too. Never touches game sessions.
     """
-    from . import spotify_tracker
+    import spotify_tracker
 
     now = now_ms if now_ms is not None else int(time.time() * 1000)
     before_keys = set(spotify_tracker._SPOTIFY_LIVE.keys())

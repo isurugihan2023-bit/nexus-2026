@@ -5,8 +5,6 @@ Routes (additive, existing endpoints untouched):
   GET /api/public/live                  -> live games grouped by game
   GET /api/public/most-played?range=7d  -> per-GAME ranking, last N days (top 9)
   GET /api/public/live/stream           -> SSE stream of the live payload
-  GET /api/public/spotify               -> Spotify "Now Listening" listeners
-  GET /api/public/spotify/stream        -> SSE stream of the Spotify payload
 
 Performance contract (see task spec):
   * Responses are served from an in-memory snapshot refreshed in the
@@ -34,7 +32,7 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from aiohttp import web
 
@@ -110,15 +108,14 @@ def _game_meta(game_key: str) -> Dict[str, str]:
 
     The website resolves artwork itself, so only game_key, category and a
     relative images/games/* path (or key) leave this API - never an absolute
-    http://IP:port URL. Unknown apps get category "Other" with the generic
-    cover - never a real game's category.
+    http://IP:port URL.
     """
-    category = "Other"
+    category = "Gaming"
     try:
         from .game_tracker import load_tracker_config
         cfg = load_tracker_config()
         meta = (cfg.get("metadata") or {}).get((game_key or "").lower(), {})
-        category = str(meta.get("category") or "Other")
+        category = str(meta.get("category") or "Gaming")
     except Exception:
         pass
     try:
@@ -185,11 +182,6 @@ class PublicApiRouter:
         self._mp_requested = set(MP_LABELS_PREWARM)
         self._live_event = asyncio.Event()   # set by invalidate_live()
         self._snap_changed = asyncio.Event()  # set by every rebuild (SSE)
-        self._spotify_changed = asyncio.Event()  # set by Spotify rebuilds (SSE)
-        # Spotify snapshot: rebuilt on demand, throttled to 2s max cache.
-        self._spotify_snap: Dict[str, Any] = {"body": b"", "etag": "",
-                                              "at": 0.0, "version": 0}
-        self._spotify_built_at = 0.0  # monotonic, 2s throttle
         self._bg_tasks: List[asyncio.Task] = []
         self._bg_started = False
         self._hits: Dict[str, List[float]] = {}
@@ -291,10 +283,6 @@ class PublicApiRouter:
         store["at"] = time.monotonic()
         store["version"] = int(store.get("version", 0)) + 1
         self._snap_changed.set()
-        try:
-            self._spotify_changed.set()
-        except Exception:
-            pass
 
     # ── member resolution (background only, never in requests) ──
     def _member_info(self, member: Any) -> Optional[Dict[str, str]]:
@@ -483,92 +471,6 @@ class PublicApiRouter:
         """Payload builder (kept public for tests/standalone use)."""
         return await self._snapshot_most_played(range_ms, range_label)
 
-    # ── Spotify "Now Listening" (in-memory, max 2s cache) ──────────
-    def _empty_spotify_payload(self) -> Dict[str, Any]:
-        return {"generated_at": int(time.time() * 1000),
-                "listeners": [], "total": 0}
-
-    async def _spotify_optouts(self) -> Set[str]:
-        hidden: Set[str] = set()
-        try:
-            priv = await asyncio.wait_for(
-                asyncio.to_thread(self.db.get_privacy_optouts),
-                timeout=DB_TIMEOUT_SECONDS)
-            hidden.update(str(u) for u in (priv or []))
-        except Exception:
-            pass
-        try:
-            get_sp = getattr(self.db, "get_spotify_optouts", None)
-            if callable(get_sp):
-                sp = await asyncio.wait_for(
-                    asyncio.to_thread(get_sp), timeout=DB_TIMEOUT_SECONDS)
-                hidden.update(str(u) for u in (sp or []))
-        except Exception:
-            pass
-        return hidden
-
-    async def _snapshot_spotify(self) -> Dict[str, Any]:
-        """Full Spotify payload. In-memory + opt-out DB reads only."""
-        try:
-            from . import spotify_tracker as _sp
-        except Exception:
-            try:
-                import backend.spotify_tracker as _sp  # type: ignore
-            except Exception:
-                return self._empty_spotify_payload()
-        if not _sp.show_spotify_enabled():
-            return self._empty_spotify_payload()
-        hidden = await self._spotify_optouts()
-        now_ms = int(time.time() * 1000)
-        try:
-            listeners = await asyncio.wait_for(
-                asyncio.to_thread(_sp.get_spotify_live, now_ms, hidden, True),
-                timeout=DB_TIMEOUT_SECONDS)
-        except Exception:
-            listeners = []
-        clean = []
-        for r in listeners or []:
-            clean.append({
-                "name": str(r.get("name") or "Member")[:32],
-                "avatar": _avatar64(str(r.get("avatar") or "")),
-                "title": str(r.get("title") or "")[:140],
-                "artist": str(r.get("artist") or "")[:200],
-                "album": str(r.get("album") or "")[:140],
-                "art": str(r.get("art") or "")[:500],
-                "track_url": str(r.get("track_url") or "")[:300],
-                "start": r.get("start"),
-                "end": r.get("end"),
-            })
-        clean.sort(key=lambda x: (x["artist"].lower(), x["title"].lower(),
-                                  x["name"].lower()))
-        return {"generated_at": now_ms, "listeners": clean,
-                "total": len(clean)}
-
-    async def _build_spotify(self) -> Dict[str, Any]:
-        """Payload builder (kept public for tests/standalone use)."""
-        return await self._snapshot_spotify()
-
-    async def _rebuild_spotify(self, force: bool = False) -> None:
-        now = time.monotonic()
-        if not force and self._spotify_snap.get("body") and \
-                (now - self._spotify_built_at) < 2.0:
-            return
-        payload = await asyncio.wait_for(self._snapshot_spotify(), timeout=10.0)
-        self._store_snap(self._spotify_snap, payload)
-        self._spotify_built_at = time.monotonic()
-
-    def invalidate_spotify(self) -> None:
-        """Song changed / stopped: next read rebuilds + SSE wakes up."""
-        self._spotify_built_at = 0.0
-        try:
-            self._spotify_changed.set()
-        except Exception:
-            pass
-        try:
-            self._snap_changed.set()
-        except Exception:
-            pass
-
     async def _rebuild_live(self) -> None:
         payload = await asyncio.wait_for(self._snapshot_live(), timeout=10.0)
         self._store_snap(self._live_snap, payload)
@@ -662,84 +564,6 @@ class PublicApiRouter:
                                            "range": label, "games": []})
         return self._serve_snap(request, snap, "public, max-age=60")
 
-    async def get_spotify(self, request: web.Request) -> web.Response:
-        """GET /api/public/spotify - cached max 2s, no user IDs exposed."""
-        if request.method == "OPTIONS":
-            return await self._options(request)
-        if self._rate_limited(request):
-            return web.json_response({"error": "rate_limited"}, status=429)
-        try:
-            await asyncio.wait_for(self._rebuild_spotify(), timeout=2.5)
-        except Exception as e:
-            logger.warning("[API] spotify build failed: %s", e)
-            if not self._spotify_snap.get("body"):
-                return web.json_response(self._empty_spotify_payload())
-        return self._serve_snap(request, self._spotify_snap, "public, max-age=2")
-
-    async def spotify_stream(self, request: web.Request) -> web.Response:
-        """GET /api/public/spotify/stream - SSE, pushes on every change."""
-        if self._rate_limited(request):
-            return web.json_response({"error": "rate_limited"}, status=429)
-        resp = web.StreamResponse()
-        resp.content_type = "text/event-stream"
-        resp.headers["Cache-Control"] = "no-cache"
-        resp.headers["Connection"] = "keep-alive"
-        resp.headers["X-Accel-Buffering"] = "no"
-        for k, v in _cors_headers(request).items():
-            if v:
-                resp.headers[k] = v
-        await resp.prepare(request)
-
-        async def send_snapshot() -> bool:
-            try:
-                body = self._spotify_snap.get("body") or b"{}"
-                await resp.write(b"event: spotify\n")
-                await resp.write(b"data: " + body + b"\n\n")
-                return True
-            except Exception:
-                return False
-
-        try:
-            try:
-                await asyncio.wait_for(self._rebuild_spotify(force=True), timeout=2.5)
-            except Exception:
-                if not self._spotify_snap.get("body"):
-                    self._store_snap(self._spotify_snap,
-                                     self._empty_spotify_payload())
-                    self._spotify_built_at = time.monotonic()
-            if not await send_snapshot():
-                return resp
-            last_version = int(self._spotify_snap.get("version", 0))
-            for _ in range(200):  # ~50 min max per connection
-                try:
-                    self._spotify_changed.clear()
-                    await asyncio.wait_for(self._spotify_changed.wait(),
-                                           timeout=15.0)
-                except asyncio.TimeoutError:
-                    pass
-                except asyncio.CancelledError:
-                    break
-                try:
-                    await asyncio.wait_for(self._rebuild_spotify(), timeout=2.5)
-                except Exception:
-                    pass
-                try:
-                    await resp.write(b": heartbeat\n\n")
-                except Exception:
-                    break
-                if int(self._spotify_snap.get("version", 0)) != last_version:
-                    last_version = int(self._spotify_snap.get("version", 0))
-                    if not await send_snapshot():
-                        break
-        except (asyncio.CancelledError, ConnectionResetError):
-            pass
-        finally:
-            try:
-                await resp.write_eof()
-            except Exception:
-                pass
-        return resp
-
     async def get_auto_asset(self, request: web.Request) -> web.Response:
         """Serve one captured auto/ cover's bytes (sync bridge only).
 
@@ -832,8 +656,5 @@ class PublicApiRouter:
         app.router.add_route("OPTIONS", "/api/public/most-played", self._options)
         app.router.add_get("/api/public/most-played", self.get_most_played)
         app.router.add_get("/api/public/live/stream", self.live_stream)
-        app.router.add_route("OPTIONS", "/api/public/spotify", self._options)
-        app.router.add_get("/api/public/spotify", self.get_spotify)
-        app.router.add_get("/api/public/spotify/stream", self.spotify_stream)
         app.router.add_get("/api/public/assets/{name}", self.get_auto_asset)
-        logger.info("[API] Registered /api/public/live, /api/public/most-played, /api/public/live/stream, /api/public/spotify, /api/public/spotify/stream, /api/public/assets/{name}")
+        logger.info("[API] Registered /api/public/live, /api/public/most-played, /api/public/live/stream, /api/public/assets/{name}")

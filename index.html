@@ -1214,6 +1214,30 @@
         .leaderboard-name { font-weight: 800; font-size: 0.95rem; color: #fff; margin-bottom: 3px; font-family: var(--font); }
         .leaderboard-hours { font-size: 0.82rem; color: #8A8A8A; font-family: var(--font); font-weight: 600; letter-spacing: 0.01em; }
 
+        /* ── Spotify Listening cards (dark/lime, mobile-friendly) ── */
+        .spotify-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 26px; margin-top: 24px; width: 100%; }
+        .spotify-grid.single-track { max-width: 380px; margin-left: auto; margin-right: auto; }
+        .spotify-card { width: 350px; max-width: 100%; flex: 0 1 350px; background: #1A1A1A; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.2s ease; }
+        .spotify-card:hover { background: #222222; }
+        .spotify-art-wrap { position: relative; width: 100%; height: 175px; overflow: hidden; background: #121212; }
+        .spotify-art-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+        .spotify-card:hover .spotify-art-wrap img { transform: scale(1.06); }
+        .spotify-art-wrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,26,26,0.02) 0%, rgba(26,26,26,0.25) 40%, rgba(26,26,26,0.85) 70%, #1A1A1A 90%, #1A1A1A 100%); pointer-events: none; }
+        .spotify-live-pill { position: absolute; top: 12px; left: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; background: rgba(15,15,15,0.75); border: 1px solid rgba(198,227,43,0.35); color: #D4EC5A; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+        .spotify-live-pill .lounge-live-dot { width: 6px; height: 6px; }
+        .spotify-body { padding: 18px 22px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; flex-grow: 1; }
+        .spotify-track { font-size: 1.18rem; font-weight: 850; color: #fff; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 4px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spotify-artist { font-size: 0.9rem; font-weight: 600; color: #D4EC5A; margin-bottom: 2px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spotify-album { font-size: 0.78rem; font-weight: 500; color: var(--muted); margin-bottom: 12px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spotify-progress { width: 100%; height: 4px; border-radius: 100px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 6px; }
+        .spotify-progress-fill { height: 100%; width: 0%; border-radius: 100px; background: linear-gradient(135deg, #C6E32B 0%, #D4EC5A 100%); transition: width 0.3s linear; }
+        .spotify-times { display: flex; justify-content: space-between; width: 100%; font-size: 0.68rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 14px; }
+        .spotify-user-row { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: auto; }
+        .spotify-user-name { font-size: 0.86rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spotify-open { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 8px 16px; border-radius: 100px; background: rgba(198,227,43,0.1); border: 1px solid rgba(198,227,43,0.25); color: #D4EC5A; font-size: 0.78rem; font-weight: 700; transition: background 0.2s ease, transform 0.2s ease; }
+        .spotify-open:hover { background: rgba(198,227,43,0.2); transform: translateY(-2px); }
+        @media (max-width: 600px) { .spotify-card { width: 100%; flex-basis: 100%; } }
+
         /* ── Skeletons ── */
         .skeleton-card {
             background: rgba(22, 22, 22, 0.5);
@@ -1923,6 +1947,7 @@
                 <div class="lounge-subnav">
                     <button class="lounge-tab-btn active" data-lounge-tab="live"><i class="fas fa-bolt"></i> Live Sessions</button>
                     <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played This Week</button>
+                    <button class="lounge-tab-btn" data-lounge-tab="listening"><i class="fab fa-spotify"></i> Listening</button>
                 </div>
                 <div class="lounge-updated" id="lounge-updated" role="status"></div>
             </div>
@@ -1943,6 +1968,9 @@
 
             <!-- Sub-containers for Most Played -->
             <div id="lounge-most-played-container" style="display: none;"></div>
+
+            <!-- Sub-container for Spotify Listening -->
+            <div id="lounge-spotify-container" style="display: none;"></div>
 
         </div>
     </section>
@@ -2708,20 +2736,32 @@
             "rocket league": { tag: "Sports", icon: "fa-trophy" }
         };
 
-        const GENERIC_TAGS = ["", "gaming", "live gaming", "unknown"];
+        const GENERIC_TAGS = ["", "gaming", "live gaming", "unknown", "other", "app"];
+        function escRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+        function gameKeyMatch(lower, k) {
+            // Word-boundary match: "cod" must not fire inside "code"
+            // (VS Code was mislabeled TACTICAL FPS). "CoD" still matches.
+            try {
+                return new RegExp('\\b' + escRe(k) + '\\b', 'i').test(lower);
+            } catch (e) {
+                return lower.includes(k);
+            }
+        }
         function getGameTheme(gameName, categoryOverride) {
-            // A specific API category wins. A generic one ("Gaming" — sent by
-            // older bot builds without metadata) is treated as no opinion so
-            // the local name lookup still yields the real label and icon.
+            // A specific API category wins. A generic one ("Other"/"Gaming" —
+            // sent for unknown apps or by older bot builds without metadata)
+            // is treated as no opinion so the local name lookup still yields
+            // the real label and icon. Unknown apps keep "Other" + generic
+            // cover, never a real game's category.
             const override = (categoryOverride && String(categoryOverride).trim()) || "";
             let tag = override;
             let tagFromApi = override !== "" && !GENERIC_TAGS.includes(override.toLowerCase());
-            if (!tagFromApi) tag = "Gaming";
+            if (!tagFromApi) tag = "Other";
             let icon = "fa-gamepad";
             if (gameName) {
                 const lower = gameName.toLowerCase();
                 for (const [k, meta] of Object.entries(GAME_METADATA)) {
-                    if (lower.includes(k)) {
+                    if (gameKeyMatch(lower, k)) {
                         icon = meta.icon;
                         if (!tagFromApi) tag = meta.tag;
                         break;
@@ -3879,7 +3919,7 @@
                             rank: g.rank ?? i + 1,
                             game_key: g.game_key || slugOf(name),
                             name,
-                            category: g.category || 'Gaming',
+                            category: g.category || 'Other',
                             image: picked.primary,
                             fallback: picked.secondary,
                             rich_cover: null,
@@ -3954,6 +3994,130 @@
             }, 30000);
         }
 
+        // ── Spotify "Now Listening" (same-origin /api/spotify, 4s poll) ──
+        // Album art is Spotify CDN (https) — safe to hotlink, unlike game art.
+        // Progress bars animate client-side via requestAnimationFrame (no load).
+        const SPOTIFY_API_URL = '/api/spotify';
+        let spotifyGen = 0;
+        let spotifyInterval = null;
+        let spotifyDigest = '';
+        let spotifyRaf = null;
+        let spotifyConsecFails = 0;
+
+        function spotifyAvatar(url, name) {
+            const u = (url || '').trim() || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const full = u.includes('cdn.discordapp.com') && !u.includes('?') ? u + '?size=64' : u;
+            return avatarImgHtml(name || 'Member', full, 'Listening on Spotify', 34);
+        }
+        function fmtTrackTime(ms) {
+            if (!ms || ms < 0) return '0:00';
+            const s = Math.floor(ms / 1000);
+            return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        }
+        function renderSpotifyEmpty(offline) {
+            return `<div class="empty-lounge-state"><div class="empty-lounge-box">`
+                + `<h3 class="empty-lounge-title">${offline ? 'Live feed is offline, try again soon.' : 'Nobody is listening right now'}</h3>`
+                + `<p class="empty-lounge-sub">${offline ? 'Could not reach the live server. Check back shortly.' : 'Play a song on Spotify with Discord connected and it will show up here.'}</p>`
+                + `<div class="empty-lounge-actions"><a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord"><i class="fab fa-discord"></i></a></div>`
+                + `</div></div>`;
+        }
+        function renderSpotify(listeners, isOffline) {
+            const container = document.getElementById('lounge-spotify-container');
+            if (!container) return;
+            if (!Array.isArray(listeners) || listeners.length === 0) {
+                if (spotifyDigest === (isOffline ? 'OFFLINE' : 'EMPTY') && container.querySelector('.empty-lounge-state')) return;
+                spotifyDigest = isOffline ? 'OFFLINE' : 'EMPTY';
+                container.innerHTML = `<div class="spotify-grid">${renderSpotifyEmpty(!!isOffline)}</div>`;
+                stopSpotifyRaf();
+                return;
+            }
+            const digest = JSON.stringify(listeners.map(l => [l.title, l.artist, l.name, l.start, l.end]));
+            if (digest === spotifyDigest && container.querySelector('.spotify-card')) return; // smooth: no re-render on same song
+            spotifyDigest = digest;
+            const single = listeners.length === 1 ? ' single-track' : '';
+            let html = `<div class="spotify-grid${single}">`;
+            listeners.slice(0, 12).forEach((l) => {
+                const title = l.title || 'Unknown track';
+                const artist = l.artist || 'Unknown artist';
+                const album = l.album || '';
+                const art = (l.art || '').trim();
+                const artImg = art
+                    ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(title)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='images/games/fallback.svg';">`
+                    : `<img src="images/games/fallback.svg" alt="${escapeHtml(title)}" loading="lazy" decoding="async">`;
+                const openLink = l.track_url
+                    ? `<a class="spotify-open" href="${escapeHtml(l.track_url)}" target="_blank" rel="noopener noreferrer"><i class="fab fa-spotify"></i> Open in Spotify</a>`
+                    : '';
+                html += `<div class="spotify-card reveal visible">`
+                    + `<div class="spotify-art-wrap">${artImg}<span class="spotify-live-pill"><span class="lounge-live-dot"></span> Listening</span></div>`
+                    + `<div class="spotify-body">`
+                    + `<div class="spotify-track" title="${escapeHtml(title)}">${escapeHtml(title)}</div>`
+                    + `<div class="spotify-artist" title="${escapeHtml(artist)}">${escapeHtml(artist)}</div>`
+                    + (album ? `<div class="spotify-album" title="${escapeHtml(album)}">${escapeHtml(album)}</div>` : '')
+                    + `<div class="spotify-progress"><div class="spotify-progress-fill" data-sp-start="${l.start ?? ''}" data-sp-end="${l.end ?? ''}"></div></div>`
+                    + `<div class="spotify-times"><span data-sp-elapsed>0:00</span><span>${fmtTrackTime((l.end && l.start) ? (l.end - l.start) : 0)}</span></div>`
+                    + `<div class="spotify-user-row">${spotifyAvatar(l.avatar, l.name)}<span class="spotify-user-name">${escapeHtml(l.name || 'Member')}</span></div>`
+                    + openLink
+                    + `</div></div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            startSpotifyRaf();
+        }
+        function stopSpotifyRaf() {
+            if (spotifyRaf) { cancelAnimationFrame(spotifyRaf); spotifyRaf = null; }
+        }
+        function startSpotifyRaf() {
+            stopSpotifyRaf();
+            const tick = () => {
+                const now = Date.now();
+                document.querySelectorAll('#lounge-spotify-container .spotify-progress-fill').forEach((el) => {
+                    const s = parseInt(el.getAttribute('data-sp-start') || '', 10);
+                    const e = parseInt(el.getAttribute('data-sp-end') || '', 10);
+                    const card = el.closest('.spotify-card');
+                    const elapsedEl = card ? card.querySelector('[data-sp-elapsed]') : null;
+                    if (!Number.isFinite(s) || !Number.isFinite(e) || e <= s) {
+                        el.style.width = '0%';
+                        if (elapsedEl) elapsedEl.textContent = '0:00';
+                        return;
+                    }
+                    const pct = Math.min(100, Math.max(0, ((now - s) / (e - s)) * 100));
+                    el.style.width = pct.toFixed(1) + '%';
+                    if (elapsedEl) elapsedEl.textContent = fmtTrackTime(Math.max(0, now - s));
+                });
+                spotifyRaf = requestAnimationFrame(tick);
+            };
+            spotifyRaf = requestAnimationFrame(tick);
+        }
+        async function fetchSpotify() {
+            const container = document.getElementById('lounge-spotify-container');
+            if (!container || container.style.display === 'none') return; // poll only when visible
+            const gen = ++spotifyGen;
+            try {
+                const data = await fetchJson(SPOTIFY_API_URL + '?_t=' + Date.now(), 4000);
+                if (gen !== spotifyGen) return;
+                spotifyConsecFails = 0;
+                const listeners = Array.isArray(data.listeners) ? data.listeners : [];
+                if (listeners.length === 0 && data && data.stale === true && spotifyDigest && spotifyDigest !== 'EMPTY' && spotifyDigest !== 'OFFLINE') return; // keep last good cards on blip
+                renderSpotify(listeners, false);
+            } catch (err) {
+                if (gen !== spotifyGen) return;
+                spotifyConsecFails++;
+                if (spotifyConsecFails >= 3 && !container.querySelector('.spotify-card')) {
+                    renderSpotify([], true);
+                }
+            }
+        }
+        function startSpotifyLoop() {
+            if (spotifyInterval) clearInterval(spotifyInterval);
+            fetchSpotify();
+            spotifyInterval = setInterval(() => { if (!document.hidden) fetchSpotify(); }, 4000);
+        }
+        function stopSpotifyLoop() {
+            if (spotifyInterval) { clearInterval(spotifyInterval); spotifyInterval = null; }
+            spotifyGen++;
+            stopSpotifyRaf();
+        }
+
         // Subnav switcher (selected tab persists across refreshes).
         function setLoungeTab(tab) {
             document.querySelectorAll('.lounge-tab-btn').forEach(b => {
@@ -3961,15 +4125,26 @@
             });
             const liveGrid = document.getElementById('live-games-grid');
             const mostPlayed = document.getElementById('lounge-most-played-container');
+            const spotify = document.getElementById('lounge-spotify-container');
             if (tab === 'most-played') {
                 if (liveGrid) liveGrid.style.display = 'none';
+                if (spotify) { spotify.style.display = 'none'; stopSpotifyLoop(); }
                 if (mostPlayed) {
                     mostPlayed.style.display = '';
                     fetchMostPlayedStats();
                 }
+            } else if (tab === 'listening') {
+                if (liveGrid) liveGrid.style.display = 'none';
+                if (mostPlayed) mostPlayed.style.display = 'none';
+                if (spotify) {
+                    spotify.style.display = '';
+                    spotifyDigest = '';
+                    startSpotifyLoop();
+                }
             } else {
                 if (liveGrid) liveGrid.style.display = '';
                 if (mostPlayed) mostPlayed.style.display = 'none';
+                if (spotify) { spotify.style.display = 'none'; stopSpotifyLoop(); }
             }
             try { localStorage.setItem('nexus-lounge-tab', tab); } catch (e) {}
         }
@@ -3982,6 +4157,7 @@
         try {
             const savedTab = localStorage.getItem('nexus-lounge-tab');
             if (savedTab === 'most-played') setLoungeTab('most-played');
+            else if (savedTab === 'listening') setLoungeTab('listening');
         } catch (e) {}
     </script>
 </body>

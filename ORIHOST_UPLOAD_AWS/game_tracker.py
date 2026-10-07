@@ -1,12 +1,13 @@
 """
-backend/game_tracker.py - Authoritative Discord presence -> game session tracking.
+game_tracker.py (FLAT AWS layout: /home/container) - Authoritative Discord
+presence -> game session tracking.
 
 Duck-typed (no discord.py import) so unit tests can use plain stubs.
 Only activities of type Playing (and optionally Competing) become sessions.
 Bots, Spotify/Listening, Custom Status, Watching, and the configurable
 ignore list never create sessions.
 
-Config: backend/config/games.json (alias map + ignore list).
+Config: games.json next to this file (alias map + ignore list).
 DB: GamingDatabase.game_sessions additive table (see db.py).
 All timestamps are UTC epoch MILLISECONDS.
 """
@@ -21,6 +22,7 @@ from typing import Any, Dict, List, Optional, Tuple
 logger = logging.getLogger("nexus.games")
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config", "games.json")
+FLAT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "games.json")
 
 _DEFAULT_ALIASES: Dict[str, str] = {}
 _DEFAULT_IGNORE: List[str] = []
@@ -33,7 +35,14 @@ def _slug(name: str) -> str:
 
 
 def load_tracker_config(path: Optional[str] = None) -> Dict[str, Any]:
-    cfg_path = path or os.getenv("NEXUS_GAMES_CONFIG", CONFIG_PATH)
+    if path:
+        cfg_path = path
+    elif os.getenv("NEXUS_GAMES_CONFIG"):
+        cfg_path = os.getenv("NEXUS_GAMES_CONFIG", "")
+    elif os.path.isfile(FLAT_CONFIG_PATH):
+        cfg_path = FLAT_CONFIG_PATH  # flat AWS layout: games.json in root
+    else:
+        cfg_path = CONFIG_PATH
     try:
         with open(cfg_path, "r", encoding="utf-8") as f:
             return json.load(f)

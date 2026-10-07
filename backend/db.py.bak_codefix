@@ -529,38 +529,6 @@ class GamingDatabase:
             conn.commit()
             return len(rows)
 
-    def close_open_game_sessions_for_names(self, names, now_ms: Optional[int] = None) -> int:
-        """Close still-open rows for ignored apps (boot cleanup).
-
-        `names` are exact lowercase app names (ignore_apps entries); rows
-        match on LOWER(game_name) or the slug LOWER(game_key). Ends at
-        last_seen (honest), never the future. Returns rows closed.
-        """
-        import re as _re
-        now = now_ms if now_ms is not None else int(time.time() * 1000)
-        lowers = {str(n).lower().strip() for n in (names or []) if str(n).strip()}
-        if not lowers:
-            return 0
-        keys = {_re.sub(r"[^a-z0-9]+", "-", n).strip("-") for n in lowers}
-        with self._get_conn() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """SELECT id, game_key, game_name, last_seen, started_at
-                   FROM game_sessions WHERE ended_at IS NULL""")
-            rows = cursor.fetchall()
-            count = 0
-            for row in rows:
-                if str(row["game_name"] or "").lower().strip() in lowers or \
-                        str(row["game_key"] or "").lower().strip() in keys:
-                    end = int(row["last_seen"] or row["started_at"])
-                    if end > now:
-                        end = now
-                    cursor.execute("UPDATE game_sessions SET ended_at = ? WHERE id = ?",
-                                   (end, row["id"]))
-                    count += 1
-            conn.commit()
-            return count
-
     def prune_old_game_sessions(self, older_than_ms: Optional[int] = None,
                                 now_ms: Optional[int] = None) -> int:
         """Delete sessions that ended (or started) more than 30 days ago."""

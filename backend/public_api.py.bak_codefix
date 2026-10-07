@@ -110,15 +110,14 @@ def _game_meta(game_key: str) -> Dict[str, str]:
 
     The website resolves artwork itself, so only game_key, category and a
     relative images/games/* path (or key) leave this API - never an absolute
-    http://IP:port URL. Unknown apps get category "Other" with the generic
-    cover - never a real game's category.
+    http://IP:port URL.
     """
-    category = "Other"
+    category = "Gaming"
     try:
         from .game_tracker import load_tracker_config
         cfg = load_tracker_config()
         meta = (cfg.get("metadata") or {}).get((game_key or "").lower(), {})
-        category = str(meta.get("category") or "Other")
+        category = str(meta.get("category") or "Gaming")
     except Exception:
         pass
     try:

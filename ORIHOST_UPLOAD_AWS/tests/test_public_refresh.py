@@ -13,7 +13,7 @@ import os
 import sys
 import tempfile
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import types as _types
 
@@ -57,9 +57,9 @@ _aiohttp.web = _web
 sys.modules.setdefault("aiohttp", _aiohttp)
 sys.modules.setdefault("aiohttp.web", _web)
 
-from backend.db import GamingDatabase
-from backend.public_api import PublicApiRouter
-from backend import game_tracker
+from db import GamingDatabase
+from public_api import PublicApiRouter
+import game_tracker
 
 
 # ── discord fakes ──
