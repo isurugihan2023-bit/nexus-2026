@@ -91,7 +91,8 @@ def handle_route(route):
     elif "/api/public_stats" in url or "/api/bot_data" in url:
         route.fulfill(status=200, content_type="application/json",
                       body=json.dumps({"ninja_nexus_members": 48, "total_users": 48,
-                                       "ping": 106, "uptime_seconds": 43100}))
+                                       "total_servers": 2, "ping": 106,
+                                       "uptime_seconds": 43100}))
     else:
         route.continue_()
 
