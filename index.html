@@ -1101,6 +1101,28 @@
             position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
             overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
         }
+        .live-load-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 18px auto 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            text-align: center;
+        }
+        .live-load-error[hidden] { display: none; }
+        .live-load-error button {
+            border: 1px solid rgba(198, 227, 43, 0.45);
+            border-radius: 8px;
+            padding: 7px 13px;
+            background: rgba(198, 227, 43, 0.1);
+            color: var(--p400);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
         .game-players-strip .game-player-headline {
             margin-bottom: 0;
             flex: 0 1 auto;
@@ -2032,6 +2054,10 @@
                                 <i class="fab fa-discord"></i>
                             </a>
                         </div>
+                    </div>
+                    <div id="live-load-error" class="live-load-error" role="alert" hidden>
+                        <span>Couldn't load live data, retrying...</span>
+                        <button type="button" id="live-retry">Retry</button>
                     </div>
                 </div>
             </div>
@@ -3704,8 +3730,13 @@
         let liveGen = 0;
         let liveBackoffMs = 0;
         let liveConsecFails = 0;
+        let liveRetryAt = 0;
+        let liveRetryTimer = null;
+        let liveRequestInFlight = false;
         let liveSse = null;
-        let liveSseFailed = false;
+        let liveSseReconnectTimer = null;
+        let liveSseConnectTimer = null;
+        let liveSseBackoffMs = 5000;
         let liveLastUpdatedAt = 0;
         let liveUpdating = false;
 
@@ -3760,6 +3791,34 @@
             } catch (e) {}
         }
 
+        function setLiveLoadError(visible) {
+            const status = document.getElementById('live-load-error');
+            if (status) status.hidden = !visible;
+        }
+
+        function scheduleLiveRetry(gen) {
+            liveBackoffMs = Math.min(60000, liveBackoffMs
+                ? liveBackoffMs * 2 : 5000);
+            liveRetryAt = Date.now() + liveBackoffMs;
+            if (liveRetryTimer) clearTimeout(liveRetryTimer);
+            liveRetryTimer = setTimeout(() => {
+                liveRetryTimer = null;
+                if (gen === liveGen && !document.hidden) {
+                    liveRetryAt = 0;
+                    fetchLiveGames();
+                }
+            }, liveBackoffMs);
+        }
+
+        function retryLiveNow() {
+            if (liveRetryTimer) clearTimeout(liveRetryTimer);
+            liveRetryTimer = null;
+            liveRetryAt = 0;
+            liveBackoffMs = 0;
+            fetchLiveGames();
+            if (!liveSse) tryLiveSSE();
+        }
+
         async function fetchJson(url, timeoutMs) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -3773,27 +3832,37 @@
         }
 
         async function fetchLiveGames() {
+            if (liveRequestInFlight || Date.now() < liveRetryAt) return;
             const gen = ++liveGen;
+            liveRequestInFlight = true;
             liveUpdating = true;
             paintUpdated();
             try {
                 const data = await fetchJson(LIVE_API_URL + '?_t=' + Date.now(), 5000);
                 if (gen !== liveGen) return; // superseded: single loop only
-                liveBackoffMs = 0;
-                liveConsecFails = 0;
-                const games = Array.isArray(data.games) ? data.games : [];
-                // A stale-empty proxy payload (one upstream blip) is NOT
-                // "nobody playing" — keep the last good cards on screen.
-                // Genuinely-empty (stale:false, []) still renders the
-                // "Nobody is playing" empty state via renderLiveGames.
-                if (games.length === 0 && data && data.stale === true
-                    && (window.currentLiveGamesState || []).length > 0) {
-                    if (gen === liveGen) {
-                        liveUpdating = false;
-                        paintUpdated();
+                if (!data || !Array.isArray(data.games)) {
+                    throw new Error('Invalid live response');
+                }
+                const games = data.games;
+                if (data.stale === true) {
+                    // A populated stale response is still useful when no
+                    // client-side good copy exists; never treat stale-empty
+                    // (or a refresh failure) as a real empty result.
+                    if (games.length > 0
+                            && (window.currentLiveGamesState || []).length === 0) {
+                        renderLiveGames(games);
+                        liveLastUpdatedAt = Number(data.generated_at) || Date.now();
                     }
+                    setLiveLoadError(true);
+                    scheduleLiveRetry(gen);
                     return;
                 }
+                liveBackoffMs = 0;
+                liveRetryAt = 0;
+                if (liveRetryTimer) clearTimeout(liveRetryTimer);
+                liveRetryTimer = null;
+                liveConsecFails = 0;
+                setLiveLoadError(false);
                 const prevTotal = (window.currentLiveGamesState || []).reduce(
                     (a, g) => a + (g.count || (g.players ? g.players.length : 0)), 0);
                 renderLiveGames(games);
@@ -3807,61 +3876,75 @@
             } catch (err) {
                 if (gen !== liveGen) return;
                 liveConsecFails++;
-                // Backoff on errors (5s, 10s, 20s, max 60s); never endless spinner.
-                liveBackoffMs = Math.min(60000, (liveBackoffMs || 5000) * (liveBackoffMs ? 2 : 1));
-                // "Offline" only after repeated failures AND only when there
-                // is no good data on screen — cached/last-good cards stay
-                // visible through transient blips.
-                const liveGrid = document.getElementById('live-games-grid');
-                const hasCardsOnScreen = (window.currentLiveGamesState || []).length > 0
-                    || (liveGrid && liveGrid.querySelector('.game-card'));
-                if (liveConsecFails >= 3 && !hasCardsOnScreen) showOfflineLounge();
-                setTimeout(() => { if (gen === liveGen && !document.hidden) fetchLiveGames(); }, liveBackoffMs);
+                setLiveLoadError(true);
+                scheduleLiveRetry(gen);
             } finally {
-                if (gen === liveGen) {
-                    liveUpdating = false;
-                    paintUpdated();
-                }
+                if (gen === liveGen) liveUpdating = false;
+                liveRequestInFlight = false;
+                paintUpdated();
             }
         }
 
         // SSE is update-only and never blocks rendering: the first paint
         // always comes from plain JSON (cache, then fetchLiveGames above).
-        // If the stream is not OPEN within 3s it is closed and polling
-        // remains the source of truth.
+        // The SSE relay reconnects with backoff; independent JSON polling
+        // continues every 10s and remains the recovery path.
         function tryLiveSSE() {
-            if (liveSse || liveSseFailed || typeof EventSource === 'undefined') return;
+            if (liveSse || liveSseReconnectTimer || typeof EventSource === 'undefined') return;
             try {
-                const es = new EventSource(API_BASE + LIVE_STREAM_URL);
+                const es = new EventSource(LIVE_STREAM_URL);
                 liveSse = es;
-                const connectTimer = setTimeout(() => {
+                liveSseConnectTimer = setTimeout(() => {
                     if (es.readyState !== 1 && liveSse === es) {
                         try { es.close(); } catch (e) {}
                         liveSse = null;
-                        liveSseFailed = true;
+                        scheduleLiveSseReconnect();
                     }
                 }, 3000);
-                es.onopen = () => { clearTimeout(connectTimer); };
+                es.onopen = () => {
+                    if (liveSseConnectTimer) clearTimeout(liveSseConnectTimer);
+                    liveSseConnectTimer = null;
+                    setTimeout(() => {
+                        if (liveSse === es) liveSseBackoffMs = 5000;
+                    }, 30000);
+                };
                 es.onmessage = (ev) => {
                     try {
                         const data = JSON.parse(ev.data);
-                        if (data && Array.isArray(data.games)) {
+                        if (data && Array.isArray(data.games)
+                                && data.stale !== true) {
                             liveLastUpdatedAt = Date.now();
                             renderLiveGames(data.games);
                             writeLiveCache(data.games);
+                            liveRetryAt = 0;
+                            if (liveRetryTimer) clearTimeout(liveRetryTimer);
+                            liveRetryTimer = null;
+                            liveBackoffMs = 0;
+                            setLiveLoadError(false);
                             paintUpdated();
                         }
                     } catch (e) {}
                 };
                 es.onerror = () => {
-                    clearTimeout(connectTimer);
+                    if (liveSseConnectTimer) clearTimeout(liveSseConnectTimer);
+                    liveSseConnectTimer = null;
                     try { es.close(); } catch (e) {}
                     if (liveSse === es) liveSse = null;
-                    liveSseFailed = true; // fall back to polling permanently
+                    scheduleLiveSseReconnect();
                 };
             } catch (e) {
-                liveSseFailed = true;
+                scheduleLiveSseReconnect();
             }
+        }
+
+        function scheduleLiveSseReconnect() {
+            if (liveSseReconnectTimer || document.hidden) return;
+            const delay = liveSseBackoffMs;
+            liveSseBackoffMs = Math.min(60000, liveSseBackoffMs * 2);
+            liveSseReconnectTimer = setTimeout(() => {
+                liveSseReconnectTimer = null;
+                tryLiveSSE();
+            }, delay);
         }
 
         // Stale-while-revalidate: paint the last cached result instantly
@@ -3878,6 +3961,7 @@
                 renderLiveSkeleton();
             }
         })();
+        document.getElementById('live-retry')?.addEventListener('click', retryLiveNow);
 
         // ── Hero/member stats only. Live game cards come EXCLUSIVELY from
         // fetchLiveGames() (/api/public/live) so legacy voice/member payloads
@@ -3963,6 +4047,17 @@
         function stopLiveLoop() {
             if (liveInterval) { clearInterval(liveInterval); liveInterval = null; }
             liveGen++; // invalidate in-flight fetches: one loop only
+            liveRequestInFlight = false;
+            if (liveRetryTimer) { clearTimeout(liveRetryTimer); liveRetryTimer = null; }
+            liveRetryAt = 0;
+            if (liveSseReconnectTimer) {
+                clearTimeout(liveSseReconnectTimer);
+                liveSseReconnectTimer = null;
+            }
+            if (liveSseConnectTimer) {
+                clearTimeout(liveSseConnectTimer);
+                liveSseConnectTimer = null;
+            }
             if (liveSse) { try { liveSse.close(); } catch (e) {} liveSse = null; }
         }
         // Back-compat names used by the WS fallback client below.
