@@ -729,6 +729,11 @@
         #lounge-most-played-container .live-games-grid {
             --lounge-card-w: 220px;
         }
+        #lounge-most-played-container .most-played-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, var(--lounge-card-w)));
+            justify-content: center;
+        }
         .live-games-grid {
             display: flex;
             flex-wrap: wrap;
@@ -1745,6 +1750,11 @@
             .modal-box { max-width: 100%; max-height: calc(100dvh - 24px); display: flex; flex-direction: column; }
             .modal-body { max-height: none; overflow-y: auto; -webkit-overflow-scrolling: touch; }
             body.modal-open { overflow: hidden !important; }
+            #lounge-most-played-container .most-played-grid {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
 
         /* ── Tablet 601–1024px: 2-col grids, 4-col stats ── */
@@ -4088,6 +4098,8 @@
         liveSocketClient.connect();
 
         // ── Phase 5: Lounge Subnav & Community Stats Loader (real aggregates) ──
+        const MOST_PLAYED_LIMIT = 8;
+
         function renderMostPlayedCard(g, idx) {
             const gameName = g.name || g.game_name || 'Game';
             const totalHours = (g.total_hours !== undefined && g.total_hours !== null) ? g.total_hours : 0;
@@ -4189,7 +4201,6 @@
                 return data.games
                     .filter((g) => g && (g.name || g.game_name)
                         && (g.total_hours !== undefined || g.unique_players !== undefined))
-                    .slice(0, 9)
                     .map((g, i) => {
                         const name = g.name || g.game_name || 'Game';
                         const picked = pickCover({ game_key: g.game_key, name, category: g.category, image: g.image });
@@ -4212,13 +4223,22 @@
         }
 
         function renderMostPlayedGames(container, games) {
-            let html = `<div class="live-games-grid ${games.length === 1 ? 'single-game' : ''}">`;
-            games.forEach((g, idx) => {
+            const topGames = games
+                .map((game, index) => ({ game, index }))
+                .sort((a, b) => {
+                    const hoursA = Number(a.game.total_hours) || 0;
+                    const hoursB = Number(b.game.total_hours) || 0;
+                    return hoursB - hoursA || a.index - b.index;
+                })
+                .slice(0, MOST_PLAYED_LIMIT)
+                .map(({ game }) => game);
+            let html = '<div class="live-games-grid most-played-grid">';
+            topGames.forEach((g, idx) => {
                 html += renderMostPlayedCard(g, idx);
             });
             html += '</div>';
             container.innerHTML = html;
-            bindMostPlayedCards(container, games);
+            bindMostPlayedCards(container, topGames);
         }
 
         function renderMostPlayedEmpty(container) {
