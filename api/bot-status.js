@@ -15,8 +15,8 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    // Short CDN cache: fresh enough for UX, cheap under polling.
-    res.setHeader('Cache-Control', 'public, max-age=10, s-maxage=10, stale-while-revalidate=30');
+        // Resolver diagnostics must reflect this function's current registry state.
+        res.setHeader('Cache-Control', 'no-store');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'GET') return res.status(405).json({ error: 'method not allowed' });

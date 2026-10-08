@@ -3,7 +3,8 @@
 // Single source of truth for "where is the bot right now?".
 // The bot POSTs a signed heartbeat every 30s to /api/bot-heartbeat; we store
 // the latest { baseUrl, ip, port, version, startedAt, lastSeen } with a
-// ~90s TTL. EVERY server-side caller uses getBotBaseUrl()/fetchBot() below
+// 7-day Redis retention, while a heartbeat is considered fresh for 90s.
+// EVERY server-side caller uses getBotBaseUrl()/fetchBot() below
 // so a moved bot is learned within 30-60s with ZERO manual updates.
 //
 // Storage: Upstash Redis REST when UPSTASH_REDIS_REST_URL+TOKEN (or legacy
@@ -14,7 +15,7 @@
 //
 // Fallback order in getBotBaseUrl():
 //   1. fresh heartbeat (age <= 90s)
-//   2. last known address within a short grace period (<= 5 min, marked stale)
+//   2. last known address within the stale grace period (<= 24h, marked stale)
 //   3. optional env fallback BOT_FALLBACK_URL (or legacy BOT_UPSTREAM, first entry)
 //   4. null  -> callers must render a clean "Bot Offline" state.
 //
@@ -24,10 +25,12 @@
 
 import crypto from 'crypto';
 
-// TTLs (ms). Heartbeat every 30s; 90s TTL tolerates ~2 missed beats.
+// Keep heartbeat freshness separate from address retention; a stale address
+// is not reported online unless a heartbeat is fresh.
 const HEARTBEAT_TTL_MS = 90000;
-// Short grace: keep serving the last known host briefly while the bot moves.
-const GRACE_MS = 5 * 60 * 1000;
+// A stale address remains dialable during a temporary heartbeat outage.
+const ADDRESS_RECORD_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const GRACE_MS = 24 * 60 * 60 * 1000;
 // Resolver caches the answer 30s so we don't hit Redis on every request.
 const CACHE_MS = 30000;
 // Replay-nonce memory (per instance; Redis-backed deployments also rely on
@@ -44,6 +47,7 @@ const mem = {
     rate: new Map(), // ip -> [timestamps]
     loggedBackend: false,
 };
+let registryStorage = 'memory';
 
 function redisCfg() {
     const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || '';
@@ -85,14 +89,17 @@ export async function saveBotRecord(rec) {
     const cfg = redisCfg();
     if (cfg) {
         try {
-            // SET with 90s expiry (PX in ms).
-            await redisPipeline([[ 'SET', KEY, raw, 'PX', String(HEARTBEAT_TTL_MS) ]]);
+            // Retain the last signed address through temporary heartbeat outages.
+            await redisPipeline([[ 'SET', KEY, raw, 'PX', String(ADDRESS_RECORD_TTL_MS) ]]);
+            registryStorage = 'upstash';
         } catch (e) {
             console.log(`[registry] redis save failed, keeping memory copy: ${e.message}`);
             mem.record = record;
+            registryStorage = 'memory_fallback';
         }
     } else {
         mem.record = record;
+        registryStorage = 'memory';
     }
     // Invalidate the resolver cache so the new host is used immediately
     // (not after the 30s cache window).
@@ -106,6 +113,7 @@ export async function loadBotRecord() {
     if (cfg) {
         try {
             const out = await redisPipeline([[ 'GET', KEY ]]);
+            registryStorage = 'upstash';
             const val = out && out[0] && out[0].result;
             if (val) {
                 const rec = typeof val === 'string' ? JSON.parse(val) : val;
@@ -114,9 +122,11 @@ export async function loadBotRecord() {
             return null;
         } catch (e) {
             console.log(`[registry] redis load failed, using memory copy: ${e.message}`);
+            registryStorage = 'memory_fallback';
             return mem.record;
         }
     }
+    registryStorage = 'memory';
     return mem.record;
 }
 
@@ -161,8 +171,12 @@ function envFallback() {
     return null;
 }
 
+export function getBotFallbackUrl() {
+    return envFallback();
+}
+
 // Resolve the current bot base URL (or null when offline).
-// Returns { url, stale, ageMs } — callers treat stale/last-known per policy.
+// Returns { url, stale, ageMs, source } — callers treat stale/last-known per policy.
 export async function resolveBot() {
     const now = Date.now();
     if (mem.baseCache.at && now - mem.baseCache.at < CACHE_MS && mem.baseCache.value !== undefined) {
@@ -173,19 +187,19 @@ export async function resolveBot() {
     if (rec && rec.baseUrl) {
         const age = now - (rec.lastSeen || 0);
         if (age <= HEARTBEAT_TTL_MS) {
-            out = { url: rec.baseUrl, stale: false, ageMs: age, record: rec };
+            out = { url: rec.baseUrl, stale: false, ageMs: age, source: 'heartbeat', record: rec };
         } else if (age <= GRACE_MS) {
-            console.log(`[registry] serving stale last-known ${rec.baseUrl} (age ${Math.round(age / 1000)}s)`);
-            out = { url: rec.baseUrl, stale: true, ageMs: age, record: rec };
+            console.log(`[registry] serving stale last-known bot address (age ${Math.round(age / 1000)}s)`);
+            out = { url: rec.baseUrl, stale: true, ageMs: age, source: 'heartbeat', record: rec };
         }
     }
     if (!out) {
         const fb = envFallback();
         if (fb) {
             console.log('[registry] no heartbeat; using env fallback');
-            out = { url: fb, stale: true, ageMs: -1, record: null };
+            out = { url: fb, stale: true, ageMs: -1, source: 'fallback', record: null };
         } else {
-            out = { url: null, stale: true, ageMs: -1, record: null };
+            out = { url: null, stale: true, ageMs: -1, source: 'none', record: null };
         }
     }
     mem.baseCache = { value: out, at: now };
@@ -203,6 +217,7 @@ export async function getBotStatus() {
     const now = Date.now();
     const age = rec ? now - (rec.lastSeen || 0) : -1;
     const online = !!rec && age >= 0 && age <= HEARTBEAT_TTL_MS;
+    const resolved = await resolveBot();
     // PUBLIC probe: deliberately NO baseUrl / ip — the dial address (bot IP)
     // must never leak to browsers. Server-side code resolves via
     // getBotBaseUrl()/fetchBot(); server-side operators that need the dial
@@ -213,6 +228,9 @@ export async function getBotStatus() {
         lastSeen: rec?.lastSeen || null,
         stale: !online,
         version: rec?.version || null,
+        resolved_source: resolved.source,
+        heartbeat_age_seconds: age >= 0 ? Math.round(age / 1000) : null,
+        registry_storage: registryStorage,
     };
 }
 

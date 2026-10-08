@@ -7,7 +7,8 @@
 //
 // Verifies: method, signature (timing-safe), timestamp skew <= 60s,
 // nonce replay (per-instance + timestamp window), per-IP rate limit.
-// Stores the record with a ~90s TTL (see _bot_registry.js).
+// Stores the record in Upstash for 7 days when configured; resolver freshness
+// remains 90s (see _bot_registry.js).
 // Unsigned/invalid requests get 401/400 with no storage write.
 
 import crypto from 'crypto';

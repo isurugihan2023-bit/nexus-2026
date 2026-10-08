@@ -8,7 +8,7 @@
 //   NEVER trusted (the old same-origin /static/* URLs hang for 20s+ and
 //   http:// URLs are blocked as mixed content on the HTTPS page).
 
-import { getBotBaseUrl } from './_bot_registry.js';
+import { getBotFallbackUrl, resolveBot } from './_bot_registry.js';
 
 // Dynamic bot address: learned from signed heartbeats (see _bot_registry.js
 // + /api/bot-heartbeat). No hardcoded IP here — getBotBaseUrl() returns the
@@ -20,12 +20,19 @@ const downUntil = new Map(); // best-effort per-instance short-circuit
 const consecFails = new Map();
 
 export async function upstreamBases() {
-    const base = await getBotBaseUrl();
-    return base ? [base] : [];
+    const resolved = await resolveBot();
+    const fallback = getBotFallbackUrl();
+    return [...new Set([resolved.url, fallback].filter(Boolean))];
 }
 
 export function isDown(base) {
     return (downUntil.get(base) || 0) > Date.now();
+}
+
+const failuresByTag = new Map();
+
+export function getUpstreamFailure(tag) {
+    return failuresByTag.get(tag) || { reason: 'upstream_unreachable' };
 }
 
 function markDown(base) {
@@ -49,30 +56,54 @@ function markUp(base) {
 // causes long hangs (4s delays / 20s image hangs of the past). Network
 // errors and aborts count toward the consecutive-failure short-circuit
 // (2+ in a row); HTTP statuses reset it and do not mark down.
-export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy') {
-    for (const base of await upstreamBases()) {
+export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy', options = {}) {
+    const { retries = 0, retryDelayMs = 1000, maxDurationMs } = options;
+    const bases = await upstreamBases();
+    const startedOverall = Date.now();
+    const deadline = startedOverall + (maxDurationMs
+        ?? timeoutMs * (retries + 1) + retryDelayMs * retries);
+    let triedBase = false;
+    failuresByTag.set(tag, {
+        reason: bases.length ? 'upstream_unreachable' : 'no_address'
+    });
+    for (const base of bases) {
         if (isDown(base)) {
-            console.log(`[${tag}] skip known-down ${base}`);
+            console.log(`[${tag}] skip known-down origin`);
             continue;
         }
+        triedBase = true;
         const url = `${base}${path}`;
-        const started = Date.now();
-        try {
+        let failed = false;
+        for (let attempt = 0; attempt <= retries; attempt += 1) {
+            const remaining = deadline - Date.now();
+            if (remaining <= 0) break;
+            const started = Date.now();
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-            const res = await fetch(url, {
-                signal: controller.signal,
-                headers: { Accept: 'application/json' }
-            });
-            clearTimeout(timeoutId);
-            markUp(base);
-            console.log(`[${tag}] upstream ${url} -> ${res.status} in ${Date.now() - started}ms`);
-            return { res, base, ms: Date.now() - started };
-        } catch (e) {
-            console.log(`[${tag}] upstream ${url} failed in ${Date.now() - started}ms: ${e.message}`);
-            markDown(base);
+            const timeoutId = setTimeout(() => controller.abort(), Math.min(timeoutMs, remaining));
+            try {
+                const res = await fetch(url, {
+                    signal: controller.signal,
+                    headers: { Accept: 'application/json' }
+                });
+                clearTimeout(timeoutId);
+                markUp(base);
+                failuresByTag.delete(tag);
+                console.log(`[${tag}] upstream responded HTTP ${res.status} in ${Date.now() - started}ms`);
+                return { res, base, ms: Date.now() - started };
+            } catch (e) {
+                clearTimeout(timeoutId);
+                failed = true;
+                console.log(`[${tag}] upstream failed in ${Date.now() - started}ms: ${e.message}`);
+                if (attempt < retries && deadline - Date.now() > retryDelayMs) {
+                    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+                } else {
+                    break;
+                }
+            }
         }
+        if (failed) markDown(base);
     }
+    if (!triedBase) failuresByTag.set(tag, { reason: bases.length ? 'circuit_open' : 'no_address' });
     return null;
 }
 

@@ -1,4 +1,4 @@
-import { fetchUpstream, sanitizeGameRow } from '../_nexus.js';
+import { fetchUpstream, getUpstreamFailure, sanitizeGameRow } from '../_nexus.js';
 
 const lastGoodByRange = new Map();
 
@@ -21,12 +21,15 @@ export default async function handler(req, res) {
 
     const hit = await fetchUpstream(
         `/api/public/most-played?range=${encodeURIComponent(range)}${debug ? '&debug=1' : ''}`,
-        2500,
-        'most-played'
+        3500,
+        'most-played',
+        { retries: 1, retryDelayMs: 1000, maxDurationMs: 8000 }
     );
+    let responseFailureReason = null;
     if (hit) {
         try {
             if (!hit.res.ok) {
+                responseFailureReason = 'upstream_http_error';
                 throw new Error(`upstream returned HTTP ${hit.res.status}`);
             }
             const data = await hit.res.json();
@@ -36,14 +39,19 @@ export default async function handler(req, res) {
                     'newest_started_at', 'window_start', 'window_end',
                     'open_sessions', 'cache_age_seconds'
                 ];
+                const cacheAge = data?.cache_age_seconds ?? data?.snapshot_age_seconds;
                 if (!data || fields.some((field) => field === 'cache_age_seconds'
                     || field === 'oldest_started_at' || field === 'newest_started_at'
-                    ? data[field] !== null && !Number.isFinite(data[field])
+                    ? (field === 'cache_age_seconds' ? cacheAge : data[field]) !== null
+                        && !Number.isFinite(field === 'cache_age_seconds' ? cacheAge : data[field])
                     : !Number.isFinite(data[field]))) {
                     throw new Error('upstream returned invalid debug counts');
                 }
                 return res.status(200).json(Object.fromEntries(
-                    fields.map((field) => [field, data[field] ?? null])
+                    fields.map((field) => [
+                        field,
+                        (field === 'cache_age_seconds' ? cacheAge : data[field]) ?? null
+                    ])
                 ));
             }
             // Accept per-GAME payloads from the new bot API AND the legacy
@@ -88,17 +96,24 @@ export default async function handler(req, res) {
             }
             console.log(`[most-played] ${hit.base} returned no usable games`);
         } catch (e) {
+            responseFailureReason ||= 'invalid_upstream_response';
             console.log(`[most-played] ${hit.base} bad JSON: ${e.message}`);
         }
     }
 
     if (debug) {
-        return res.status(503).json({ error: 'bot_unavailable' });
+        return res.status(503).json({
+            error: 'bot_unavailable',
+            reason: responseFailureReason || getUpstreamFailure('most-played').reason
+        });
     }
     const lastGood = lastGoodByRange.get(range);
     if (lastGood) {
         return res.status(200).json({ ...lastGood, stale: true });
     }
     res.setHeader('Cache-Control', 'no-store');
-    return res.status(503).json({ error: 'bot_unavailable' });
+    return res.status(503).json({
+        error: 'bot_unavailable',
+        reason: responseFailureReason || getUpstreamFailure('most-played').reason
+    });
 }

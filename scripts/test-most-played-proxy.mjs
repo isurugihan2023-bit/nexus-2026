@@ -4,6 +4,7 @@ import { test } from 'node:test';
 process.env.BOT_FALLBACK_URL = 'http://bot.test';
 
 const { default: handler } = await import('../api/public/most-played.js');
+const { default: statusHandler } = await import('../api/bot-status.js');
 
 function responseRecorder() {
     return {
@@ -37,6 +38,18 @@ function mockFetch(payload, status = 200) {
     };
 }
 
+function mockFetchSequence(...payloads) {
+    let index = 0;
+    globalThis.fetch = async () => {
+        const payload = payloads[Math.min(index++, payloads.length - 1)];
+        if (payload instanceof Error) throw payload;
+        return new Response(JSON.stringify(payload), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    };
+}
+
 test('unreachable origin errors; empty is explicit; stale good games survive refresh errors', async () => {
     const request = { method: 'GET', query: { range: '7d' } };
     let response = responseRecorder();
@@ -44,7 +57,10 @@ test('unreachable origin errors; empty is explicit; stale good games survive ref
     mockFetch(new Error('bot unreachable'));
     await handler(request, response);
     assert.equal(response.statusCode, 503);
-    assert.deepEqual(response.body, { error: 'bot_unavailable' });
+    assert.deepEqual(response.body, {
+        error: 'bot_unavailable',
+        reason: 'upstream_unreachable'
+    });
     assert.equal(response.headers['Cache-Control'], 'no-store');
 
     const game = {
@@ -53,7 +69,7 @@ test('unreachable origin errors; empty is explicit; stale good games survive ref
         unique_players: 2,
         total_hours: 3
     };
-    mockFetch({ range: '7d', games: [game] });
+    mockFetchSequence(new Error('temporary connect failure'), { range: '7d', games: [game] });
     response = responseRecorder();
     await handler(request, response);
     assert.equal(response.statusCode, 200);
@@ -91,7 +107,7 @@ test('debug request is forwarded without game rows', async () => {
         open_sessions: 2,
         window_start: 100,
         window_end: 200,
-        cache_age_seconds: 1,
+        snapshot_age_seconds: 1,
         games: [{ name: 'must not be exposed' }]
     };
     mockFetch(debug);
@@ -108,11 +124,32 @@ test('debug request is forwarded without game rows', async () => {
         window_end: 200,
         cache_age_seconds: 1
     });
+
+    test('bot status reports safe address-resolution diagnostics without exposing the address', async () => {
+        globalThis.fetch = async () => new Response('[{"result":null}]', {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const response = responseRecorder();
+        await statusHandler(
+            { method: 'GET', headers: { 'x-forwarded-for': '127.0.0.1' } },
+            response
+        );
+        assert.equal(response.statusCode, 200);
+        assert.equal(response.headers['Cache-Control'], 'no-store');
+        assert.equal(response.body.resolved_source, 'fallback');
+        assert.equal(response.body.heartbeat_age_seconds, null);
+        assert.equal('baseUrl' in response.body, false);
+        assert.equal('ip' in response.body, false);
+    });
     assert.equal(response.headers['Cache-Control'], 'no-store');
 
     mockFetch({ games: [{ name: 'old bot response' }] });
     const unsupported = responseRecorder();
     await handler({ method: 'GET', query: { range: '7d', debug: '1' } }, unsupported);
     assert.equal(unsupported.statusCode, 503);
-    assert.deepEqual(unsupported.body, { error: 'bot_unavailable' });
+    assert.deepEqual(unsupported.body, {
+        error: 'bot_unavailable',
+        reason: 'invalid_upstream_response'
+    });
 });
