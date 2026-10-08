@@ -57,7 +57,8 @@ function markUp(base) {
 // errors and aborts count toward the consecutive-failure short-circuit
 // (2+ in a row); HTTP statuses reset it and do not mark down.
 export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy', options = {}) {
-    const { retries = 0, retryDelayMs = 1000, maxDurationMs } = options;
+    const { retries = 0, retryDelayMs = 1000, maxDurationMs, retryStatuses = [] } = options;
+    const retryStatusSet = new Set(retryStatuses);
     const bases = await upstreamBases();
     const startedOverall = Date.now();
     const deadline = startedOverall + (maxDurationMs
@@ -86,6 +87,13 @@ export async function fetchUpstream(path, timeoutMs = 2500, tag = 'proxy', optio
                     headers: { Accept: 'application/json' }
                 });
                 clearTimeout(timeoutId);
+                if (attempt < retries && retryStatusSet.has(res.status)
+                        && deadline - Date.now() > retryDelayMs) {
+                    await res.body?.cancel().catch(() => {});
+                    console.log(`[${tag}] retrying upstream HTTP ${res.status}`);
+                    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+                    continue;
+                }
                 markUp(base);
                 failuresByTag.delete(tag);
                 console.log(`[${tag}] upstream responded HTTP ${res.status} in ${Date.now() - started}ms`);

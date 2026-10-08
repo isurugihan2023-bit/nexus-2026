@@ -299,6 +299,15 @@
         .chip i { color: var(--p400); font-size: 1rem; }
         .chip-val { font-size: 1.1rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
         .chip-label { color: var(--muted); font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        .hero-chips.is-updating .chip-val { opacity: 0.62; }
+        .hero-stats-status {
+            min-height: 1.2em;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.72rem;
+            text-align: center;
+        }
+        .hero-stats-status[hidden] { display: none; }
 
         /* Hero Since Badge & Copyright */
         .hero-since {
@@ -2000,32 +2009,33 @@
                     <div class="chip">
                         <i class="fas fa-server"></i>
                         <div>
-                            <div class="chip-val" id="hero-servers">1</div>
+                            <div class="chip-val" id="hero-servers">—</div>
                             <div class="chip-label" id="hero-servers-label">Server</div>
                         </div>
                     </div>
                     <div class="chip">
                         <i class="fas fa-users"></i>
                         <div>
-                            <div class="chip-val" id="hero-members">48</div>
+                            <div class="chip-val" id="hero-members">—</div>
                             <div class="chip-label">Members</div>
                         </div>
                     </div>
                     <div class="chip">
                         <i class="fas fa-bolt"></i>
                         <div>
-                            <div class="chip-val" id="hero-uptime">11h 58m</div>
+                            <div class="chip-val" id="hero-uptime">—</div>
                             <div class="chip-label">Uptime</div>
                         </div>
                     </div>
                     <div class="chip">
                         <i class="fas fa-signal"></i>
                         <div>
-                            <div class="chip-val" id="hero-ping">106 ms</div>
+                            <div class="chip-val" id="hero-ping">—</div>
                             <div class="chip-label">Ping</div>
                         </div>
                     </div>
                 </div>
+                <div class="hero-stats-status" id="hero-stats-status" role="status" aria-live="polite">Loading live stats…</div>
                 <div class="hero-since fade-up" style="animation-delay:0.5s">
                     <div class="hero-since-pill">
                         <span>Since March 2026</span>
@@ -2133,12 +2143,12 @@
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-users" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">48</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-users">—</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Members</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-signal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">106ms</div>
+                    <div id="about-ping" style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;">—</div>
                     <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Avg. Ping</div>
                 </div>
             </div>
@@ -2164,11 +2174,11 @@
             </div>
             <div class="stats-strip-inner">
                 <div class="stat-item">
-                    <div class="stat-num stat-number" id="server-count-stat" data-target="1" data-suffix="">1</div>
+                    <div class="stat-num stat-number" id="server-count-stat">—</div>
                     <div class="stat-lbl">Active Server</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-num stat-number" id="user-count-stat" data-target="48" data-suffix="">48</div>
+                    <div class="stat-num stat-number" id="user-count-stat">—</div>
                     <div class="stat-lbl">Total Members</div>
                 </div>
                 <div class="stat-item">
@@ -2786,13 +2796,14 @@
         });
 
         /* ── Live stats from Discord & Bot API ── */
-        let currentNinjaNexusMembers = 48;
-        const activities = ["1 SERVER", "48 MEMBERS"];
+        let currentNinjaNexusMembers = null;
+        const activities = ["BOT STATUS", "COMMUNITY"];
         let activityIdx = 0;
         const dpTexts = document.querySelectorAll('.dp-dynamic-text');
         const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
 
         function updateMemberDisplays(count) {
+            if (!Number.isFinite(count) || count <= 0) return;
             currentNinjaNexusMembers = count;
             const hm = document.getElementById('hero-members');
             const am = document.getElementById('about-users');
@@ -2806,22 +2817,19 @@
             }
         }
 
-        // ── Real-time Uptime Counter ──
-        window.heroUptimeSec = 43100;
-        setInterval(() => {
-            if (window.heroUptimeSec > 0) {
-                window.heroUptimeSec++;
-                const h = Math.floor(window.heroUptimeSec / 3600);
-                const m = Math.floor((window.heroUptimeSec % 3600) / 60);
-                const s = window.heroUptimeSec % 60;
-                let timeStr = '';
-                if (h > 0) timeStr += `${h}h `;
-                if (m > 0 || h > 0) timeStr += `${m}m `;
-                timeStr += `${s}s`;
-                const uptimeEl = document.getElementById('hero-uptime');
-                if (uptimeEl) uptimeEl.textContent = timeStr.trim();
+        function updateServerDisplays(count) {
+            if (!Number.isFinite(count) || count <= 0) return;
+            const hero = document.getElementById('hero-servers');
+            const label = document.getElementById('hero-servers-label');
+            const strip = document.getElementById('server-count-stat');
+            if (hero) hero.textContent = String(count);
+            if (label) label.textContent = count === 1 ? 'Server' : 'Servers';
+            if (strip) strip.textContent = String(count);
+            activities[0] = `${count} ${count === 1 ? 'SERVER' : 'SERVERS'}`;
+            if (activityIdx === 0 && dpTexts.length > 0) {
+                dpTexts.forEach(el => el.textContent = activities[0]);
             }
-        }, 1000);
+        }
 
         // ── Real-time Discord Presence Update ──
         if (dpTexts.length > 0) {
@@ -3973,76 +3981,187 @@
         })();
         document.getElementById('live-retry')?.addEventListener('click', retryLiveNow);
 
-        // ── Hero/member stats only. Live game cards come EXCLUSIVELY from
-        // fetchLiveGames() (/api/public/live) so legacy voice/member payloads
-        // can never overwrite real presence cards. Both hero endpoints are
-        // raced in parallel (first valid wins) — never sequential.
-        async function fetchBotData() {
-            const [a, b] = await Promise.allSettled([
-                fetchJson(API_BASE + '/api/public_stats?_t=' + Date.now(), 4000),
-                fetchJson(API_BASE + '/api/bot_data?_t=' + Date.now(), 4000)
-            ]);
+        // Hero stats come from the bot's one authoritative public snapshot.
+        const HERO_STATS_URL = API_BASE + '/api/public_stats';
+        const HERO_STATS_CACHE_KEY = 'nexus-hero-stats-v1';
+        const HERO_STATS_MAX_AGE_MS = 2 * 60 * 1000;
+        let heroStatsSnapshot = null;
+        let heroStatsAnchor = null;
+        let heroStatsInFlight = false;
+        let heroStatsRetryTimer = null;
+        let heroStatsRetryDelay = 5000;
 
-            let d = null;
-            for (const r of [a, b]) {
-                const parsed = r.status === 'fulfilled' ? r.value : null;
-                if (parsed && (parsed.total_users || parsed.ninja_nexus_members || parsed.uptime || parsed.ping || parsed.uptime_seconds !== undefined)) {
-                    d = parsed;
-                    break;
-                }
+        function isValidHeroStats(data) {
+            if (!data) return false;
+            const members = Number(data.ninja_nexus_members);
+            const servers = Number(data.total_servers);
+            const ping = Number(data.ping);
+            const startedAt = Number(data.started_at);
+            const serverTime = Number(data.server_time);
+            const uptime = Number(data.uptime_seconds);
+            return [members, servers, ping, startedAt, serverTime, uptime]
+                .every(value => Number.isFinite(value) && value > 0)
+                && Math.abs((serverTime - startedAt) - uptime) <= 3;
+        }
+
+        function formatHeroUptime(seconds) {
+            const wholeSeconds = Math.floor(seconds);
+            if (!Number.isFinite(wholeSeconds) || wholeSeconds <= 0) return 'Starting…';
+            const hours = Math.floor(wholeSeconds / 3600);
+            const minutes = Math.floor((wholeSeconds % 3600) / 60);
+            const remaining = wholeSeconds % 60;
+            let value = '';
+            if (hours > 0) value += `${hours}h `;
+            if (minutes > 0 || hours > 0) value += `${minutes}m `;
+            return `${value}${remaining}s`.trim();
+        }
+
+        function heroStatsAgeText(savedAt) {
+            return savedAt ? fmtAgo(Date.now() - savedAt) : 'unknown';
+        }
+
+        function setHeroStatsStatus(text, updating = false) {
+            const status = document.getElementById('hero-stats-status');
+            const chips = document.querySelector('.hero-chips');
+            if (status) {
+                status.textContent = text;
+                status.hidden = !text;
             }
+            if (chips) chips.classList.toggle('is-updating', updating);
+        }
 
-            if (d) {
-                const hp = document.getElementById('hero-ping');
-                const ap = document.getElementById('about-ping');
-                if (hp && d.ping) hp.textContent = d.ping + ' ms';
-                if (ap && d.ping) ap.textContent = d.ping + 'ms';
+        function paintHeroStatsUptime() {
+            if (!heroStatsSnapshot || !heroStatsAnchor) return;
+            let seconds = heroStatsSnapshot.uptime_seconds;
+            if (heroStatsAnchor.live) {
+                const elapsedMs = Math.max(0, performance.now() - heroStatsAnchor.receivedAt);
+                const serverNow = heroStatsAnchor.serverTimeMs + elapsedMs;
+                seconds = Math.max(0, Math.floor((serverNow - heroStatsAnchor.startedAtMs) / 1000));
+            }
+            const formatted = formatHeroUptime(seconds);
+            const hero = document.getElementById('hero-uptime');
+            const about = document.getElementById('about-uptime');
+            if (hero) hero.textContent = formatted;
+            if (about) about.textContent = `Bot uptime: ${formatted}`;
+        }
 
-                if (d.uptime_seconds !== undefined) {
-                    window.heroUptimeSec = d.uptime_seconds;
-                } else if (d.uptime) {
-                    const hu = document.getElementById('hero-uptime');
-                    if (hu) hu.textContent = d.uptime;
-                }
-                if (d.uptime) {
-                    const au = document.getElementById('about-uptime');
-                    if (au) au.textContent = 'Bot uptime: ' + d.uptime;
-                }
+        function paintHeroStats(snapshot, { cached = false, updating = false } = {}) {
+            heroStatsSnapshot = snapshot;
+            heroStatsAnchor = {
+                startedAtMs: snapshot.started_at * 1000,
+                serverTimeMs: snapshot.server_time * 1000,
+                receivedAt: performance.now() - Math.max(0, Date.now() - snapshot.saved_at),
+                live: Date.now() - snapshot.saved_at <= HERO_STATS_MAX_AGE_MS
+            };
+            updateMemberDisplays(snapshot.ninja_nexus_members);
+            updateServerDisplays(snapshot.total_servers);
 
-                if (d.ninja_nexus_members) {
-                    updateMemberDisplays(d.ninja_nexus_members);
-                }
+            const hp = document.getElementById('hero-ping');
+            const ap = document.getElementById('about-ping');
+            if (hp) hp.textContent = `${snapshot.ping} ms`;
+            if (ap) ap.textContent = `${snapshot.ping}ms`;
+            updateLoungeStats(snapshot.total_users ?? snapshot.ninja_nexus_members,
+                snapshot.online_count, undefined);
+            paintHeroStatsUptime();
 
-                const totalMembers = (d.total_users !== undefined && d.total_users !== null)
-                    ? d.total_users
-                    : (d.ninja_nexus_members || currentNinjaNexusMembers || 0);
-                const onlineNow = (d.online_users !== undefined && d.online_users !== null)
-                    ? d.online_users
-                    : (d.presence_count !== undefined ? d.presence_count : 0);
-
-                updateLoungeStats(totalMembers, onlineNow, undefined);
+            const age = Date.now() - snapshot.saved_at;
+            if (age > HERO_STATS_MAX_AGE_MS) {
+                heroStatsAnchor.live = false;
+                setHeroStatsStatus(`Bot offline · last updated ${heroStatsAgeText(snapshot.saved_at)}`, updating);
+            } else if (cached || updating) {
+                setHeroStatsStatus(`Refreshing live stats · last updated ${heroStatsAgeText(snapshot.saved_at)}`, true);
+            } else {
+                setHeroStatsStatus(`Updated ${heroStatsAgeText(snapshot.saved_at)}`);
             }
         }
 
-        async function fetchDiscordStats() {
+        function readHeroStatsCache() {
             try {
-                const disc = await fetchJson('https://discord.com/api/v10/invites/fZNDG5sfhf?with_counts=true', 2500);
-                const count = disc.approximate_member_count || (disc.guild && disc.guild.member_count);
-                if (count) {
-                    updateMemberDisplays(count);
-                    const totalEl = document.getElementById('lounge-stat-total');
-                    if (totalEl && (totalEl.textContent === '0' || totalEl.textContent === '47')) {
-                        totalEl.textContent = count;
+                const cached = JSON.parse(localStorage.getItem(HERO_STATS_CACHE_KEY));
+                if (cached && isValidHeroStats(cached) && Number.isFinite(cached.saved_at)) {
+                    paintHeroStats(cached, { cached: true, updating: true });
+                    return true;
+                }
+            } catch (error) {}
+            return false;
+        }
+
+        function scheduleHeroStatsRetry() {
+            if (heroStatsRetryTimer) clearTimeout(heroStatsRetryTimer);
+            const delay = heroStatsRetryDelay;
+            heroStatsRetryDelay = Math.min(heroStatsRetryDelay * 2, 60000);
+            heroStatsRetryTimer = setTimeout(() => {
+                heroStatsRetryTimer = null;
+                if (!document.hidden) fetchPublicStats();
+            }, delay);
+        }
+
+        async function fetchPublicStats() {
+            if (heroStatsInFlight) return;
+            heroStatsInFlight = true;
+            if (heroStatsSnapshot) {
+                setHeroStatsStatus(`Refreshing live stats · last updated ${heroStatsAgeText(heroStatsSnapshot.saved_at)}`, true);
+            } else {
+                setHeroStatsStatus('Loading live stats…', true);
+            }
+
+            let lastError = null;
+            try {
+                for (let attempt = 0; attempt < 2; attempt += 1) {
+                    try {
+                        const data = await fetchJson(HERO_STATS_URL, 8000);
+                        if (!isValidHeroStats(data) || data.stale === true) {
+                            throw new Error('Invalid or stale hero stats');
+                        }
+                        const snapshot = {
+                            ninja_nexus_members: Number(data.ninja_nexus_members),
+                            total_users: Number(data.total_users ?? data.ninja_nexus_members),
+                            total_servers: Number(data.total_servers),
+                            ping: Number(data.ping),
+                            started_at: Number(data.started_at),
+                            server_time: Number(data.server_time),
+                            uptime_seconds: Number(data.uptime_seconds),
+                            online_count: Number.isFinite(Number(data.online_count))
+                                ? Number(data.online_count) : null,
+                            saved_at: Date.now()
+                        };
+                        if (!isValidHeroStats(snapshot)) throw new Error('Invalid hero stats values');
+                        if (heroStatsRetryTimer) {
+                            clearTimeout(heroStatsRetryTimer);
+                            heroStatsRetryTimer = null;
+                        }
+                        heroStatsRetryDelay = 5000;
+                        paintHeroStats(snapshot);
+                        try { localStorage.setItem(HERO_STATS_CACHE_KEY, JSON.stringify(snapshot)); } catch (error) {}
+                        return;
+                    } catch (error) {
+                        lastError = error;
+                        if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 1000));
                     }
                 }
-            } catch(e) {}
+            } finally {
+                heroStatsInFlight = false;
+            }
+
+            if (heroStatsSnapshot) {
+                heroStatsAnchor.live = false;
+                paintHeroStatsUptime();
+                setHeroStatsStatus(`Bot offline · last updated ${heroStatsAgeText(heroStatsSnapshot.saved_at)}`);
+            } else {
+                setHeroStatsStatus('Bot offline · no saved stats');
+            }
+            if (lastError) scheduleHeroStatsRetry();
         }
 
-        // All hero sources fire together (no await between them).
-        function fetchPublicStats() {
-            fetchBotData();
-            fetchDiscordStats();
-        }
+        readHeroStatsCache();
+        setInterval(() => {
+            if (heroStatsAnchor?.live && heroStatsSnapshot
+                    && Date.now() - heroStatsSnapshot.saved_at > HERO_STATS_MAX_AGE_MS) {
+                heroStatsAnchor.live = false;
+                setHeroStatsStatus(`Bot offline · last updated ${heroStatsAgeText(heroStatsSnapshot.saved_at)}`);
+            }
+            paintHeroStatsUptime();
+        }, 1000);
 
         // ── Single-loop live sync: SSE when reachable, else 10s poll ──
         // Paused while the tab is hidden, resumed on focus/visibility.
