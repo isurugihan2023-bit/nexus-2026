@@ -15,7 +15,8 @@
     <meta name="twitter:description" content="Live game sessions, 48+ documented commands, Spotify now-playing and TeamSpeak.">
     <meta name="twitter:image" content="https://ninjanexus.duckdns.org/images/nexus_logo.png">
     <link rel="canonical" href="https://ninjanexus.duckdns.org/">
-    <meta name="theme-color" content="#0F0F0F">
+    <meta name="theme-color" content="#000000">
+    <link rel="preload" as="image" href="assets/bg-topo.webp" type="image/webp">
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.ico">
@@ -40,6 +41,15 @@
             --bg:       #0F0F0F;
             --bg2:      #161616;
             --bg3:      #1A1A1A;
+            --topo-base-opacity: 0.30;
+            --topo-lime-opacity: 0.35;
+            --cursor-size: 220px;
+            --cursor-opacity: 0.9;
+            --cursor-lerp-speed: 0.15;
+            --cursor-trail-enabled: 1;
+            --cursor-trail-size: 420px;
+            --cursor-trail-opacity: 0.25;
+            --cursor-trail-lerp-speed: 0.06;
             --border:   rgba(255,255,255,0.08);
             --border2:  rgba(198,227,43,0.25);
             --p400:     #D4EC5A;
@@ -54,18 +64,141 @@
             --mono:     "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
-        html { background: #0F0F0F; }
+        html { background: #0a0a0a; }
         ::selection { background: #C6E32B; color: #0F0F0F; }
 
         body {
             font-family: var(--font);
-            background-color: var(--bg);
+            background-color: #0a0a0a;
             color: var(--text);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+        }
+
+        @property --x {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 50%;
+        }
+        @property --y {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 50%;
+        }
+        #home > .topo-base,
+        #home > .topo-lime,
+        #home > .topo-cursor {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .topo-base { z-index: 0; }
+        .topo-lime { z-index: 1; }
+        #home > .topo-cursor {
+            display: none;
+            z-index: 3;
+            --mx: 50%;
+            --my: 50%;
+            background-color: #c6e43a;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        #home > .topo-cursor.is-visible { opacity: var(--cursor-opacity); }
+        #home > .topo-cursor--trail { z-index: 3; }
+        #home > .topo-cursor--trail.is-visible { opacity: var(--cursor-trail-opacity); }
+        body > section,
+        body > footer { position: relative; z-index: 3; }
+        #home > .topo-base {
+            opacity: var(--topo-base-opacity) !important;
+            background: #000 url('assets/bg-topo.jpg') center / cover no-repeat;
+            background-image: image-set(
+                url('assets/bg-topo.webp') type('image/webp'),
+                url('assets/bg-topo.jpg') type('image/jpeg')
+            );
+        }
+        #home > .topo-lime {
+            display: none;
+            --x: 50%;
+            --y: 50%;
+            --spot-size: 420px;
+            background-color: #c6e43a;
+            opacity: var(--topo-lime-opacity) !important;
+            animation: topoLightOne 36s ease-in-out infinite alternate;
+        }
+        @supports ((mask-image: url("assets/bg-topo-mask.png")) and (mask-composite: intersect)) or ((-webkit-mask-image: url("assets/bg-topo-mask.png")) and (-webkit-mask-composite: source-in)) {
+            #home > .topo-lime {
+                display: block;
+                -webkit-mask-image: url("assets/bg-topo-mask.png"), radial-gradient(circle var(--spot-size) at var(--x) var(--y), #fff 0%, rgba(255,255,255,0.22) 35%, transparent 70%);
+                -webkit-mask-size: cover, 100% 100%;
+                -webkit-mask-position: center, center;
+                -webkit-mask-repeat: no-repeat;
+                -webkit-mask-composite: source-in;
+                mask-image: url("assets/bg-topo-mask.png"), radial-gradient(circle var(--spot-size) at var(--x) var(--y), #fff 0%, rgba(255,255,255,0.22) 35%, transparent 70%);
+                mask-mode: alpha, alpha;
+                mask-size: cover, 100% 100%;
+                mask-position: center, center;
+                mask-repeat: no-repeat;
+                mask-composite: intersect;
+            }
+            #home > .topo-cursor {
+                display: block;
+                -webkit-mask-image: url("assets/bg-topo-mask.png"), radial-gradient(circle var(--cursor-size) at var(--mx) var(--my), rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
+                -webkit-mask-size: cover, 100% 100%;
+                -webkit-mask-position: center, center;
+                -webkit-mask-repeat: no-repeat;
+                -webkit-mask-composite: source-in;
+                mask-image: url("assets/bg-topo-mask.png"), radial-gradient(circle var(--cursor-size) at var(--mx) var(--my), rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
+                mask-mode: alpha, alpha;
+                mask-size: cover, 100% 100%;
+                mask-position: center, center;
+                mask-repeat: no-repeat;
+                mask-composite: intersect;
+            }
+            #home > .topo-cursor--trail {
+                --cursor-size: var(--cursor-trail-size);
+                display: none;
+            }
+            #home > .topo-cursor--trail.is-enabled { display: block; }
+        }
+        #home > .topo-lime--two {
+            --x: 78%;
+            --y: 22%;
+            animation-name: topoLightTwo;
+            animation-duration: 49s;
+        }
+        @keyframes topoLightOne {
+            from { --x: 12%; --y: 24%; }
+            50% { --x: 48%; --y: 52%; }
+            to { --x: 86%; --y: 78%; }
+        }
+        @keyframes topoLightTwo {
+            from { --x: 90%; --y: 72%; }
+            50% { --x: 70%; --y: 48%; }
+            to { --x: 50%; --y: 24%; }
+        }
+        html.tab-hidden #home > .topo-lime,
+        html.hero-background-paused #home > .topo-lime { animation-play-state: paused; }
+        html.topo-pointer-active #home > .topo-lime--one { animation-play-state: paused; }
+        html.topo-low-end .topo-lime--two { display: none; }
+        @media (max-width: 767px) {
+            .topo-lime--one { animation-duration: 100s; }
+            .topo-lime--two { display: none !important; }
+            @keyframes topoLightMobile {
+                from { --x: 46%; --y: 46%; }
+                to { --x: 54%; --y: 54%; }
+            }
+            .topo-lime--one { animation-name: topoLightMobile; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .topo-lime--one {
+                --x: 50% !important;
+                --y: 50% !important;
+                animation: none !important;
+            }
+            .topo-lime--two { display: none !important; }
         }
 
         a { color: inherit; text-decoration: none; }
@@ -135,11 +268,11 @@
         .nav {
             position: fixed; top: 0; left: 0; width: 100%;
             z-index: 999; padding: 18px 0;
-            background: rgba(15,15,15,0.82);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent 120px);
             border-bottom: 1px solid transparent;
             transition: all 250ms ease;
         }
-        .nav.scrolled { padding: 12px 0; background: rgba(15,15,15,0.95); border-bottom-color: var(--border); }
+        .nav.scrolled { padding: 12px 0; background: rgba(10,10,10,0.85); border-bottom-color: transparent; }
         .nav-inner { display: flex; align-items: center; justify-content: space-between; }
 
         .nav-logo {
@@ -188,37 +321,21 @@
 
         /* ── HERO ─────────────────────────────────────── */
         .hero {
-            position: relative; height: 100vh; min-height: 560px;
+            position: relative; height: 100vh; min-height: max(100vh, 560px);
             display: flex; align-items: center; justify-content: center;
-            padding: 80px 0 40px; overflow: hidden;
+            padding: 80px 0 40px; overflow: hidden; isolation: isolate;
         }
-
-        .hero::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: radial-gradient(circle, rgba(198,227,43,0.06) 1.5px, transparent 1.5px);
-            background-size: 28px 28px;
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 2;
             pointer-events: none;
+            background: rgba(0,0,0,0.4);
         }
-
-        .ambient-orb {
-            position: absolute; border-radius: 50%;
-            background: radial-gradient(circle, rgba(198,227,43,0.06) 0%, transparent 65%);
-            pointer-events: none; z-index: 0;
-        }
-        .orb-1 {
-            width: 800px; height: 800px; top: -200px; left: -200px;
-        }
-        .orb-2 {
-            width: 700px; height: 700px; bottom: -150px; right: -150px;
-        }
-
-        .hero-glow {
-            position: absolute; top: -5%; left: 50%;
-            transform: translateX(-50%);
-            width: 1000px; height: 700px;
-            background: radial-gradient(ellipse at 50% 30%, rgba(198,227,43,0.06) 0%, transparent 65%);
-            pointer-events: none;
+        .hero > .container {
+            position: relative;
+            z-index: 4;
         }
 
         .hero-inner {
@@ -247,6 +364,7 @@
             max-width: 560px;
             line-height: 1.65;
             margin-bottom: 28px;
+            text-shadow: 0 0 18px rgba(0,0,0,0.9);
         }
 
         .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; }
@@ -274,7 +392,7 @@
             display: flex; align-items: center; gap: 6px; line-height: 1.1; margin-bottom: 2px;
         }
         .dp-bot-badge {
-            background-color: #C6E32B; color: #0F0F0F;
+            background-color: rgba(10,10,10,0.85); color: #C6E32B;
             font-size: 0.65rem; font-weight: 700;
             padding: 2px 4px; border-radius: 4px;
             display: inline-flex; align-items: center; gap: 3px;
@@ -289,7 +407,7 @@
         .chip {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 20px; border-radius: 12px;
-            background: var(--bg2);
+            background: rgba(10,10,10,0.78);
             border: 1px solid var(--border);
             font-size: 0.88rem; font-weight: 600;
             transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1.2), border-color 200ms;
@@ -326,7 +444,7 @@
             gap: 8px;
             padding: 8px 20px;
             border-radius: 999px;
-            background: rgba(22, 22, 22, 0.92);
+            background: rgba(10,10,10,0.85);
             border: 1px solid rgba(198, 227, 43, 0.2);
             color: #D4EC5A;
             font-size: 0.84rem;
@@ -335,7 +453,7 @@
             transition: transform 200ms ease, background 200ms;
         }
         .hero-since-pill:hover {
-            background: rgba(34, 34, 34, 0.85);
+            background: rgba(10,10,10,0.85);
             transform: translateY(-2px);
         }
         .hero-copyright {
@@ -1892,8 +2010,6 @@
                 border-radius: 12px; padding: 10px 12px;
                 font-size: 0.8rem; color: #D4EC5A; line-height: 1.5; text-align: left;
             }
-            /* Lighter paint on phones */
-            .ambient-orb, .hero-glow { display: none; }
             .footer-grid { gap: 28px; }
         }
 
@@ -1906,7 +2022,7 @@
 
         /* ── Phone landscape (short screens) ── */
         @media (max-height: 500px) {
-            .hero { min-height: 0; padding: 96px 0 48px; }
+            .hero { min-height: 100vh; padding: 96px 0 48px; }
             .hero-heading { font-size: clamp(1.8rem, 6vw, 2.2rem); }
             .hero-btns { margin-bottom: 20px; }
             .hero-chips { margin-bottom: 8px; }
@@ -1934,7 +2050,6 @@
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
             }
-            .ambient-orb, .hero-glow { display: none !important; }
         }
     </style>
 </head>
@@ -1973,9 +2088,11 @@
 
     <!-- ── HERO ─────────────────────── -->
     <section class="hero tab-pane active" id="home">
-        <div class="ambient-orb orb-1"></div>
-        <div class="ambient-orb orb-2"></div>
-        <div class="hero-glow"></div>
+        <div class="topo-base" aria-hidden="true"></div>
+        <div class="topo-lime topo-lime--one" aria-hidden="true"></div>
+        <div class="topo-lime topo-lime--two" aria-hidden="true"></div>
+        <div class="topo-cursor" aria-hidden="true"></div>
+        <div class="topo-cursor topo-cursor--trail" aria-hidden="true"></div>
         <div class="container">
             <div class="hero-inner">
                 <div class="discord-presence fade-up" style="animation-delay:0s">
@@ -2758,11 +2875,6 @@
             const id = window.location.hash.substring(1);
             if (ALL_TABS.includes(id) && id !== window.__nexusTab) showTab(id);
         });
-
-        // Add scrolled class to nav
-        window.addEventListener('scroll', () => {
-            if (nav) nav.classList.toggle('scrolled', window.scrollY > 40);
-        }, { passive: true });
 
         /* ── Reveal on scroll (Staggered) ── */
         const observer = new IntersectionObserver((entries) => {
@@ -4661,6 +4773,216 @@
             if (savedTab === 'most-played') setLoungeTab('most-played');
             else if (savedTab === 'listening') setLoungeTab('listening');
         } catch (e) {}
+    </script>
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const hero = document.querySelector('#home');
+            const spotlight = document.querySelector('.topo-lime--one');
+            const nav = document.querySelector('.nav');
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const lowEnd = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+                (navigator.deviceMemory && navigator.deviceMemory <= 4);
+            if (lowEnd) root.classList.add('topo-low-end');
+
+            let pointerFrame = 0;
+            let idleTimer = 0;
+            let heroVisible = false;
+            let currentX = 50;
+            let currentY = 50;
+            let targetX = 50;
+            let targetY = 50;
+            root.classList.add('hero-background-paused');
+
+            const stopPointerFollow = () => {
+                if (pointerFrame) {
+                    cancelAnimationFrame(pointerFrame);
+                    pointerFrame = 0;
+                }
+                clearTimeout(idleTimer);
+                idleTimer = 0;
+                if (spotlight) {
+                    spotlight.style.removeProperty('--x');
+                    spotlight.style.removeProperty('--y');
+                }
+                root.classList.remove('topo-pointer-active');
+            };
+
+            const updateVisibility = () => {
+                root.classList.toggle('tab-hidden', document.hidden);
+                if (document.hidden || !heroVisible) stopPointerFollow();
+            };
+
+            const supportsPointerLight = !reducedMotion && !lowEnd &&
+                window.matchMedia('(pointer: fine)').matches && spotlight && hero;
+
+            const easePointer = () => {
+                pointerFrame = 0;
+                if (document.hidden || !heroVisible || !supportsPointerLight) return;
+                currentX += (targetX - currentX) * 0.16;
+                currentY += (targetY - currentY) * 0.16;
+                spotlight.style.setProperty('--x', currentX + '%');
+                spotlight.style.setProperty('--y', currentY + '%');
+                if (Math.abs(targetX - currentX) > 0.03 || Math.abs(targetY - currentY) > 0.03) {
+                    pointerFrame = requestAnimationFrame(easePointer);
+                }
+            };
+
+            if (supportsPointerLight) {
+                hero.addEventListener('pointermove', event => {
+                    if (!heroVisible) return;
+                    const bounds = hero.getBoundingClientRect();
+                    targetX = Math.max(0, Math.min(100, (event.clientX - bounds.left) / bounds.width * 100));
+                    targetY = Math.max(0, Math.min(100, (event.clientY - bounds.top) / bounds.height * 100));
+                    root.classList.add('topo-pointer-active');
+                    if (!pointerFrame) pointerFrame = requestAnimationFrame(easePointer);
+                    clearTimeout(idleTimer);
+                    idleTimer = setTimeout(() => {
+                        stopPointerFollow();
+                    }, 3000);
+                }, { passive: true });
+                hero.addEventListener('pointerleave', stopPointerFollow, { passive: true });
+            }
+
+            if (hero) {
+                const heroObserver = new IntersectionObserver(([entry]) => {
+                    heroVisible = entry.isIntersecting;
+                    root.classList.toggle('hero-background-paused', !heroVisible);
+                    if (nav) nav.classList.toggle('scrolled', !heroVisible);
+                    if (!heroVisible) stopPointerFollow();
+                }, { threshold: 0.01 });
+                heroObserver.observe(hero);
+            }
+
+            document.addEventListener('visibilitychange', updateVisibility);
+            updateVisibility();
+        })();
+
+        (() => {
+            const root = document.documentElement;
+            const hero = document.querySelector('#home');
+            const cursor = document.querySelector('.topo-cursor:not(.topo-cursor--trail)');
+            const trail = document.querySelector('.topo-cursor--trail');
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const supportsCursor = window.matchMedia('(pointer: fine) and (hover: hover)').matches;
+            const lowEnd = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+                (navigator.deviceMemory && navigator.deviceMemory <= 4);
+            if (reducedMotion || !supportsCursor || !hero || !cursor) return;
+
+            const trailEnabled = !lowEnd &&
+                getComputedStyle(root).getPropertyValue('--cursor-trail-enabled').trim() === '1' &&
+                trail;
+            if (trailEnabled) trail.classList.add('is-enabled');
+
+            const lerpSpeed = parseFloat(getComputedStyle(root).getPropertyValue('--cursor-lerp-speed')) || 0.15;
+            const trailLerpSpeed = parseFloat(getComputedStyle(root).getPropertyValue('--cursor-trail-lerp-speed')) || 0.06;
+            let heroVisible = false;
+            let pointerActive = false;
+            let frame = 0;
+            let bounds = null;
+            let clientX = 0;
+            let clientY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            let currentX = 0;
+            let currentY = 0;
+            let trailX = 0;
+            let trailY = 0;
+            let positioned = false;
+
+            const setLayerPosition = (layer, x, y) => {
+                layer.style.setProperty('--mx', (x / bounds.width * 100) + '%');
+                layer.style.setProperty('--my', (y / bounds.height * 100) + '%');
+            };
+
+            const scheduleFrame = () => {
+                if (!frame && pointerActive && heroVisible && !document.hidden) {
+                    frame = requestAnimationFrame(animate);
+                }
+            };
+
+            const animate = () => {
+                frame = 0;
+                if (!pointerActive || !heroVisible || document.hidden || !bounds) return;
+
+                currentX += (targetX - currentX) * lerpSpeed;
+                currentY += (targetY - currentY) * lerpSpeed;
+                setLayerPosition(cursor, currentX, currentY);
+
+                let unsettled = Math.abs(targetX - currentX) > 0.5 ||
+                    Math.abs(targetY - currentY) > 0.5;
+                if (trailEnabled) {
+                    trailX += (targetX - trailX) * trailLerpSpeed;
+                    trailY += (targetY - trailY) * trailLerpSpeed;
+                    setLayerPosition(trail, trailX, trailY);
+                    unsettled = unsettled || Math.abs(targetX - trailX) > 0.5 ||
+                        Math.abs(targetY - trailY) > 0.5;
+                }
+                if (unsettled) scheduleFrame();
+            };
+
+            const updateTarget = () => {
+                if (!bounds) return;
+                targetX = Math.max(0, Math.min(bounds.width, clientX - bounds.left));
+                targetY = Math.max(0, Math.min(bounds.height, clientY - bounds.top));
+                if (!positioned) {
+                    currentX = trailX = targetX;
+                    currentY = trailY = targetY;
+                    setLayerPosition(cursor, currentX, currentY);
+                    if (trailEnabled) setLayerPosition(trail, trailX, trailY);
+                    positioned = true;
+                }
+                scheduleFrame();
+            };
+
+            const refreshBounds = () => {
+                if (!pointerActive) return;
+                bounds = hero.getBoundingClientRect();
+                updateTarget();
+            };
+
+            const deactivate = () => {
+                pointerActive = false;
+                cursor.classList.remove('is-visible');
+                if (trailEnabled) trail.classList.remove('is-visible');
+                if (frame) {
+                    cancelAnimationFrame(frame);
+                    frame = 0;
+                }
+                window.removeEventListener('resize', refreshBounds);
+                window.removeEventListener('scroll', refreshBounds);
+            };
+
+            hero.addEventListener('pointerenter', event => {
+                if (!heroVisible || document.hidden) return;
+                pointerActive = true;
+                bounds = hero.getBoundingClientRect();
+                clientX = event.clientX;
+                clientY = event.clientY;
+                cursor.classList.add('is-visible');
+                if (trailEnabled) trail.classList.add('is-visible');
+                window.addEventListener('resize', refreshBounds, { passive: true });
+                window.addEventListener('scroll', refreshBounds, { passive: true });
+                updateTarget();
+            }, { passive: true });
+
+            hero.addEventListener('pointermove', event => {
+                if (!pointerActive) return;
+                clientX = event.clientX;
+                clientY = event.clientY;
+                updateTarget();
+            }, { passive: true });
+            hero.addEventListener('pointerleave', deactivate, { passive: true });
+
+            const heroObserver = new IntersectionObserver(([entry]) => {
+                heroVisible = entry.isIntersecting;
+                if (!heroVisible) deactivate();
+            }, { threshold: 0.01 });
+            heroObserver.observe(hero);
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) deactivate();
+            });
+        })();
     </script>
 </body>
 </html>
