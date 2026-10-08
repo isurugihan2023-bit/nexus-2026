@@ -25,6 +25,12 @@ function normalizedStats(data, { fallback = false, observedAtMs = Date.now() } =
     if (Math.abs((serverTime - startedAt) - uptimeSeconds) > 5) return null;
 
     if (fallback) {
+        const online = Number(data.online_members ?? data.online_count ?? data.online);
+        const idle = Number(data.idle_members ?? data.idle_count ?? data.idle);
+        const dnd = Number(data.dnd_members ?? data.dnd_count ?? data.dnd);
+        const onlineMembers = [online, idle, dnd].every(
+            (value) => Number.isInteger(value) && value >= 0
+        ) ? online + idle + dnd : null;
         return {
             uptime: data.uptime ?? data.uptime_str ?? '',
             uptime_seconds: uptimeSeconds,
@@ -32,6 +38,7 @@ function normalizedStats(data, { fallback = false, observedAtMs = Date.now() } =
             server_time: serverTime,
             total_users: totalUsers,
             ninja_nexus_members: members,
+            online_members: onlineMembers,
             online_count: Number(data.online_count ?? data.online_members) || 0,
             total_servers: servers,
             ping,
@@ -45,6 +52,8 @@ function normalizedStats(data, { fallback = false, observedAtMs = Date.now() } =
         server_time: serverTime,
         total_users: totalUsers,
         ninja_nexus_members: members,
+        online_members: Number.isInteger(data.online_members) && data.online_members >= 0
+            ? data.online_members : null,
         total_servers: servers,
         ping,
         stale: false

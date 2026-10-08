@@ -46,6 +46,7 @@
             --p500:     #C6E32B;
             --p600:     #B2CE1F;
             --p700:     #A8C41A;
+            --status-dot: #D4EC5A;
             --muted:    #8A8A8A;
             --sub:      #B5B5B5;
             --text:     #FFFFFF;
@@ -266,6 +267,7 @@
             width: 12px; height: 12px; background-color: #34D399;
             border: 2px solid #0F0F0F; border-radius: 50%;
         }
+        #home .dp-status { background-color: var(--status-dot); }
         .dp-info { display: flex; flex-direction: column; justify-content: center; text-align: left; }
         .dp-name {
             font-size: 1.05rem; font-weight: 800; color: #fff;
@@ -299,6 +301,7 @@
         .chip i { color: var(--p400); font-size: 1rem; }
         .chip-val { font-size: 1.1rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
         .chip-label { color: var(--muted); font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        .chip i.hero-online-dot { color: var(--status-dot); font-size: 0.72rem; }
         .hero-chips.is-updating .chip-val { opacity: 0.62; }
         .hero-stats-status {
             min-height: 1.2em;
@@ -612,6 +615,7 @@
                 position: absolute; bottom: 0; right: 0; width: 10px; height: 10px;
                 background: #34D399; border: 2px solid var(--bg1); border-radius: 50%;
             }
+            #home .dp-status { background: var(--status-dot); }
             .dp-name { font-size: 0.85rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
             .dp-bot-badge {
                 background: #C6E32B; color: #0F0F0F; font-size: 0.6rem;
@@ -1983,7 +1987,7 @@
                         <div class="dp-name">
                             NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
                         </div>
-                        <div class="dp-activity dp-dynamic-text">1 SERVER</div>
+                        <div class="dp-activity dp-dynamic-text">ONLINE</div>
                     </div>
                 </div>
                 <div class="fade-up" style="animation-delay:0.1s">
@@ -2007,10 +2011,10 @@
                 <!-- Live stat chips -->
                 <div class="hero-chips fade-up" style="animation-delay:0.4s">
                     <div class="chip">
-                        <i class="fas fa-server"></i>
+                        <i class="fas fa-circle hero-online-dot"></i>
                         <div>
-                            <div class="chip-val" id="hero-servers">—</div>
-                            <div class="chip-label" id="hero-servers-label">Server</div>
+                            <div class="chip-val" id="hero-online">—</div>
+                            <div class="chip-label">Online</div>
                         </div>
                     </div>
                     <div class="chip">
@@ -2168,7 +2172,7 @@
                         <div class="dp-name">
                             NEXUS <span class="dp-bot-badge"><i class="fas fa-check"></i> BOT</span>
                         </div>
-                        <div class="dp-activity dp-dynamic-text">1 SERVER</div>
+                        <div class="dp-activity dp-dynamic-text">ONLINE</div>
                     </div>
                 </div>
             </div>
@@ -2797,8 +2801,6 @@
 
         /* ── Live stats from Discord & Bot API ── */
         let currentNinjaNexusMembers = null;
-        const activities = ["BOT STATUS", "COMMUNITY"];
-        let activityIdx = 0;
         const dpTexts = document.querySelectorAll('.dp-dynamic-text');
         const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
 
@@ -2811,38 +2813,19 @@
             if (hm) hm.textContent = fmt(count);
             if (am) am.textContent = fmt(count);
             if (uc) uc.textContent = fmt(count);
-            activities[1] = `${fmt(count)} MEMBERS`;
-            if (activityIdx === 1 && dpTexts.length > 0) {
-                dpTexts.forEach(el => el.textContent = activities[1]);
-            }
         }
 
-        function updateServerDisplays(count) {
+        function updateOnlineDisplays(count) {
+            if (!Number.isInteger(count) || count < 0) return;
+            const hero = document.getElementById('hero-online');
+            if (hero) hero.textContent = fmt(count);
+            dpTexts.forEach(el => { el.textContent = `${fmt(count)} ONLINE`; });
+        }
+
+        function updateServerStatStrip(count) {
             if (!Number.isFinite(count) || count <= 0) return;
-            const hero = document.getElementById('hero-servers');
-            const label = document.getElementById('hero-servers-label');
             const strip = document.getElementById('server-count-stat');
-            if (hero) hero.textContent = String(count);
-            if (label) label.textContent = count === 1 ? 'Server' : 'Servers';
             if (strip) strip.textContent = String(count);
-            activities[0] = `${count} ${count === 1 ? 'SERVER' : 'SERVERS'}`;
-            if (activityIdx === 0 && dpTexts.length > 0) {
-                dpTexts.forEach(el => el.textContent = activities[0]);
-            }
-        }
-
-        // ── Real-time Discord Presence Update ──
-        if (dpTexts.length > 0) {
-            setInterval(() => {
-                activityIdx = (activityIdx + 1) % activities.length;
-                dpTexts.forEach(el => el.style.opacity = '0');
-                setTimeout(() => {
-                    dpTexts.forEach(el => {
-                        el.textContent = activities[activityIdx];
-                        el.style.opacity = '1';
-                    });
-                }, 300);
-            }, 3500);
         }
 
         // ── LIVE GAMES LOUNGE ENGINE ─────────────────────────
@@ -4033,6 +4016,8 @@
                 uptime_seconds: uptimeSeconds,
                 online_count: Number.isFinite(Number(data.online_count))
                     ? Number(data.online_count) : null,
+                online_members: Number.isInteger(data.online_members) && data.online_members >= 0
+                    ? data.online_members : (heroStatsSnapshot?.online_members ?? null),
                 saved_at: savedAt
             };
         }
@@ -4087,7 +4072,8 @@
                 live: Date.now() - snapshot.saved_at <= HERO_STATS_MAX_AGE_MS
             };
             updateMemberDisplays(snapshot.ninja_nexus_members);
-            updateServerDisplays(snapshot.total_servers);
+            updateOnlineDisplays(snapshot.online_members);
+            updateServerStatStrip(snapshot.total_servers);
 
             const hp = document.getElementById('hero-ping');
             const ap = document.getElementById('about-ping');

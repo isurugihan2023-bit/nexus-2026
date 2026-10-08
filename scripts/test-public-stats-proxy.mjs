@@ -37,6 +37,7 @@ function stats(overrides = {}) {
         total_servers: 1,
         ping: 229,
         online_count: 12,
+        online_members: 9,
         top_played_games: [],
         playing_games: [],
         ...overrides
@@ -56,6 +57,7 @@ test('returns validated live bot stats without CDN caching', async () => {
     await handler({ method: 'GET' }, response);
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.ninja_nexus_members, 48);
+    assert.equal(response.body.online_members, 9);
     assert.ok(response.body.started_at > 0);
     assert.ok(response.body.server_time > 0);
     assert.equal(
@@ -64,6 +66,14 @@ test('returns validated live bot stats without CDN caching', async () => {
     );
     assert.equal(response.body.stale, false);
     assert.equal(response.headers['Cache-Control'], 'no-store');
+});
+
+test('does not turn a missing online member count into zero', async () => {
+    mockFetch(stats({ online_members: undefined }));
+    const response = responseRecorder();
+    await handler({ method: 'GET' }, response);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.online_members, null);
 });
 
 test('unreachable and legacy fabricated stats remain explicit errors, not fake values', async () => {
@@ -114,6 +124,9 @@ test('uses the bot guest-stats route as a sanitized fallback', async () => {
         return new Response(JSON.stringify({
             member_count: 49,
             total_members: 49,
+            online_members: 5,
+            idle_members: 3,
+            dnd_members: 1,
             server_count: 2,
             ping: 230,
             uptime_seconds: 200,
@@ -126,6 +139,7 @@ test('uses the bot guest-stats route as a sanitized fallback', async () => {
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.ninja_nexus_members, 49);
     assert.equal(response.body.total_servers, 2);
+    assert.equal(response.body.online_members, 9);
     assert.equal(response.body.ping, 230);
     assert.equal(response.body.uptime_seconds, 200);
     assert.equal('server_id' in response.body, false);
