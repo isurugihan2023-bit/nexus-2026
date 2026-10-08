@@ -171,7 +171,7 @@ class PublicApiRouter:
             from .game_tracker import load_tracker_config
             self._tracker_cfg = load_tracker_config()
         except Exception:
-            self._tracker_cfg = {"aliases": {}, "ignore_apps": []}
+            self._tracker_cfg = {"aliases": {}}
         self._guilds_provider = None
         # Member cache: user_id -> {"name","avatar","at","miss"}. fetch_member
         # runs at most once per member per TTL (misses cached briefly too).
@@ -235,6 +235,11 @@ class PublicApiRouter:
     async def _on_cleanup(self, app: web.Application) -> None:
         for t in self._bg_tasks:
             t.cancel()
+        try:
+            flushed = await asyncio.to_thread(self.db.flush_open_game_sessions)
+            logger.info("[GAMES] Shutdown flush: sessions=%d", flushed)
+        except Exception as e:
+            logger.warning("[GAMES] Shutdown flush failed: %s", e)
         self._bg_tasks = []
         self._bg_started = False
 
@@ -271,7 +276,6 @@ class PublicApiRouter:
                     pass
 
     async def _mp_loop(self) -> None:
-        interval = _mp_interval()
         while True:
             try:
                 await self._rebuild_most_played_all()
@@ -279,6 +283,15 @@ class PublicApiRouter:
                 raise
             except Exception as e:
                 logger.warning("[API] most-played rebuild failed (keeping previous): %s", e)
+            interval = _mp_interval()
+            snap = self._mp_snaps.get("7d") or {}
+            if snap.get("body"):
+                try:
+                    if not json.loads(snap["body"]).get("games"):
+                        interval = min(interval, 5.0)
+                except (TypeError, ValueError):
+                    logger.warning("[API] invalid 7d most-played snapshot; refreshing sooner")
+                    interval = min(interval, 5.0)
             try:
                 await asyncio.sleep(interval)
             except asyncio.CancelledError:
@@ -648,6 +661,26 @@ class PublicApiRouter:
         label = RANGE_LABELS.get(raw_range, raw_range)
         self._mp_requested.add(label)
         snap = self._mp_snaps.get(label)
+        if request.query.get("debug") == "1":
+            now_ms = int(time.time() * 1000)
+            window_start = now_ms - _parse_range(raw_range)
+            try:
+                counts = await asyncio.wait_for(
+                    asyncio.to_thread(self.db.get_game_session_debug_counts,
+                                      window_start, now_ms),
+                    timeout=DB_TIMEOUT_SECONDS)
+            except Exception as e:
+                logger.warning("[API] most-played debug query failed: %s", e)
+                return web.json_response({"error": "debug_unavailable"}, status=503,
+                                         headers={"Cache-Control": "no-store"})
+            cache_age = (max(0.0, time.monotonic() - float(snap["at"]))
+                         if snap and snap.get("at") else None)
+            return web.json_response({
+                **counts,
+                "window_start": window_start,
+                "window_end": now_ms,
+                "cache_age_seconds": round(cache_age, 3) if cache_age is not None else None,
+            }, headers={"Cache-Control": "no-store"})
         if not snap or not snap.get("body"):
             try:
                 payload = await asyncio.wait_for(
@@ -658,9 +691,19 @@ class PublicApiRouter:
                 self._store_snap(snap, payload)
             except Exception as e:
                 logger.warning("[API] cold most-played build failed: %s", e)
-                return web.json_response({"generated_at": int(time.time() * 1000),
-                                           "range": label, "games": []})
-        return self._serve_snap(request, snap, "public, max-age=60")
+                return web.json_response({"error": "most_played_unavailable"},
+                                         status=503,
+                                         headers={"Cache-Control": "no-store"})
+        try:
+            empty = not json.loads(snap["body"]).get("games")
+        except (TypeError, ValueError):
+            logger.warning("[API] invalid most-played snapshot; refusing to serve it")
+            return web.json_response({"error": "most_played_unavailable"},
+                                     status=503,
+                                     headers={"Cache-Control": "no-store"})
+        return self._serve_snap(
+            request, snap,
+            "public, max-age=3" if empty else "public, max-age=15")
 
     async def get_spotify(self, request: web.Request) -> web.Response:
         """GET /api/public/spotify - cached max 2s, no user IDs exposed."""

@@ -512,13 +512,18 @@ class GamingDatabase:
             conn.commit()
             return len(rows)
 
-    def close_orphaned_game_sessions(self, now_ms: Optional[int] = None) -> int:
-        """On bot startup: close every still-open row at its last_seen (honest)."""
+    def close_orphaned_game_sessions(self, now_ms: Optional[int] = None,
+                                     keep_session_ids: Optional[List[int]] = None) -> int:
+        """On startup: close open rows not recovered from current Discord presence."""
         now = now_ms if now_ms is not None else int(time.time() * 1000)
+        keep_ids = [int(session_id) for session_id in (keep_session_ids or [])]
         with self._get_conn() as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, last_seen, started_at FROM game_sessions WHERE ended_at IS NULL")
+            query = "SELECT id, last_seen, started_at FROM game_sessions WHERE ended_at IS NULL"
+            if keep_ids:
+                placeholders = ",".join("?" for _ in keep_ids)
+                query += f" AND id NOT IN ({placeholders})"
+            cursor.execute(query, keep_ids)
             rows = cursor.fetchall()
             for row in rows:
                 end = int(row["last_seen"] or row["started_at"])
@@ -528,38 +533,6 @@ class GamingDatabase:
                                (end, row["id"]))
             conn.commit()
             return len(rows)
-
-    def close_open_game_sessions_for_names(self, names, now_ms: Optional[int] = None) -> int:
-        """Close still-open rows for ignored apps (boot cleanup).
-
-        `names` are exact lowercase app names (ignore_apps entries); rows
-        match on LOWER(game_name) or the slug LOWER(game_key). Ends at
-        last_seen (honest), never the future. Returns rows closed.
-        """
-        import re as _re
-        now = now_ms if now_ms is not None else int(time.time() * 1000)
-        lowers = {str(n).lower().strip() for n in (names or []) if str(n).strip()}
-        if not lowers:
-            return 0
-        keys = {_re.sub(r"[^a-z0-9]+", "-", n).strip("-") for n in lowers}
-        with self._get_conn() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """SELECT id, game_key, game_name, last_seen, started_at
-                   FROM game_sessions WHERE ended_at IS NULL""")
-            rows = cursor.fetchall()
-            count = 0
-            for row in rows:
-                if str(row["game_name"] or "").lower().strip() in lowers or \
-                        str(row["game_key"] or "").lower().strip() in keys:
-                    end = int(row["last_seen"] or row["started_at"])
-                    if end > now:
-                        end = now
-                    cursor.execute("UPDATE game_sessions SET ended_at = ? WHERE id = ?",
-                                   (end, row["id"]))
-                    count += 1
-            conn.commit()
-            return count
 
     def prune_old_game_sessions(self, older_than_ms: Optional[int] = None,
                                 now_ms: Optional[int] = None) -> int:
@@ -583,6 +556,42 @@ class GamingDatabase:
                           game_name, details, state, started_at, last_seen, ended_at
                    FROM game_sessions WHERE ended_at IS NULL ORDER BY started_at ASC""")
             return [dict(r) for r in cursor.fetchall()]
+
+    def flush_open_game_sessions(self, now_ms: Optional[int] = None) -> int:
+        """Persist a final heartbeat for open sessions during graceful shutdown."""
+        now = now_ms if now_ms is not None else int(time.time() * 1000)
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """UPDATE game_sessions SET last_seen = ?
+                   WHERE ended_at IS NULL AND last_seen < ?""",
+                (int(now), int(now)),
+            )
+            conn.commit()
+            return cursor.rowcount
+
+    def get_game_session_debug_counts(self, window_start_ms: int,
+                                      window_end_ms: int) -> Dict[str, int]:
+        """Return aggregate-only diagnostics for the public most-played window."""
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """SELECT COUNT(*) FROM game_sessions
+                   WHERE started_at < ? AND COALESCE(ended_at, ?) > ?""",
+                (int(window_end_ms), int(window_end_ms), int(window_start_ms)),
+            )
+            rows_in_window = int(cursor.fetchone()[0])
+            cursor.execute(
+                """SELECT COUNT(*), MIN(started_at), MAX(started_at)
+                   FROM game_sessions""")
+            total_row = cursor.fetchone()
+            cursor.execute("SELECT COUNT(*) FROM game_sessions WHERE ended_at IS NULL")
+            open_sessions = int(cursor.fetchone()[0])
+            return {"rows_in_window": rows_in_window,
+                    "rows_total": int(total_row[0]),
+                    "oldest_started_at": total_row[1],
+                    "newest_started_at": total_row[2],
+                    "open_sessions": open_sessions}
 
     # ── Privacy opt-outs ────────────────────────────────────────────
     def set_privacy_optout(self, user_id: str, opted_out: bool = True) -> None:

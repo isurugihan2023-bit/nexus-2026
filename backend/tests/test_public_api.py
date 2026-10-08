@@ -4,6 +4,7 @@ Stubs aiohttp (not installed in CI) so the router's pure payload builders
 can be verified: shape, grouping, privacy, no Discord IDs, avatar size=64.
 """
 import asyncio
+import json
 import os
 import sys
 import tempfile
@@ -20,7 +21,7 @@ _web = types.ModuleType("aiohttp.web")
 class _Resp:
     def __init__(self, *a, **k):
         self.status = k.get("status", 200)
-        self.headers = {}
+        self.headers = k.get("headers", {})
         self.body = k.get("body", b"")
 
 
@@ -45,7 +46,10 @@ _web.Response = _Resp
 _web.StreamResponse = _Stream
 _web.Application = _App
 _web.Request = object
-_web.json_response = lambda *a, **k: _Resp(status=k.get("status", 200))
+_web.json_response = lambda data, *a, **k: _Resp(
+    status=k.get("status", 200),
+    body=json.dumps(data).encode("utf-8"),
+    headers=k.get("headers", {}))
 
 
 class _Timeout(Exception):
@@ -114,6 +118,43 @@ def run_tests():
         for g in mp["games"]:
             assert set(g) >= {"rank", "game_key", "name", "category", "image",
                               "unique_players", "total_hours"}, g.keys()
+        debug_counts = db.get_game_session_debug_counts(NOW - 7 * 24 * H, NOW)
+        assert debug_counts == {
+            "rows_in_window": 3,
+            "rows_total": 3,
+            "oldest_started_at": NOW - 2 * H,
+            "newest_started_at": NOW - 30 * 60 * 1000,
+            "open_sessions": 2
+        }, debug_counts
+        debug_request = types.SimpleNamespace(
+            method="GET",
+            headers={},
+            remote="debug-test",
+            query={"range": "7d", "debug": "1"})
+        debug_response = asyncio.run(router.get_most_played(debug_request))
+        debug_body = json.loads(debug_response.body)
+        assert set(debug_body) == {
+            "rows_in_window", "rows_total", "oldest_started_at",
+            "newest_started_at", "open_sessions", "window_start",
+            "window_end", "cache_age_seconds"
+        }, debug_body
+        assert debug_body["rows_in_window"] == 3
+        assert debug_body["open_sessions"] == 2
+        assert debug_response.headers["Cache-Control"] == "no-store"
+
+        print("[TEST] empty database remains a valid empty result...")
+        empty_db = GamingDatabase(os.path.join(tmp, "empty.db"))
+        empty_router = PublicApiRouter(empty_db)
+        empty_mp = asyncio.run(empty_router._build_most_played(7 * 24 * H, "7d"))
+        assert empty_mp["games"] == [], empty_mp
+        assert empty_db.get_game_session_debug_counts(
+            NOW - 7 * 24 * H, NOW) == {
+                "rows_in_window": 0,
+                "rows_total": 0,
+                "oldest_started_at": None,
+                "newest_started_at": None,
+                "open_sessions": 0
+            }
 
         print("[TEST] range parsing + avatar helper...")
         assert _parse_range("7d") == 7 * 24 * H

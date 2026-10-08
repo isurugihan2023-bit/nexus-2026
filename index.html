@@ -4126,42 +4126,7 @@
             bindMostPlayedCards(container, games);
         }
 
-        let mostPlayedGen = 0;
-        async function fetchMostPlayedStats() {
-            const container = document.getElementById('lounge-most-played-container');
-            if (!container) return;
-            const gen = ++mostPlayedGen;
-
-            // Skeleton while loading (same card grid, no layout shift).
-            container.innerHTML = '<div class="live-games-grid" aria-busy="true">'
-                + '<div class="skeleton-card" aria-hidden="true"></div>'
-                + '<div class="skeleton-card" aria-hidden="true"></div>'
-                + '<div class="skeleton-card" aria-hidden="true"></div>'
-                + '</div>';
-
-            // Same-origin only (no mixed content). Per-GAME endpoints only —
-            // voice_stats is intentionally NOT consulted (member shape).
-            const endpoints = [
-                API_BASE + '/api/public/most-played?range=7d',
-                API_BASE + '/api/stats/most-played?range=7d'
-            ];
-
-            for (const url of endpoints) {
-                try {
-                    const resp = await fetchJson(url, 5000);
-                    if (gen !== mostPlayedGen) return; // superseded
-                    const games = normalizeMostPlayed(resp);
-                    if (games.length > 0) {
-                        renderMostPlayedGames(container, games);
-                        return;
-                    }
-                    // Valid empty (nobody tracked yet) or wrong shape: try next.
-                } catch (err) {}
-            }
-
-            if (gen !== mostPlayedGen) return;
-            // Error/empty state: friendly empty cards + automatic retry in 30s.
-            // Never an endless spinner, never mock games.
+        function renderMostPlayedEmpty(container) {
             container.innerHTML = '<div class="live-games-grid"><div class="empty-lounge-state">'
                 + '<div class="empty-lounge-box">'
                 + '<h3 class="empty-lounge-title">No playtime logged this week yet.</h3>'
@@ -4169,12 +4134,110 @@
                 + '<div class="empty-lounge-actions">'
                 + '<a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">'
                 + '<i class="fab fa-discord"></i></a></div></div></div>';
-            setTimeout(() => {
-                const mostPlayed = document.getElementById('lounge-most-played-container');
-                if (gen === mostPlayedGen && mostPlayed && mostPlayed.style.display !== 'none' && !document.hidden) {
+        }
+
+        function renderMostPlayedError(container, hasStaleGames) {
+            const message = "Couldn't load data, retrying...";
+            if (hasStaleGames) {
+                let banner = container.querySelector('.most-played-error-banner');
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.className = 'empty-lounge-state most-played-error-banner';
+                    container.insertBefore(banner, container.firstChild);
+                }
+                banner.innerHTML = `<div class="empty-lounge-box" role="status"><h3 class="empty-lounge-title">${message}</h3>`
+                    + '<button type="button" class="btn btn-primary most-played-retry">Retry</button></div>';
+            } else {
+                container.innerHTML = '<div class="empty-lounge-state"><div class="empty-lounge-box" role="status">'
+                    + `<h3 class="empty-lounge-title">${message}</h3>`
+                    + '<button type="button" class="btn btn-primary most-played-retry">Retry</button>'
+                    + '</div></div>';
+            }
+            const retry = container.querySelector('.most-played-retry');
+            if (retry) retry.addEventListener('click', () => fetchMostPlayedStats(true));
+        }
+
+        function scheduleMostPlayedRetry(container, gen) {
+            const retryDelay = mostPlayedRetryDelay;
+            mostPlayedRetryDelay = Math.min(mostPlayedRetryDelay * 2, 60000);
+            mostPlayedRetryTimer = setTimeout(() => {
+                const lounge = document.getElementById('lounge');
+                if (gen === mostPlayedGen && container.style.display !== 'none'
+                        && lounge && lounge.classList.contains('active') && !document.hidden) {
                     fetchMostPlayedStats();
                 }
-            }, 30000);
+            }, retryDelay);
+        }
+
+        let mostPlayedGen = 0;
+        let mostPlayedLastGood = null;
+        let mostPlayedController = null;
+        let mostPlayedRetryTimer = null;
+        let mostPlayedRetryDelay = 2000;
+        async function fetchMostPlayedStats(manualRetry = false) {
+            const container = document.getElementById('lounge-most-played-container');
+            if (!container) return;
+            const gen = ++mostPlayedGen;
+            if (mostPlayedRetryTimer) {
+                clearTimeout(mostPlayedRetryTimer);
+                mostPlayedRetryTimer = null;
+            }
+            if (mostPlayedController) mostPlayedController.abort();
+
+            if (manualRetry) mostPlayedRetryDelay = 2000;
+            if (mostPlayedLastGood && mostPlayedLastGood.games.length > 0) {
+                renderMostPlayedGames(container, mostPlayedLastGood.games);
+            } else if (!mostPlayedLastGood) {
+                container.innerHTML = '<div class="live-games-grid" aria-busy="true">'
+                    + '<div class="skeleton-card" aria-hidden="true"></div>'
+                    + '<div class="skeleton-card" aria-hidden="true"></div>'
+                    + '<div class="skeleton-card" aria-hidden="true"></div>'
+                    + '</div>';
+            } else {
+                renderMostPlayedEmpty(container);
+            }
+
+            // Same-origin only (no mixed content). Per-GAME endpoints only —
+            // voice_stats is intentionally NOT consulted (member shape).
+            const controller = new AbortController();
+            mostPlayedController = controller;
+            const timeout = setTimeout(() => controller.abort(), 8000);
+            try {
+                const response = await fetch(API_BASE + '/api/public/most-played?range=7d', {
+                    signal: controller.signal,
+                    headers: { Accept: 'application/json' }
+                });
+                if (!response.ok) throw new Error(`Most-played request failed (${response.status})`);
+                const payload = await response.json();
+                if (!payload || !Array.isArray(payload.games)) {
+                    throw new Error('Invalid most-played response');
+                }
+                if (payload.stale === true && payload.games.length === 0) {
+                    throw new Error('Most-played upstream is stale and empty');
+                }
+                const games = normalizeMostPlayed(payload);
+                if (payload.games.length > 0 && games.length === 0) {
+                    throw new Error('Invalid most-played game data');
+                }
+                if (gen !== mostPlayedGen) return;
+                mostPlayedLastGood = { games, at: Date.now() };
+                if (games.length > 0) renderMostPlayedGames(container, games);
+                else renderMostPlayedEmpty(container);
+                if (payload.stale === true) {
+                    renderMostPlayedError(container, games.length > 0);
+                    scheduleMostPlayedRetry(container, gen);
+                    return;
+                }
+                mostPlayedRetryDelay = 2000;
+            } catch (err) {
+                if (gen !== mostPlayedGen) return;
+                const hasStaleGames = !!(mostPlayedLastGood && mostPlayedLastGood.games.length > 0);
+                renderMostPlayedError(container, hasStaleGames);
+                scheduleMostPlayedRetry(container, gen);
+            } finally {
+                clearTimeout(timeout);
+                if (gen === mostPlayedGen) mostPlayedController = null;
+            }
         }
 
         // ── Spotify "Now Listening" (same-origin /api/spotify, 4s poll) ──

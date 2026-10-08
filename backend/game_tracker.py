@@ -3,10 +3,9 @@ backend/game_tracker.py - Authoritative Discord presence -> game session trackin
 
 Duck-typed (no discord.py import) so unit tests can use plain stubs.
 Only activities of type Playing (and optionally Competing) become sessions.
-Bots, Spotify/Listening, Custom Status, Watching, and the configurable
-ignore list never create sessions.
+Bots and non-Playing activity types such as Listening never create sessions.
 
-Config: backend/config/games.json (alias map + ignore list).
+Config: backend/config/games.json (alias map).
 DB: GamingDatabase.game_sessions additive table (see db.py).
 All timestamps are UTC epoch MILLISECONDS.
 """
@@ -22,10 +21,6 @@ logger = logging.getLogger("nexus.games")
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config", "games.json")
 
-_DEFAULT_ALIASES: Dict[str, str] = {}
-_DEFAULT_IGNORE: List[str] = []
-
-
 def _slug(name: str) -> str:
     s = (name or "").strip().lower()
     s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
@@ -38,7 +33,7 @@ def load_tracker_config(path: Optional[str] = None) -> Dict[str, Any]:
         with open(cfg_path, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception:
-        return {"aliases": {}, "ignore_apps": []}
+        return {"aliases": {}}
 
 
 def _config_aliases(cfg: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
@@ -46,12 +41,6 @@ def _config_aliases(cfg: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
         cfg = load_tracker_config()
     raw = (cfg.get("aliases") or {})
     return {str(k).lower().strip(): str(v).strip() for k, v in raw.items()}
-
-
-def _config_ignore(cfg: Optional[Dict[str, Any]] = None) -> List[str]:
-    if cfg is None:
-        cfg = load_tracker_config()
-    return [str(x).lower().strip() for x in (cfg.get("ignore_apps") or []) if str(x).strip()]
 
 
 def _frag_match(lname: str, frag: str) -> bool:
@@ -113,22 +102,6 @@ def _activity_type_name(act: Any) -> str:
     if "playing" in name:
         return "playing"
     return name
-
-
-def should_ignore(name: str, cfg: Optional[Dict[str, Any]] = None) -> bool:
-    """Exact (case-insensitive) ignore match - never a substring.
-
-    Substring matching would wrongly swallow real games: ignoring "code"
-    (VS Code) must NOT ignore "Code Vein". Exact equality keeps each entry
-    scoped to precisely the app named.
-    """
-    lname = (name or "").lower().strip()
-    if not lname or lname in ("custom status", "customstatus", "spotify"):
-        return True
-    for entry in _config_ignore(cfg):
-        if entry and lname == entry:
-            return True
-    return False
 
 
 # Discord CDN / media proxy hosts ONLY. Anything else is ignored, so a
@@ -207,7 +180,7 @@ def extract_playing_activity(member: Any, cfg: Optional[Dict[str, Any]] = None) 
         if tname not in ("playing", "competing"):
             continue
         name = (getattr(act, "name", None) or "").strip()
-        if not name or should_ignore(name, cfg):
+        if not name:
             continue
         details = (getattr(act, "details", None) or "") or ""
         state = (getattr(act, "state", None) or "") or ""

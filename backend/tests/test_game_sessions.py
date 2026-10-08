@@ -43,34 +43,28 @@ def fresh_db(tmp):
 
 def run_tests():
     with tempfile.TemporaryDirectory() as tmp:
-        cfg = {"aliases": {"valorant": "VALORANT", "grand theft auto v": "GTA V"},
-               "ignore_apps": ["visual studio code", "spotify", "custom status"]}
+        cfg = {"aliases": {"valorant": "VALORANT", "grand theft auto v": "GTA V"}}
 
-        print("[TEST] alias merge + ignore list...")
+        print("[TEST] alias merge + all Playing apps are tracked...")
         assert gt.normalize_game("VALORANT", cfg=cfg) == ("valorant", "VALORANT")
         assert gt.normalize_game("Valorant", cfg=cfg) == ("valorant", "VALORANT")
         assert gt.normalize_game("Grand Theft Auto V", cfg=cfg)[1] == "GTA V"
-        assert gt.should_ignore("Visual Studio Code", cfg) is True
-        assert gt.should_ignore("Spotify", cfg) is True
-        assert gt.should_ignore("VALORANT", cfg) is False
         k, n = gt.normalize_game("FiveM", "Players 50/100 Ceylon RP", "", cfg)
         assert (k, n) == ("ceylon-roleplay", "Ceylon Roleplay"), (k, n)
 
         print("[TEST] short-alias word boundary: Code stays Code, Vein safe...")
         cfg2 = {"aliases": {"cod": "Call of Duty", "call of duty": "Call of Duty",
-                            "valorant": "VALORANT"},
-                "ignore_apps": ["code"]}
+                            "valorant": "VALORANT"}}
         assert gt.normalize_game("Code", "Not in a file!", "", cfg2) == ("code", "Code")
         assert gt.normalize_game("Code Vein", "", "", cfg2) == ("code-vein", "Code Vein")
         assert gt.normalize_game("CoD", "", "", cfg2) == ("call-of-duty", "Call of Duty")
         assert gt.normalize_game("Call of Duty: Modern Warfare", "", "", cfg2)[1] == "Call of Duty"
-        assert gt.should_ignore("Code", cfg2) is True
-        assert gt.should_ignore("code", cfg2) is True
-        assert gt.should_ignore("Code Vein", cfg2) is False
-        assert gt.should_ignore("Visual Studio Code", cfg) is True  # exact entry
-        assert gt.should_ignore("Code Vein", cfg) is False  # not swallowed
 
-        print("[TEST] only Playing/Competing counted...")
+        print("[TEST] all named Playing activities count; Listening stays separate...")
+        m = FakeMember("u1", "A", [FakeAct("Code", atype=0)])
+        assert gt.extract_playing_activity(m, cfg)["game_key"] == "code"
+        m = FakeMember("u1", "A", [FakeAct("Spotify", atype=0)])
+        assert gt.extract_playing_activity(m, cfg)["game_key"] == "spotify"
         m = FakeMember("u1", "A", [FakeAct("Spotify", atype=2)])
         assert gt.extract_playing_activity(m, cfg) is None
         m = FakeMember("u1", "A", [FakeAct("VALORANT", atype=0)])
@@ -119,6 +113,28 @@ def run_tests():
         res3 = db2.get_game_most_played(range_ms=7 * 24 * H, limit=9, now_ms=NOW)
         assert abs(res3[0]["total_hours"] - 1.0) < 0.2, res3
 
+        print("[TEST] restart recovers a still-running session without losing time...")
+        from backend.dashboard_wiring import rebuild_game_sessions
+        db_recover = GamingDatabase(os.path.join(tmp, "recover.db"))
+        db_recover.open_game_session("g", "u10", "Player", "av", "valorant", "VALORANT",
+                                     started_at=NOW - 2 * H, now_ms=NOW - 2 * H)
+        db_recover.heartbeat_game_session("u10", "valorant", now_ms=NOW - H)
+        member = FakeMember("u10", "Player", [FakeAct("VALORANT", start=NOW - 2 * H)])
+
+        class _LiveGuild:
+            id = "g"
+            members = [member]
+
+        recovered_report = rebuild_game_sessions([_LiveGuild()], db_recover, cfg, now_ms=NOW)
+        recovered_rows = db_recover.get_open_game_sessions()
+        assert recovered_report["recovered"] == 1, recovered_report
+        assert len(recovered_rows) == 1 and recovered_rows[0]["started_at"] == NOW - 2 * H
+        recovered_totals = db_recover.get_game_most_played(
+            range_ms=7 * 24 * H, limit=9, now_ms=NOW)
+        assert abs(recovered_totals[0]["total_hours"] - 2.0) < 0.2, recovered_totals
+        assert db_recover.flush_open_game_sessions(now_ms=NOW + 1000) == 1
+        assert db_recover.get_open_game_sessions()[0]["last_seen"] == NOW + 1000
+
         print("[TEST] presence handler switch/offline...")
         db3 = GamingDatabase(os.path.join(tmp, "presence.db"))
         before = FakeMember("u5", "P", [])
@@ -139,34 +155,23 @@ def run_tests():
         db4.close_user_game_sessions("old", ended_at=NOW - 39 * 24 * H)
         assert db4.prune_old_game_sessions(now_ms=NOW) == 1
 
-        print("[TEST] boot closes stranded ignored-app sessions...")
-        from backend.dashboard_wiring import rebuild_game_sessions
-        db5 = GamingDatabase(os.path.join(tmp, "bootclose.db"))
+        print("[TEST] boot recovers any still-playing app and closes other orphans...")
+        db5 = GamingDatabase(os.path.join(tmp, "bootrecover.db"))
         db5.open_game_session("g", "u7", "Coder", "av", "code", "Code",
                               "Not in a file!", "", NOW - H, NOW - H)
         db5.open_game_session("g", "u8", "Gamer", "av", "valorant", "VALORANT",
                               "", "", NOW - H, NOW - H)
         assert len(db5.get_open_game_sessions()) == 2
-        boot_cfg = {"aliases": dict(cfg2["aliases"]), "ignore_apps": ["code", "visual studio code"]}
+        coder = FakeMember("u7", "Coder", [FakeAct("Code", start=NOW - H)])
 
-        class _EmptyGuild:
+        class _SomePlayingGuild:
             id = "g"
-            members = []
+            members = [coder]
 
-        report = rebuild_game_sessions([_EmptyGuild()], db5, boot_cfg, now_ms=NOW)
-        assert db5.get_open_game_sessions() == [], db5.get_open_game_sessions()
-        assert report.get("ignored_closed", 0) >= 0, report
-
-        print("[TEST] targeted close hits Code rows only, spares games...")
-        db6 = GamingDatabase(os.path.join(tmp, "targeted.db"))
-        db6.open_game_session("g", "u7", "Coder", "av", "code", "Code",
-                              "Not in a file!", "", NOW - H, NOW - H)
-        db6.open_game_session("g", "u9", "Vein", "av", "code-vein", "Code Vein",
-                              "", "", NOW - H, NOW - H)
-        n = db6.close_open_game_sessions_for_names(["code", "visual studio code"], now_ms=NOW)
-        assert n == 1, n
-        remaining = db6.get_open_game_sessions()
-        assert len(remaining) == 1 and remaining[0]["game_key"] == "code-vein", remaining
+        report = rebuild_game_sessions([_SomePlayingGuild()], db5, cfg, now_ms=NOW)
+        remaining = db5.get_open_game_sessions()
+        assert report["recovered"] == 1 and report["orphaned"] == 1, report
+        assert len(remaining) == 1 and remaining[0]["game_key"] == "code", remaining
 
         print("[TEST] ALL GAME SESSION TESTS PASSED [OK]")
 

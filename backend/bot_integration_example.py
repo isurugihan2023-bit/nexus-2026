@@ -18,6 +18,7 @@ from .rawg import GameMetadataResolver
 from .logger import setup_nexus_logger
 from . import game_tracker
 from .public_api import PublicApiRouter
+from .dashboard_wiring import rebuild_game_sessions
 from .voice_tracker import (
     reconcile_voice_sessions,
     handle_voice_state_update,
@@ -132,22 +133,11 @@ async def on_ready():
         "[VOICE] Reconcile on ready: closed=%d restarted=%d opened=%d",
         len(report["closed_stale"]), len(report["restarted"]), len(report["opened_fresh"])
     )
-    # Game sessions: close orphans at last_seen, rebuild live set from members,
-    # prune >30d history, then start the 60s heartbeat + daily prune loops.
+    # Recover matching open sessions without duplicating their tracked time;
+    # close other orphans, prune history, and start periodic DB heartbeats.
     try:
-        import time as _t
-        now_ms = int(_t.time() * 1000)
-        orphaned = db.close_orphaned_game_sessions(now_ms=now_ms)
-        live = game_tracker.scan_live_members(list(bot.guilds), _tracker_cfg)
-        for uid, act in live.items():
-            db.open_game_session(guild_id=act.get("guild_id", ""), user_id=uid,
-                                 username=act["username"], avatar_url=act["avatar"],
-                                 game_key=act["game_key"], game_name=act["game_name"],
-                                 details=act.get("details", ""), state=act.get("state", ""),
-                                 started_at=act.get("start_timestamp") or now_ms, now_ms=now_ms)
-        pruned = db.prune_old_game_sessions(now_ms=now_ms)
-        logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d",
-                    orphaned, len(live), pruned)
+        report = rebuild_game_sessions(list(bot.guilds), db, _tracker_cfg)
+        logger.info("[GAMES] Boot rebuild: %s", report)
     except Exception as e:
         logger.warning("[GAMES] Boot rebuild failed: %s", e)
     bot.loop.create_task(_game_heartbeat_loop())

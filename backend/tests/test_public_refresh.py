@@ -5,8 +5,9 @@ Simulates Discord presence (fake members/guilds, no network): presence
 updates -> game_sessions -> public payloads, verifying that EVERY Playing /
 Competing activity shows (games AND non-game apps like Freebuff/BlueStacks),
 every live player keeps a display name + size=64 avatar, fetch_member runs at
-most once per member, and no absolute artwork URL is ever emitted. Only bots,
-Spotify/Listening, Watching, Custom Status and opted-out members are out.
+most once per member, and no absolute artwork URL is ever emitted. Every
+Playing activity is included; bots, non-Playing activities and opted-out
+members remain excluded.
 """
 import asyncio
 import os
@@ -126,24 +127,17 @@ def run_tests():
         botty = _Member(105, "Botty", [_Activity("VALORANT")], "", guild, bot=True)
         spoty = _Member(106, "Spoty", [_Activity("Spotify", "", "", type_="listening")],
                         "", guild)
-        guild.members = [alice, bob, cara, dan, botty, spoty]
+        editor = _Member(107, "Editor", [_Activity("Code")], "", guild)
+        guild.members = [alice, bob, cara, dan, botty, spoty, editor]
 
         print("[TEST] simulated presence: games AND non-game apps tracked...")
         assert _presence(db, cfg, guild, alice, NOW_MS) == "START"
         assert _presence(db, cfg, guild, bob, NOW_MS) == "START"    # Freebuff shows
         assert _presence(db, cfg, guild, cara, NOW_MS) == "START"  # BlueStacks shows
         assert _presence(db, cfg, guild, dan, NOW_MS) == "START"
+        assert _presence(db, cfg, guild, editor, NOW_MS) == "START"
         assert _presence(db, cfg, guild, botty, NOW_MS) == "IGNORED"
         assert _presence(db, cfg, guild, spoty, NOW_MS) == "IGNORED"
-
-        print("[TEST] shipped config ignores editors (exact), games untouched...")
-        assert game_tracker.should_ignore("Freebuff", cfg) is False
-        assert game_tracker.should_ignore("BlueStacks 5", cfg) is False
-        assert game_tracker.should_ignore("Code", cfg) is True
-        assert game_tracker.should_ignore("Visual Studio Code", cfg) is True
-        assert game_tracker.should_ignore("Code Vein", cfg) is False
-        assert game_tracker.should_ignore("Spotify", cfg) is True
-        assert game_tracker.should_ignore("Custom Status", cfg) is True
 
         print("[TEST] 'Code' never aliases to a real game...")
         assert game_tracker.normalize_game("Code", "Not in a file!", "", cfg) == ("code", "Code")
@@ -156,8 +150,8 @@ def run_tests():
         print("[TEST] live payload: every activity present, players complete...")
         live = asyncio.run(router._build_live())
         keys = {g["game_key"] for g in live["games"]}
-        assert keys == {"valorant", "freebuff", "bluestacks-5", "dota-2"}, keys
-        assert live["total_playing"] == 4, live
+        assert keys == {"valorant", "freebuff", "bluestacks-5", "dota-2", "code"}, keys
+        assert live["total_playing"] == 5, live
         for g in live["games"]:
             assert g["game_key"] and g["category"], g
             assert g["image"].startswith("images/") and not g["image"].startswith("http"), g
@@ -202,7 +196,7 @@ def run_tests():
                              "", "", NOW_MS, NOW_MS)
         asyncio.run(router2._build_live())
         asyncio.run(router2._build_live())
-        assert ghost_guild.fetch_calls == [301], ghost_guild.fetch_calls
+        assert ghost_guild.fetch_calls == [107, 301], ghost_guild.fetch_calls
         db.close_user_game_sessions("301", ended_at=NOW_MS + 1000)
 
         print("[TEST] snapshot serving: requests serve bytes, no recompute...")

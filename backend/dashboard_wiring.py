@@ -174,28 +174,42 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
                           now_ms: int = None) -> Dict[str, int]:
     """Boot-time rebuild (call from on_ready). Shared by bot and test harness.
 
-    Closes orphaned rows at last_seen, rebuilds the live set from
-    guild.members, closes any still-open rows for ignored apps (e.g. VS Code
-    "Code" sessions stranded by older builds), prunes history older than
-    30 days. Returns counts.
+    Recovers still-open rows that match current presence, closes other
+    orphans at last_seen, rebuilds the live set, and prunes history older
+    than 30 days. Returns counts.
     """
     from . import game_tracker
 
     now = now_ms if now_ms is not None else int(time.time() * 1000)
-    orphaned = db.close_orphaned_game_sessions(now_ms=now)
     live = game_tracker.scan_live_members(guilds, cfg)
+    open_rows = db.get_open_game_sessions()
+    active_by_user = {uid: act for uid, act in live.items()}
+    recovered = {}
+    for row in open_rows:
+        uid = str(row.get("user_id") or "")
+        act = active_by_user.get(uid)
+        if (act and act.get("game_key") == row.get("game_key")
+                and uid not in recovered):
+            recovered[uid] = (row, act)
+    orphaned = db.close_orphaned_game_sessions(
+        now_ms=now, keep_session_ids=[row["id"] for row, _act in recovered.values()])
+    for uid, (row, act) in recovered.items():
+        db.heartbeat_game_session(
+            uid, act["game_key"], now_ms=now,
+            details=act.get("details", ""), state=act.get("state", ""))
     try:
         optouts = set(db.get_privacy_optouts())
     except Exception:
         optouts = set()
     captured = 0
     for uid, act in live.items():
-        db.open_game_session(
-            guild_id=act.get("guild_id", ""), user_id=uid,
-            username=act["username"], avatar_url=act["avatar"],
-            game_key=act["game_key"], game_name=act["game_name"],
-            details=act.get("details", ""), state=act.get("state", ""),
-            started_at=act.get("start_timestamp") or now, now_ms=now)
+        if uid not in recovered:
+            db.open_game_session(
+                guild_id=act.get("guild_id", ""), user_id=uid,
+                username=act["username"], avatar_url=act["avatar"],
+                game_key=act["game_key"], game_name=act["game_name"],
+                details=act.get("details", ""), state=act.get("state", ""),
+                started_at=act.get("start_timestamp") or now, now_ms=now)
         # Remember captured artwork URLs (no download here: this is sync;
         # the heartbeat loop / on_presence downloads). Opted-out members
         # never create or update assets.
@@ -208,21 +222,10 @@ def rebuild_game_sessions(guilds: List[Any], db: Any, cfg: Any,
         except Exception:
             pass
     pruned = db.prune_old_game_sessions(now_ms=now)
-    # Stranded ignored-app rows (e.g. "Code" opened by a build before the
-    # ignore entry): the orphan close above already ended them, but close by
-    # name/key explicitly so no path can leave one open across a restart.
-    ignored_closed = 0
-    try:
-        ignore_names = [str(x).lower().strip()
-                        for x in ((cfg or {}).get("ignore_apps") or []) if str(x).strip()]
-        if ignore_names and hasattr(db, "close_open_game_sessions_for_names"):
-            ignored_closed = db.close_open_game_sessions_for_names(ignore_names, now_ms=now)
-    except Exception:
-        pass
-    logger.info("[GAMES] Boot rebuild: orphans=%d live=%d pruned=%d assets=%d ignored_closed=%d",
-                orphaned, len(live), pruned, captured, ignored_closed)
-    return {"orphaned": orphaned, "live": len(live), "pruned": pruned,
-            "ignored_closed": ignored_closed}
+    logger.info("[GAMES] Boot rebuild: orphans=%d recovered=%d live=%d pruned=%d assets=%d",
+                orphaned, len(recovered), len(live), pruned, captured)
+    return {"orphaned": orphaned, "recovered": len(recovered), "live": len(live),
+            "pruned": pruned}
 
 
 async def game_heartbeat_loop(bot: Any, db: Any, cfg: Any,
