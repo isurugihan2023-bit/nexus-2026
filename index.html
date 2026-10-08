@@ -1108,13 +1108,13 @@
             margin: 0;
             border-radius: 50%;
         }
-        /* Freshness indicator under the lounge tabs: visually hidden but
-           kept in the DOM with role="status" so screen readers still get
-           the live updates. Absolutely positioned so it takes no space. */
+        /* Keep the routine freshness status available to re-enable without
+           reserving space or announcing it in the normal hidden state. */
         .lounge-updated {
             position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
             overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
         }
+        .lounge-updated[hidden] { display: none !important; }
         .live-load-error {
             display: flex;
             align-items: center;
@@ -2061,7 +2061,7 @@
                     <button class="lounge-tab-btn" data-lounge-tab="most-played"><i class="fas fa-fire"></i> Most Played<span class="tab-extra"> This Week</span></button>
                     <button class="lounge-tab-btn" data-lounge-tab="listening"><i class="fab fa-spotify"></i> Listening</button>
                 </div>
-                <div class="lounge-updated" id="lounge-updated" role="status"></div>
+                <div class="lounge-updated" id="lounge-updated" role="status" aria-hidden="true" hidden></div>
             </div>
             
             <div id="live-games-grid" class="live-games-grid reveal">
@@ -3778,9 +3778,13 @@
             if (m < 60) return `${m}m ago`;
             return `${Math.floor(m / 60)}h ago`;
         }
+        const SHOW_LOUNGE_UPDATED = false;
         function paintUpdated() {
             const el = document.getElementById('lounge-updated');
             if (!el) return;
+            el.hidden = !SHOW_LOUNGE_UPDATED;
+            el.setAttribute('aria-hidden', String(!SHOW_LOUNGE_UPDATED));
+            if (!SHOW_LOUNGE_UPDATED) return;
             if (!liveLastUpdatedAt) {
                 el.textContent = liveUpdating ? 'Updating…' : '';
                 return;
