@@ -149,19 +149,34 @@ export function categoryArt(category, name) {
     return ROBOT_FALLBACK;
 }
 
+// Shipped manual covers (images/games/<key>.jpg) and bot-captured auto
+// covers (images/games/auto/<key>.jpg), from `git ls-files images/games`.
+// Keys outside these sets have no local file — emit the shared default
+// placeholder directly so the browser never requests a missing URL (no 404).
+const KNOWN_MANUAL_COVERS = new Set([
+    'antigravity', 'bluestacks-5', 'brawlhalla', 'ceylon-roleplay', 'code',
+    'default', 'dota-2', 'f1-25', 'fivem', 'mirror-s-edge-catalyst',
+    'placeholder', 'pubg-battlegrounds', 'valorant', 'visual-studio-code',
+    'vscode', 'wallpaper-engine'
+]);
+const KNOWN_AUTO_COVERS = new Set([
+    'bluestacks-5', 'ceylon-roleplay', 'fivem', 'freebuff', 'valorant'
+]);
+
 // Local-first cover for one game. `image` is a relative website path
 // (a per-game images/games/<game_key>.jpg drop-in when present, otherwise
-// the 404 falls through instantly to `auto`, then `fallback`). `auto`
-// is the bot-captured Rich Presence art (images/games/auto/<game_key>.jpg,
-// same instant fall-through when not captured yet). Absolute bot URLs are
+// the shared default placeholder directly — never a missing URL). `auto`
+// is the bot-captured Rich Presence art (images/games/auto/<game_key>.jpg
+// when captured, otherwise the same placeholder). Absolute bot URLs are
 // deliberately discarded — never http://, never a hanging /static/* URL.
 export function localCover(game) {
     const g = game || {};
     const key = slugOf(g.game_key || g.name || g.game_name) || 'game';
+    const fallback = `images/games/default.jpg?v=2`;
     return {
-        image: `images/games/${key}.jpg?v=2`,
-        auto: `images/games/auto/${key}.jpg?v=2`,
-        fallback: `images/games/default.jpg?v=2`,
+        image: KNOWN_MANUAL_COVERS.has(key) ? `images/games/${key}.jpg?v=2` : fallback,
+        auto: KNOWN_AUTO_COVERS.has(key) ? `images/games/auto/${key}.jpg?v=2` : fallback,
+        fallback,
         robot: ROBOT_FALLBACK
     };
 }

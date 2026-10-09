@@ -17,14 +17,15 @@
     <link rel="icon" type="image/png" href="images/favicon.png?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         button, input, select, textarea { font-family: inherit; }
         :root {
             --bg:#0F0F0F; --bg2:#161616; --border:rgba(255,255,255,0.08);
             --p400:#D4EC5A; --p500:#C6E32B; --muted:#8A8A8A; --sub:#B5B5B5; --text:#FFFFFF;
-            --font:"Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            --font:'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            --mono:'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
         }
         html { background:#0F0F0F; }
         body { font-family:var(--font); background-color:var(--bg); color:var(--text); line-height:1.7; min-height:100vh; display:flex; flex-direction:column; -webkit-font-smoothing:antialiased; }
@@ -32,7 +33,7 @@
         .container { width:100%; max-width:820px; margin:0 auto; padding:0 24px; }
         header.page { padding:64px 0 8px; }
         .pill { display:inline-flex; align-items:center; gap:8px; padding:6px 16px; border-radius:100px; background:rgba(198,227,43,0.08); border:1px solid rgba(198,227,43,0.2); font-size:0.78rem; font-weight:600; letter-spacing:0.08em; color:var(--p400); text-transform:uppercase; margin-bottom:20px; }
-        h1 { font-size:clamp(1.8rem,4vw,2.6rem); font-weight:900; letter-spacing:-0.02em; margin-bottom:12px; }
+        h1 { font-size:clamp(1.8rem,4vw,2.6rem); font-weight:800; letter-spacing:-0.02em; margin-bottom:12px; }
         main { padding:8px 0 64px; flex:1; }
         h2 { font-size:1.15rem; margin:32px 0 10px; color:var(--p400); }
         p, li { color:var(--sub); font-size:0.98rem; }

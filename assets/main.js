@@ -430,6 +430,24 @@
             const u = (url || '').trim().toLowerCase();
             return u === '' || u.endsWith('fallback.svg') || u.endsWith('fallback.jpg');
         }
+        // Shipped local covers (from `git ls-files images/games`). Keys outside
+        // these sets have no local file — pickCover skips that step entirely so
+        // the browser never requests a missing URL (no 404 in the console).
+        // freebuff has only an auto/ capture; tlauncher has neither.
+        const KNOWN_MANUAL_COVERS = new Set([
+            'antigravity', 'bluestacks-5', 'brawlhalla', 'ceylon-roleplay', 'code',
+            'default', 'dota-2', 'f1-25', 'fivem', 'mirror-s-edge-catalyst',
+            'placeholder', 'pubg-battlegrounds', 'valorant', 'visual-studio-code',
+            'vscode', 'wallpaper-engine'
+        ]);
+        const KNOWN_AUTO_COVERS = new Set([
+            'bluestacks-5', 'ceylon-roleplay', 'fivem', 'freebuff', 'valorant'
+        ]);
+        function basenameOfLocal(url) {
+            const clean = String(url || '').split('?')[0].split('#')[0];
+            const base = clean.substring(clean.lastIndexOf('/') + 1);
+            return base.toLowerCase().endsWith('.jpg') ? base.slice(0, -4).toLowerCase() : '';
+        }
 
         const GAME_METADATA = {
             "wallpaper engine": { tag: "Utility" },
@@ -538,6 +556,8 @@
             const name = g.name || g.game_name || '';
             const key = slugOf(g.game_key || name) || 'game';
             const proxy = '/api/cover?slug=' + key;
+            const hasManual = KNOWN_MANUAL_COVERS.has(key);
+            const hasAuto = KNOWN_AUTO_COVERS.has(key);
             let rawImage = String(g.image || '').trim();
             let fbOverride = '';
             if (rawImage.indexOf('/api/public/cover/') === 0) {
@@ -547,25 +567,39 @@
                 if (isLocalPath(g.fallback)) fbOverride = g.fallback.split('?')[0];
             }
             const relRaw = (isLocalPath(rawImage) && !isGenericCover(rawImage)) ? rawImage.split('?')[0] : '';
-            const rel = (relRaw && relRaw.indexOf('/cat-') === -1) ? relRaw : '';
+            // Drop a backend-provided manual path when that file is not shipped
+            // (e.g. images/games/freebuff.jpg, images/games/tlauncher.jpg) —
+            // otherwise the card would request a missing URL and log a 404.
+            let rel = (relRaw && relRaw.indexOf('/cat-') === -1) ? relRaw : '';
+            if (rel && rel.indexOf('images/games/') !== -1 && rel.indexOf('/auto/') === -1) {
+                const base = basenameOfLocal(rel);
+                if (base && base !== 'default' && base !== 'placeholder' && !KNOWN_MANUAL_COVERS.has(base)) rel = '';
+            }
             const autoGiven = g.auto_image || g.auto || '';
-            const autoRel = (isLocalPath(autoGiven) && !isGenericCover(autoGiven)) ? autoGiven.split('?')[0] : '';
-            const keyGuess = `images/games/${key}.jpg?v=2`;
-            const autoGuess = `images/games/auto/${key}.jpg?v=2`;
+            let autoRel = (isLocalPath(autoGiven) && !isGenericCover(autoGiven)) ? autoGiven.split('?')[0] : '';
+            if (autoRel && autoRel.indexOf('/auto/') !== -1) {
+                const base = basenameOfLocal(autoRel);
+                if (base && !KNOWN_AUTO_COVERS.has(base)) autoRel = '';
+            }
+            const keyGuess = hasManual ? `images/games/${key}.jpg?v=2` : '';
+            const autoGuess = hasAuto ? `images/games/auto/${key}.jpg?v=2` : '';
             const secondaryBase = fbOverride || 'images/games/default.jpg';
             const secondary = secondaryBase + (secondaryBase.indexOf('?') === -1 ? '?v=2' : '');
             // Ordered, deduped steps. `auto` may hold several '|'-joined
-            // URLs - coverStep splits them back apart.
+            // URLs - coverStep splits them back apart. Missing-file steps are
+            // skipped up front (never emitted as <img src>), so no 404.
             const steps = [];
             const pushStep = (u) => { if (u && steps.indexOf(u) === -1) steps.push(u); };
             if (fbOverride) {
                 pushStep(proxy);
-                pushStep(keyGuess);
+                if (keyGuess) pushStep(keyGuess);
             } else if (rel) {
                 pushStep(rel + '?v=2');
                 pushStep(proxy);
-            } else {
+            } else if (keyGuess) {
                 pushStep(keyGuess);
+                pushStep(proxy);
+            } else {
                 pushStep(proxy);
             }
             pushStep(autoRel ? autoRel + '?v=2' : autoGuess);
