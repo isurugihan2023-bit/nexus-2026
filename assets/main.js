@@ -52,13 +52,10 @@
                     document.body.removeChild(tempInput);
                 }
                 tsCopyBtn.classList.add('copied');
-                const icon = document.getElementById('ts-copy-icon');
                 const text = document.getElementById('ts-copy-text');
-                if (icon) icon.className = 'fas fa-check';
                 if (text) text.textContent = 'Copied!';
                 setTimeout(() => {
                     tsCopyBtn.classList.remove('copied');
-                    if (icon) icon.className = 'fas fa-copy';
                     if (text) text.textContent = 'Copy';
                 }, 2000);
             });
@@ -198,7 +195,7 @@
             copyButton.className = 'cmd-copy';
             copyButton.setAttribute('aria-label', 'Copy command');
             copyButton.setAttribute('title', 'Copy command');
-            copyButton.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i><span class="cmd-sr-only" aria-live="polite"></span>';
+            copyButton.innerHTML = 'Copy<span class="cmd-sr-only" aria-live="polite"></span>';
             card.appendChild(copyButton);
             return {
                 element: card,
@@ -246,15 +243,14 @@
                 }
 
                 const announcement = copyButton.querySelector('.cmd-sr-only');
-                const icon = copyButton.querySelector('i');
                 if (copied) {
                     copyButton.classList.add('copied');
-                    if (icon) icon.className = 'fas fa-check';
+                    copyButton.firstChild.textContent = 'Copied';
                     if (announcement) announcement.textContent = `Copied ${commandText}`;
                     window.clearTimeout(copyButton.copyResetTimer);
                     copyButton.copyResetTimer = window.setTimeout(() => {
                         copyButton.classList.remove('copied');
-                        if (icon) icon.className = 'fas fa-copy';
+                        copyButton.firstChild.textContent = 'Copy';
                         if (announcement) announcement.textContent = '';
                     }, 1500);
                 } else if (announcement) {
@@ -436,45 +432,45 @@
         }
 
         const GAME_METADATA = {
-            "wallpaper engine": { tag: "Utility", icon: "fa-desktop" },
-            "wallpaper": { tag: "Utility", icon: "fa-desktop" },
-            "brawlhalla": { tag: "Platform Fighter", icon: "fa-fist-raised" },
-            "visual studio code": { tag: "Development", icon: "fa-code" },
-            "vscode": { tag: "Development", icon: "fa-code" },
-            "ceylon": { tag: "FiveM Roleplay", icon: "fa-car" },
-            "dream creation": { tag: "FiveM Studio", icon: "fa-code" },
-            "fivem": { tag: "FiveM Roleplay", icon: "fa-car" },
-            "grand theft auto": { tag: "GTA V / FiveM", icon: "fa-car" },
-            "gta": { tag: "GTA V / FiveM", icon: "fa-car" },
-            "valorant": { tag: "Tactical FPS", icon: "fa-crosshairs" },
-            "pubg": { tag: "Battle Royale", icon: "fa-crosshairs" },
-            "battlegrounds": { tag: "Battle Royale", icon: "fa-crosshairs" },
-            "minecraft": { tag: "Sandbox Survival", icon: "fa-cube" },
-            "counter-strike": { tag: "Competitive FPS", icon: "fa-bullseye" },
-            "cs2": { tag: "Competitive FPS", icon: "fa-bullseye" },
-            "forza": { tag: "Sim Racing", icon: "fa-flag-checkered" },
-            "apex": { tag: "Battle Royale", icon: "fa-shield-halved" },
-            "roblox": { tag: "Platform Sandbox", icon: "fa-shapes" },
-            "red dead": { tag: "Open World RPG", icon: "fa-hat-cowboy" },
-            "rdr": { tag: "Open World RPG", icon: "fa-hat-cowboy" },
-            "cyberpunk": { tag: "Cyber RPG", icon: "fa-microchip" },
-            "rust": { tag: "Survival", icon: "fa-hammer" },
-            "dota": { tag: "MOBA Strategy", icon: "fa-chess-knight" },
-            "wukong": { tag: "Action RPG", icon: "fa-dragon" },
-            "wuthering waves": { tag: "Action RPG", icon: "fa-bolt" },
-            "league of legends": { tag: "MOBA Arena", icon: "fa-shield" },
-            "arc raiders": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
-            "arc": { tag: "Extraction Shooter", icon: "fa-crosshairs" },
-            "fortnite": { tag: "Battle Royale", icon: "fa-crosshairs" },
-            "f1": { tag: "Racing", icon: "fa-flag-checkered" },
-            "formula 1": { tag: "Racing", icon: "fa-flag-checkered" },
-            "call of duty": { tag: "Tactical FPS", icon: "fa-crosshairs" },
-            "cod": { tag: "Tactical FPS", icon: "fa-crosshairs" },
-            "warzone": { tag: "Battle Royale", icon: "fa-crosshairs" },
-            "overwatch": { tag: "Tactical FPS", icon: "fa-crosshairs" },
-            "fifa": { tag: "Sports", icon: "fa-futbol" },
-            "ea sports fc": { tag: "Sports", icon: "fa-futbol" },
-            "rocket league": { tag: "Sports", icon: "fa-trophy" }
+            "wallpaper engine": { tag: "Utility" },
+            "wallpaper": { tag: "Utility" },
+            "brawlhalla": { tag: "Platform Fighter" },
+            "visual studio code": { tag: "Development" },
+            "vscode": { tag: "Development" },
+            "ceylon": { tag: "FiveM Roleplay" },
+            "dream creation": { tag: "FiveM Studio" },
+            "fivem": { tag: "FiveM Roleplay" },
+            "grand theft auto": { tag: "GTA V / FiveM" },
+            "gta": { tag: "GTA V / FiveM" },
+            "valorant": { tag: "Tactical FPS" },
+            "pubg": { tag: "Battle Royale" },
+            "battlegrounds": { tag: "Battle Royale" },
+            "minecraft": { tag: "Sandbox Survival" },
+            "counter-strike": { tag: "Competitive FPS" },
+            "cs2": { tag: "Competitive FPS" },
+            "forza": { tag: "Sim Racing" },
+            "apex": { tag: "Battle Royale" },
+            "roblox": { tag: "Platform Sandbox" },
+            "red dead": { tag: "Open World RPG" },
+            "rdr": { tag: "Open World RPG" },
+            "cyberpunk": { tag: "Cyber RPG" },
+            "rust": { tag: "Survival" },
+            "dota": { tag: "MOBA Strategy" },
+            "wukong": { tag: "Action RPG" },
+            "wuthering waves": { tag: "Action RPG" },
+            "league of legends": { tag: "MOBA Arena" },
+            "arc raiders": { tag: "Extraction Shooter" },
+            "arc": { tag: "Extraction Shooter" },
+            "fortnite": { tag: "Battle Royale" },
+            "f1": { tag: "Racing" },
+            "formula 1": { tag: "Racing" },
+            "call of duty": { tag: "Tactical FPS" },
+            "cod": { tag: "Tactical FPS" },
+            "warzone": { tag: "Battle Royale" },
+            "overwatch": { tag: "Tactical FPS" },
+            "fifa": { tag: "Sports" },
+            "ea sports fc": { tag: "Sports" },
+            "rocket league": { tag: "Sports" }
         };
 
         const GENERIC_TAGS = ["", "gaming", "live gaming", "unknown", "other", "app"];
@@ -492,18 +488,16 @@
             // A specific API category wins. A generic one ("Other"/"Gaming" —
             // sent for unknown apps or by older bot builds without metadata)
             // is treated as no opinion so the local name lookup still yields
-            // the real label and icon. Unknown apps keep "Other" + generic
+            // the real label. Unknown apps keep "Other" + generic
             // cover, never a real game's category.
             const override = (categoryOverride && String(categoryOverride).trim()) || "";
             let tag = override;
             let tagFromApi = override !== "" && !GENERIC_TAGS.includes(override.toLowerCase());
             if (!tagFromApi) tag = "Other";
-            let icon = "fa-gamepad";
             if (gameName) {
                 const lower = gameName.toLowerCase();
                 for (const [k, meta] of Object.entries(GAME_METADATA)) {
                     if (gameKeyMatch(lower, k)) {
-                        icon = meta.icon;
                         if (!tagFromApi) tag = meta.tag;
                         break;
                     }
@@ -512,8 +506,7 @@
             return {
                 accent: "#C6E32B",
                 border: "rgba(198, 227, 43, 0.35)",
-                tag: tag,
-                icon: icon
+                tag: tag
             };
         }
 
@@ -639,9 +632,7 @@
                         <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
                         <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
                         <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">
-                                <i class="fab fa-discord"></i>
-                            </a>
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>
                         </div>
                     </div>
                 </div>
@@ -655,9 +646,7 @@
                         <h3 class="empty-lounge-title">Live feed is offline, try again soon.</h3>
                         <p class="empty-lounge-sub">Could not reach the live server. Check back shortly.</p>
                         <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">
-                                <i class="fab fa-discord"></i>
-                            </a>
+                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>
                         </div>
                     </div>
                 </div>
@@ -854,17 +843,8 @@
                 rawDetail = rawDetail.trim();
                 const matchDetail = rawDetail;
 
-                let detailIcon = 'fa-gamepad';
-                const lowerDetail = matchDetail.toLowerCase();
-                if (lowerDetail.includes('player') || lowerDetail.includes('server')) {
-                    detailIcon = 'fa-server';
-                } else if (lowerDetail.includes('watch') || lowerDetail.includes('spectat')) {
-                    detailIcon = 'fa-eye';
-                } else if (lowerDetail.includes('match') || lowerDetail.includes('5v5') || lowerDetail.includes('taego') || lowerDetail.includes('erangel') || lowerDetail.includes('lobby')) {
-                    detailIcon = 'fa-crosshairs';
-                }
                 const matchDetailHtml = matchDetail
-                    ? `<div class="game-match-detail" title="${escapeHtml(matchDetail)}"><i class="fas ${detailIcon}"></i> ${escapeHtml(matchDetail)}</div>`
+                    ? `<div class="game-match-detail" title="${escapeHtml(matchDetail)}">${escapeHtml(matchDetail)}</div>`
                     : '';
 
 
@@ -907,7 +887,7 @@
                         ${coverImgHtml(game, escapeHtml(game.name))}
                     </div>
                     <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-circle'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
+                        <div class="game-genre-tag">${escapeHtml(theme.tag)}</div>
                         <div class="game-name" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div>
                         ${matchDetailHtml}
                         <div class="game-players-strip">
@@ -1000,7 +980,7 @@
 
                     const timeBadgeHtml = startTime ? `
                         <div class="modal-activity-time" data-start="${startTime}">
-                            <i class="far fa-clock"></i> <span class="time-text">${formatElapsedTime(startTime)}</span>
+                            <span class="time-text">${formatElapsedTime(startTime)}</span>
                         </div>
                     ` : '';
 
@@ -1866,11 +1846,10 @@
                         ${coverImgHtml(g, escapeHtml(gameName))}
                     </div>
                     <div class="game-card-body">
-                        <div class="game-genre-tag"><i class="fas ${theme.icon || 'fa-gamepad'}" style="font-size: 0.65rem;"></i> ${escapeHtml(theme.tag)}</div>
+                        <div class="game-genre-tag">${escapeHtml(theme.tag)}</div>
                         <div class="game-name" title="${escapeHtml(gameName)}">${escapeHtml(gameName)}</div>
                         <div class="game-players-strip">
                             <div class="game-player-headline" style="margin-bottom: 0;">
-                                <i class="fas fa-users"></i>
                                 <span class="game-player-name">${escapeHtml(playersText)}</span>
                             </div>
                         </div>
@@ -1999,8 +1978,8 @@
                 + '<h3 class="empty-lounge-title">No playtime logged this week yet.</h3>'
                 + '<p class="empty-lounge-sub">Play a game on Discord and it will show up here.</p>'
                 + '<div class="empty-lounge-actions">'
-                + '<a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord">'
-                + '<i class="fab fa-discord"></i></a></div></div></div>';
+                + '<a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>'
+                + '</div></div></div>';
         }
 
         function renderMostPlayedError(container, hasStaleGames) {
@@ -2131,7 +2110,7 @@
             return `<div class="empty-lounge-state"><div class="empty-lounge-box">`
                 + `<h3 class="empty-lounge-title">${offline ? 'Live feed is offline, try again soon.' : 'Nobody is listening right now'}</h3>`
                 + `<p class="empty-lounge-sub">${offline ? 'Could not reach the live server. Check back shortly.' : 'Play a song on Spotify with Discord connected and it will show up here.'}</p>`
-                + `<div class="empty-lounge-actions"><a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn" title="Join Discord" aria-label="Join Discord"><i class="fab fa-discord"></i></a></div>`
+                + `<div class="empty-lounge-actions"><a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a></div>`
                 + `</div></div>`;
         }
         function renderSpotify(listeners, isOffline) {
@@ -2157,7 +2136,7 @@
                     ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(title)}" width="350" height="175" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='images/games/fallback.svg';">`
                     : `<img src="images/games/fallback.svg" alt="${escapeHtml(title)}" width="350" height="175" loading="lazy" decoding="async">`;
                 const openLink = l.track_url
-                    ? `<a class="spotify-open" href="${escapeHtml(l.track_url)}" target="_blank" rel="noopener noreferrer" title="Open in Spotify" aria-label="Open in Spotify"><i class="fab fa-spotify"></i></a>`
+                    ? `<a class="spotify-open" href="${escapeHtml(l.track_url)}" target="_blank" rel="noopener noreferrer" title="Open in Spotify" aria-label="Open in Spotify">Open</a>`
                     : '';
                 html += `<div class="spotify-card reveal visible">`
                     + `<div class="spotify-art-wrap">${artImg}<span class="spotify-live-pill"><span class="lounge-live-dot"></span> Listening</span></div>`
