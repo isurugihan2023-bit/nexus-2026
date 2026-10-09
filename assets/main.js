@@ -631,9 +631,6 @@
                     <div class="empty-lounge-box">
                         <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
                         <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
-                        <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>
-                        </div>
                     </div>
                 </div>
             `;
@@ -645,9 +642,6 @@
                     <div class="empty-lounge-box">
                         <h3 class="empty-lounge-title">Live feed is offline, try again soon.</h3>
                         <p class="empty-lounge-sub">Could not reach the live server. Check back shortly.</p>
-                        <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>
-                        </div>
                     </div>
                 </div>
             `;
@@ -1977,8 +1971,6 @@
                 + '<div class="empty-lounge-box">'
                 + '<h3 class="empty-lounge-title">No playtime logged this week yet.</h3>'
                 + '<p class="empty-lounge-sub">Play a game on Discord and it will show up here.</p>'
-                + '<div class="empty-lounge-actions">'
-                + '<a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>'
                 + '</div></div></div>';
         }
 
@@ -2110,7 +2102,6 @@
             return `<div class="empty-lounge-state"><div class="empty-lounge-box">`
                 + `<h3 class="empty-lounge-title">${offline ? 'Live feed is offline, try again soon.' : 'Nobody is listening right now'}</h3>`
                 + `<p class="empty-lounge-sub">${offline ? 'Could not reach the live server. Check back shortly.' : 'Play a song on Spotify with Discord connected and it will show up here.'}</p>`
-                + `<div class="empty-lounge-actions"><a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a></div>`
                 + `</div></div>`;
         }
         function renderSpotify(listeners, isOffline) {

@@ -159,12 +159,17 @@
            bug), and the transparent fill must never apply without it
            (that would be invisible text). */
         .grad {
+            display: inline-block;
+            padding-right: 0.1em;
+            margin-right: -0.1em;
             background: none;
+            background-size: 100% 100%;
             color: #C6E32B;
         }
         @supports ((-webkit-background-clip: text) or (background-clip: text)) {
             .grad {
                 background: linear-gradient(135deg, #D4EC5A 0%, #C6E32B 40%, #A8C41A 100%);
+                background-size: 100% 100%;
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
@@ -266,7 +271,7 @@
         .hero {
             position: relative; height: 100vh; min-height: max(100vh, 560px);
             display: flex; align-items: center; justify-content: center;
-            padding: 80px 0 40px; overflow: hidden; isolation: isolate;
+            padding: 80px 0 40px; overflow: visible; isolation: isolate;
         }
         .hero::after {
             content: "";
@@ -289,6 +294,7 @@
         }
 
         .hero-heading {
+            display: inline-block;
             font-size: clamp(2.4rem, 5.5vw, 4.8rem);
             font-weight: 900;
             line-height: 1.05;
@@ -296,16 +302,26 @@
             margin-bottom: 16px;
             max-width: 820px;
             overflow: visible;
+            padding-inline: 0.08em;
+            margin-inline: -0.08em;
         }
 
         .hero-float {
             opacity: 1;
             overflow: visible;
         }
-        #home .hero-heading .grad {
+        .hero-inner { overflow: visible; }
+        .hero-heading span {
             display: inline-block;
+            padding-inline: 0.08em;
+            margin-inline: -0.08em;
+        }
+        #home .hero-heading .grad {
             padding-bottom: 0.12em;
             margin-bottom: -0.12em;
+            padding-right: 0.1em;
+            margin-right: -0.1em;
+            background-size: 100% 100%;
         }
 
         .hero-sub {
@@ -981,32 +997,6 @@
             align-items: center;
             box-shadow: none;
         }
-        .empty-lounge-discord-btn {
-            width: 58px;
-            height: 58px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #C6E32B 0%, #D4EC5A 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.55rem;
-            font-weight: 700;
-            color: #0F0F0F;
-            text-decoration: none;
-            box-shadow: none;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
-        }
-        .empty-lounge-discord-btn:hover {
-            transform: translateY(-2px) scale(1.08);
-            background: linear-gradient(135deg, #B2CE1F 0%, #C6E32B 100%);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: none;
-            color: #0F0F0F;
-        }
-        .empty-lounge-discord-btn:active {
-            transform: scale(0.96);
-        }
         .empty-lounge-title {
             font-size: clamp(1.15rem, 2.5vw, 1.35rem);
             font-weight: 800;
@@ -1022,12 +1012,7 @@
             opacity: 0.8;
             max-width: 380px;
             line-height: 1.55;
-            margin-bottom: 22px;
-        }
-        .empty-lounge-actions .btn {
-            width: 210px;
-            max-width: 100%;
-            justify-content: center;
+            margin-bottom: 0;
         }
         .game-card {
             --game-accent: #C6E32B;
@@ -1902,7 +1887,7 @@
             .hero { height: auto; min-height: 560px; min-height: 100svh; min-height: 100dvh; }
             /* 44px minimum tap targets */
             .btn, .nav-dashboard, .cmd-filter, .lounge-tab-btn,
-            .ts-copy-btn, .modal-close-btn, .hamburger, .empty-lounge-discord-btn { min-height: 44px; }
+            .ts-copy-btn, .modal-close-btn, .hamburger { min-height: 44px; }
             .cmd-filter, .lounge-tab-btn { display: inline-flex; align-items: center; }
             .modal-close-btn { width: 44px; height: 44px; }
             /* Modal shell fits small screens, internal scroll only */
@@ -2101,7 +2086,7 @@
             .btn:hover, .chip:hover, .cmd-card:hover, .cmd-filter:hover,
             .feat-card:hover, .lounge-tab-btn:hover, .leaderboard-card:hover,
             .ts-copy-btn:hover, .modal-close-btn:hover, .hero-since-pill:hover,
-            .empty-lounge-discord-btn:hover, .game-card:hover, .ts-ip-card:hover { transform: none; box-shadow: none; }
+            .game-card:hover, .ts-ip-card:hover { transform: none; box-shadow: none; }
             .btn:active, .cmd-filter:active, .lounge-tab-btn:active, .ts-copy-btn:active { transform: scale(0.97); }
             .feat-card:hover::before { animation: none; }
         }
@@ -2170,7 +2155,7 @@
                 <div class="fade-up" style="animation-delay:0.1s">
                     <div class="hero-float">
                         <h1 class="hero-heading">
-                            NINJA NEXUS<br><span class="grad">COMMUNITY</span>
+                            <span>NINJA NEXUS</span><br><span class="grad">COMMUNITY</span>
                         </h1>
                     </div>
                 </div>
@@ -2249,9 +2234,6 @@
                     <div class="empty-lounge-box">
                         <h3 class="empty-lounge-title">No one is playing right now, be the first!</h3>
                         <p class="empty-lounge-sub">Start a game on Discord or join a voice lounge to have your session featured live here.</p>
-                        <div class="empty-lounge-actions">
-                            <a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener noreferrer" class="empty-lounge-discord-btn">Join Discord</a>
-                        </div>
                     </div>
                     <div id="live-load-error" class="live-load-error" role="alert" hidden>
                         <span>Couldn't load live data, retrying...</span>
@@ -2286,18 +2268,22 @@
             <!-- Highlight cards -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; margin-bottom: 40px;">
                 <div class="feat-card reveal">
+                    <div class="feat-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2" y="15" width="3" height="7" rx="1"/><rect x="6.5" y="12" width="3" height="10" rx="1"/><rect x="11" y="9" width="3" height="13" rx="1"/><rect x="15.5" y="6" width="3" height="16" rx="1"/><rect x="20" y="3" width="2" height="19" rx="1"/></svg></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Live Status</h3>
                     <p id="about-uptime">Live stats on this page update from the bot when it is online.</p>
                 </div>
                 <div class="feat-card reveal">
+                    <div class="feat-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 3 6v5c0 5.4 3.7 9.4 9 11V2Z"/><path d="M12 2 21 6v5c0 5.4-3.7 9.4-9 11V2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Secure & Safe</h3>
                     <p>Public pages show display names and game activity only. No tokens are exposed. See Privacy.</p>
                 </div>
                 <div class="feat-card reveal">
+                    <div class="feat-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.2 1.8 4.8 13h5.6l-.8 9.2L19.2 10h-5.8l-.2-8.2Z"/></svg></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Low Latency</h3>
                     <p>AI responses typically take a few seconds depending on load.</p>
                 </div>
                 <div class="feat-card reveal">
+                    <div class="feat-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 19a9 9 0 1 1 18 0v2H3v-2Zm2.1 0h13.8a6.9 6.9 0 0 0-13.8 0Z"/><path d="m12 13 5-4-3 6h-2l-2 3-.5-1.5 2.5-3.5Z"/><circle cx="12" cy="19" r="1.2"/></svg></div>
                     <h3 style="color: var(--p400); margin-bottom: 8px;">Fast Response</h3>
                     <p>Commands usually respond within seconds.</p>
                 </div>
