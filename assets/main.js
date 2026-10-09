@@ -427,8 +427,24 @@
             return !/^[a-z][a-z0-9+.-]*:/i.test(u) && !u.startsWith('//');
         }
         function isGenericCover(url) {
-            const u = (url || '').trim().toLowerCase();
-            return u === '' || u.endsWith('fallback.svg') || u.endsWith('fallback.jpg');
+            // default.jpg and placeholder.jpg are byte-identical shared
+            // placeholders (5707 bytes): a 200 for either is never a real
+            // cover, so they must never sit ahead of /api/cover in the chain
+            // (an <img> 200 never fires onerror, ending the chain early).
+            const u = (url || '').trim().toLowerCase().split('?')[0];
+            return u === '' || u.endsWith('fallback.svg') || u.endsWith('fallback.jpg')
+                || u.endsWith('default.jpg') || u.endsWith('placeholder.jpg');
+        }
+        // Cache-buster for the bot-cover proxy. Bump when cover behavior
+        // changes so browsers/edge drop stale proxy responses (a proxy miss
+        // 302s to the shared placeholder, which must not stick).
+        const COVER_PROXY_V = '4';
+        function proxyFor(key) { return '/api/cover?slug=' + key + '&v=' + COVER_PROXY_V; }
+        // Our own proxy URL surviving inside a normalized row (cards and the
+        // modal re-enter pickCover with it). Returns its slug, else ''.
+        function proxyKeyOf(url) {
+            const m = String(url || '').match(/^\/api\/cover\?slug=([a-z0-9-]{1,80})(?:&|$)/);
+            return m ? m[1] : '';
         }
         // Shipped local covers (from `git ls-files images/games`). Keys outside
         // these sets have no local file — pickCover skips that step entirely so
@@ -555,7 +571,7 @@
             const g = game || {};
             const name = g.name || g.game_name || '';
             const key = slugOf(g.game_key || name) || 'game';
-            const proxy = '/api/cover?slug=' + key;
+            const proxy = proxyFor(key);
             const hasManual = KNOWN_MANUAL_COVERS.has(key);
             const hasAuto = KNOWN_AUTO_COVERS.has(key);
             let rawImage = String(g.image || '').trim();
@@ -566,11 +582,19 @@
                 rawImage = '';
                 if (isLocalPath(g.fallback)) fbOverride = g.fallback.split('?')[0];
             }
+            // A row that already carries our proxy (normalized cards and the
+            // modal call pickCover again with it) keeps it verbatim-first:
+            // never split('?')[0] it (that strips the slug and yields a
+            // slug-less /api/cover 400) and never append another ?v=.
+            const givenProxy = proxyKeyOf(rawImage) === key;
+            if (givenProxy) rawImage = '';
             const relRaw = (isLocalPath(rawImage) && !isGenericCover(rawImage)) ? rawImage.split('?')[0] : '';
             // Drop a backend-provided manual path when that file is not shipped
             // (e.g. images/games/freebuff.jpg, images/games/tlauncher.jpg) —
             // otherwise the card would request a missing URL and log a 404.
+            // Any other /api/ path is never a loadable image step either.
             let rel = (relRaw && relRaw.indexOf('/cat-') === -1) ? relRaw : '';
+            if (rel && rel.indexOf('/api/') === 0) rel = '';
             if (rel && rel.indexOf('images/games/') !== -1 && rel.indexOf('/auto/') === -1) {
                 const base = basenameOfLocal(rel);
                 if (base && base !== 'default' && base !== 'placeholder' && !KNOWN_MANUAL_COVERS.has(base)) rel = '';
@@ -588,6 +612,10 @@
             // Ordered, deduped steps. `auto` may hold several '|'-joined
             // URLs - coverStep splits them back apart. Missing-file steps are
             // skipped up front (never emitted as <img src>), so no 404.
+            // The shared placeholder (default.jpg) is only ever the terminal
+            // secondary: it returns 200, so emitting it earlier would end the
+            // chain before /api/cover is even requested. Curated manual art
+            // stays first; the proxy always precedes auto/ captures.
             const steps = [];
             const pushStep = (u) => { if (u && steps.indexOf(u) === -1) steps.push(u); };
             if (fbOverride) {
@@ -596,10 +624,8 @@
             } else if (rel) {
                 pushStep(rel + '?v=2');
                 pushStep(proxy);
-            } else if (keyGuess) {
-                pushStep(keyGuess);
-                pushStep(proxy);
             } else {
+                if (keyGuess) pushStep(keyGuess);
                 pushStep(proxy);
             }
             pushStep(autoRel ? autoRel + '?v=2' : autoGuess);
@@ -611,7 +637,8 @@
                 name
             };
         }
-        // Ordered chain (deduped): manual -> captured auto/ -> category.
+        // Ordered chain (deduped): curated manual -> /api/cover proxy ->
+        // captured auto/ -> shared default -> robot fallback.
         // The robot fallback terminates the chain in coverStep.
         function coverChain(game) {
             const picked = pickCover(game);
@@ -767,7 +794,9 @@
                     if (!sample && details[0]) sample = details[0].details || '';
                     // NOTE: only display-safe fields are kept here. Member IDs
                     // (player_id/id) are deliberately dropped — never rendered.
-                    const cover = pickCover({ game_key: g.game_key, name, category: g.category });
+                    // image/auto ride along so pickCover can order the proxy
+                    // ahead of placeholder-equivalent payload paths.
+                    const cover = pickCover({ game_key: g.game_key, name, category: g.category, image: g.image, auto_image: g.auto || g.auto_image });
                     return {
                         name, count,
                         game_key: g.game_key || slugOf(name),
@@ -1962,7 +1991,7 @@
                         && (g.total_hours !== undefined || g.unique_players !== undefined))
                     .map((g, i) => {
                         const name = g.name || g.game_name || 'Game';
-                        const picked = pickCover({ game_key: g.game_key, name, category: g.category, image: g.image });
+                        const picked = pickCover({ game_key: g.game_key, name, category: g.category, image: g.image, auto_image: g.auto || g.auto_image });
                         return {
                             rank: g.rank ?? i + 1,
                             game_key: g.game_key || slugOf(name),
