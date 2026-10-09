@@ -3,19 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Ninja Nexus — Discord Bot & Gaming Community</title>
-    <meta name="description" content="Ninja Nexus is a Discord community bot with live game sessions, 48+ documented prefix commands, Spotify now-playing, and TeamSpeak. Join the server and see who's playing right now.">
-    <meta property="og:title" content="Ninja Nexus — Discord Bot & Gaming Community">
-    <meta property="og:description" content="Live game sessions, 48+ documented commands, Spotify now-playing and TeamSpeak. Join the Ninja Nexus Discord community.">
+    <title>Ninja Nexus | Anime &amp; Gaming Discord Community</title>
+    <meta name="description" content="Join Ninja Nexus, an anime and gaming Discord community with live game sessions, 48+ bot commands, Spotify now-playing and TeamSpeak.">
+    <meta property="og:title" content="Ninja Nexus | Anime &amp; Gaming Discord Community">
+    <meta property="og:description" content="Join Ninja Nexus, an anime and gaming Discord community with live game sessions, 48+ bot commands, Spotify now-playing and TeamSpeak.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ninjanexus.duckdns.org/">
     <meta property="og:image" content="https://ninjanexus.duckdns.org/images/nexus_logo.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Ninja Nexus — Discord Bot & Gaming Community">
-    <meta name="twitter:description" content="Live game sessions, 48+ documented commands, Spotify now-playing and TeamSpeak.">
+    <meta name="twitter:title" content="Ninja Nexus | Anime &amp; Gaming Discord Community">
+    <meta name="twitter:description" content="Join Ninja Nexus, an anime and gaming Discord community with live game sessions, 48+ bot commands, Spotify now-playing and TeamSpeak.">
     <meta name="twitter:image" content="https://ninjanexus.duckdns.org/images/nexus_logo.png">
     <link rel="canonical" href="https://ninjanexus.duckdns.org/">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0a0a0a">
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebSite",
+                    "name": "Ninja Nexus",
+                    "url": "https://ninjanexus.duckdns.org/"
+                },
+                {
+                    "@type": "Organization",
+                    "name": "Ninja Nexus",
+                    "url": "https://ninjanexus.duckdns.org/",
+                    "logo": "https://ninjanexus.duckdns.org/images/nexus_logo.png",
+                    "sameAs": ["https://discord.gg/fZNDG5sfhf"]
+                }
+            ]
+        }
+    </script>
     <link rel="preload" as="image" href="assets/bg-topo-mobile.webp?v=1" type="image/webp" media="(max-width: 767px)">
     <link rel="preload" as="image" href="assets/bg-topo.webp?v=2" type="image/webp" media="(min-width: 768px)">
 
@@ -28,11 +47,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     </noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 
@@ -63,8 +80,8 @@
             --muted:    #8A8A8A;
             --sub:      #B5B5B5;
             --text:     #FFFFFF;
-            --font:     "Inter", system-ui, sans-serif;
-            --mono:     "Inter", system-ui, sans-serif;
+            --font:     "Manrope", system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --mono:     "Manrope", system-ui, -apple-system, 'Segoe UI', sans-serif;
         }
 
         html { background: #0a0a0a; }
@@ -271,12 +288,6 @@
             display: flex; flex-direction: column;
             align-items: center; text-align: center;
             gap: 0;
-        }
-
-        #home .hero-heading,
-        #home .hero-sub,
-        #home .hero-btns .btn {
-            font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
         }
 
         .hero-heading {
@@ -700,7 +711,7 @@
             pointer-events: none;
         }
         .cta-inner { position: relative; z-index: 2; }
-        .cta-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 18px; }
+        .cta-title { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; }
         .cta-sub { font-size: 1.05rem; color: var(--sub); max-width: 440px; margin: 0 auto 44px; line-height: 1.7; }
         .cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
         .cta-btns .btn { width: 210px; max-width: 100%; padding: 14px 20px; justify-content: center; text-align: center; white-space: nowrap; }
@@ -728,7 +739,7 @@
         .footer-brand-logo img { width: 28px; height: 28px; border-radius: 7px; }
         .footer-brand-desc { font-size: 13px; color: var(--muted); line-height: 1.4; max-width: 260px; white-space: nowrap; }
 
-        .footer-col h4 {
+        .footer-col h2 {
             font-size: 12px; font-weight: 700;
             text-transform: uppercase; letter-spacing: 0.1em;
             color: var(--text); margin-bottom: 12px;
@@ -840,7 +851,7 @@
         #lounge .sec-title {
             font-size: clamp(2rem, 3.5vw, 2.75rem);
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.02em;
             line-height: 1.15;
             margin-bottom: 12px;
         }
@@ -2145,7 +2156,7 @@
         <div class="container">
             <div class="nav-inner">
                 <a href="#home" class="nav-logo">
-                    <img src="images/nexus_logo.png?v=3" alt="Nexus" width="736" height="735" decoding="async" onerror="this.style.display='none'">
+                    <img src="images/nexus_logo.png?v=3" alt="Ninja Nexus community logo" width="736" height="735" decoding="async" onerror="this.style.display='none'">
                     <span>Nexus</span>
                 </a>
                 <ul class="nav-links">
@@ -2178,7 +2189,7 @@
             <div class="hero-inner">
                 <div class="discord-presence fade-up" style="animation-delay:0s">
                     <div class="dp-avatar">
-                        <img src="images/nexus_logo.png?v=3" alt="Nexus" width="736" height="735" decoding="async" onerror="this.src='https://ui-avatars.com/api/?name=N&background=2A2A2A&color=fff'">
+                        <img src="images/nexus_logo.png?v=3" alt="Ninja Nexus bot logo" width="736" height="735" decoding="async" onerror="this.src='https://ui-avatars.com/api/?name=N&background=2A2A2A&color=fff'">
                         <div class="dp-status"></div>
                     </div>
                     <div class="dp-info">
@@ -2338,8 +2349,8 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px;">
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-server" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-servers">1</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Active Server</div>
+                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 8px;" id="about-online-stat">–</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Online Now</div>
                 </div>
                 <div class="feat-card reveal" style="text-align: center; padding: 44px 24px;">
                     <i class="fas fa-terminal" style="font-size: 2rem; color: var(--p400); margin-bottom: 18px; display:block;"></i>
@@ -2366,7 +2377,7 @@
             <div style="display: flex; justify-content: center; margin-bottom: 40px;">
                 <div class="discord-presence reveal">
                     <div class="dp-avatar">
-                        <img src="images/nexus_logo.png?v=3" alt="Nexus" width="736" height="735" loading="lazy" decoding="async" onerror="this.src='https://ui-avatars.com/api/?name=N&background=2A2A2A&color=fff'">
+                        <img src="images/nexus_logo.png?v=3" alt="Ninja Nexus bot logo" width="736" height="735" loading="lazy" decoding="async" onerror="this.src='https://ui-avatars.com/api/?name=N&background=2A2A2A&color=fff'">
                         <div class="dp-status"></div>
                     </div>
                     <div class="dp-info">
@@ -2658,7 +2669,7 @@
                     <p class="footer-brand-desc">Anime &amp; gaming community.</p>
                 </div>
                 <section class="footer-col" aria-labelledby="footer-explore">
-                    <h4 id="footer-explore">Explore</h4>
+                    <h2 id="footer-explore">Explore</h2>
                     <ul>
                         <li><a href="#about">About</a></li>
                         <li><a href="#features">Features</a></li>
@@ -2667,14 +2678,14 @@
                     </ul>
                 </section>
                 <section class="footer-col" aria-labelledby="footer-legal">
-                    <h4 id="footer-legal">Legal</h4>
+                    <h2 id="footer-legal">Legal</h2>
                     <ul>
                         <li><a href="privacy.html">Privacy Policy</a></li>
                         <li><a href="terms.html">Terms of Service</a></li>
                     </ul>
                 </section>
                 <section class="footer-col" aria-labelledby="footer-contact">
-                    <h4 id="footer-contact">Contact</h4>
+                    <h2 id="footer-contact">Contact</h2>
                     <ul>
                         <li><a href="https://discord.gg/fZNDG5sfhf" target="_blank" rel="noopener">Discord Server</a></li>
                         <li><a href="ts3server://13.250.182.35">TeamSpeak</a></li>
@@ -2696,9 +2707,9 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="modal-banner">
-                <img id="modal-game-cover" src="images/games/fallback.svg" alt="Game Banner" width="540" height="180" loading="lazy" decoding="async">
+                <img id="modal-game-cover" src="images/games/fallback.svg" alt="Game cover artwork" width="540" height="180" loading="lazy" decoding="async">
                 <div class="modal-banner-content">
-                    <h3 class="modal-game-title" id="modal-game-title">Game Session</h3>
+                    <h2 class="modal-game-title" id="modal-game-title">Game Session</h2>
                     <div class="modal-game-subtitle" id="modal-game-count">Voice Lounge Squad</div>
                 </div>
             </div>
@@ -2725,7 +2736,7 @@
                 <div class="ts-icon-glow">
                     <i class="fab fa-teamspeak"></i>
                 </div>
-                <h3 class="ts-modal-title">Connect to <span class="grad">TeamSpeak 3</span></h3>
+                <h2 class="ts-modal-title">Connect to <span class="grad">TeamSpeak 3</span></h2>
                 <div class="ts-status-badge">
                     <span class="ts-pulse-dot"></span> Server Online
                 </div>

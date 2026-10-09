@@ -363,16 +363,19 @@
 
         function updateOnlineDisplays(count) {
             const hero = document.getElementById('hero-online');
-            const onlineNow = document.getElementById('online-now-stat');
+            const onlineDisplays = [
+                document.getElementById('online-now-stat'),
+                document.getElementById('about-online-stat')
+            ].filter(Boolean);
             if (!Number.isInteger(count) || count < 0) {
                 if (hero) {
                     hero.textContent = '–';
                     hero.classList.remove('stat-loading');
                 }
-                if (onlineNow) {
-                    onlineNow.textContent = '–';
-                    onlineNow.classList.remove('stat-loading');
-                }
+                onlineDisplays.forEach(el => {
+                    el.textContent = '–';
+                    el.classList.remove('stat-loading');
+                });
                 return;
             }
             const formattedCount = fmt(count);
@@ -380,10 +383,10 @@
                 hero.textContent = formattedCount;
                 hero.classList.remove('stat-loading');
             }
-            if (onlineNow) {
-                onlineNow.textContent = formattedCount;
-                onlineNow.classList.remove('stat-loading');
-            }
+            onlineDisplays.forEach(el => {
+                el.textContent = formattedCount;
+                el.classList.remove('stat-loading');
+            });
             dpTexts.forEach(el => { el.textContent = `${fmt(count)} ONLINE`; });
         }
 
@@ -1708,7 +1711,7 @@
         }
 
         function showHeroStatsUnavailable() {
-            ['hero-online', 'hero-members', 'hero-uptime', 'hero-ping', 'online-now-stat', 'user-count-stat']
+            ['hero-online', 'hero-members', 'hero-uptime', 'hero-ping', 'online-now-stat', 'about-online-stat', 'user-count-stat']
                 .forEach(id => {
                     const element = document.getElementById(id);
                     if (!element) return;
