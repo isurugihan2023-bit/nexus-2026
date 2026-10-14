@@ -2,12 +2,12 @@
   "redirects": [
     {
       "source": "/dashboard",
-      "destination": "http://panelnexus.duckdns.org:3000/dashboard",
+      "destination": "https://panelnexus.duckdns.org/dashboard",
       "permanent": false
     },
     {
       "source": "/dashboard/",
-      "destination": "http://panelnexus.duckdns.org:3000/dashboard",
+      "destination": "https://panelnexus.duckdns.org/dashboard",
       "permanent": false
     }
   ],
