@@ -396,9 +396,15 @@
         // Covers are LOCAL-FIRST: bot-provided absolute image URLs are never
         // used (the old same-origin /static/* URLs hang for 20s+, and any
         // http:// URL is blocked as mixed content on this HTTPS page).
-        // Chain per card: images/games/<game_key>.jpg → category art
-        // (shipped cat-*.svg) → generic fallback. Never a blank box.
-        const LOCAL_FALLBACK_COVER = 'images/games/fallback.svg';
+        // Chain per card: images/games/<game_key>.jpg → same-origin
+        // /api/cover proxy → local auto/<game_key>.jpg →
+        // images/games/placeholder.jpg (final fallback, grayscale via the
+        // same card CSS as every cover). A proxy 404 (Cache-Control:
+        // no-store) never caches and fires <img> onerror so the chain
+        // continues; a 200 byte-identical to the shared placeholder
+        // (default.jpg/placeholder.jpg, 5707 bytes) is also "no cover".
+        // Never a blank box, never stuck on a cached miss.
+        const LOCAL_FALLBACK_COVER = 'images/games/placeholder.jpg';
         const CATEGORY_ART = [
             [/fivem|roleplay|gta|ceylon/i, 'images/games/cat-fivem.svg'],
             [/tactical|fps|shooter|cod|call of duty|overwatch/i, 'images/games/cat-tactical-fps.svg'],
@@ -436,9 +442,10 @@
                 || u.endsWith('default.jpg') || u.endsWith('placeholder.jpg');
         }
         // Cache-buster for the bot-cover proxy. Bump when cover behavior
-        // changes so browsers/edge drop stale proxy responses (a proxy miss
-        // 302s to the shared placeholder, which must not stick).
-        const COVER_PROXY_V = '4';
+        // changes so browsers/edge drop stale proxy responses (misses used
+        // to 302 to the shared placeholder; they now 404 no-store so the
+        // chain can continue and a later real cover can arrive).
+        const COVER_PROXY_V = '5';
         function proxyFor(key) { return '/api/cover?slug=' + key + '&v=' + COVER_PROXY_V; }
         // Our own proxy URL surviving inside a normalized row (cards and the
         // modal re-enter pickCover with it). Returns its slug, else ''.
@@ -557,11 +564,15 @@
         // Chain: manual images/games/<game_key>.jpg (or the key guess when
         //   the payload carries no usable image) -> same-origin bot-cover
         //   proxy /api/cover?slug=<game_key> -> local auto/<game_key>.jpg
-        //   (or its guess) -> images/games/default.jpg -> generic robot art.
+        //   (or its guess) -> images/games/placeholder.jpg (final fallback).
         // Every historic step is preserved (offline curated drop-ins still
-        // resolve locally with zero bot dependency); the proxy is the only
-        // addition. A proxy miss 302s to the placeholder (same bytes as
-        // default.jpg), so the card never hangs on it.
+        // resolve locally with zero bot dependency). A proxy miss is HTTP
+        // 404 no-store (never cached), so <img> onerror fires and the chain
+        // continues instead of sticking on a cached placeholder.
+        // A payload-provided image path is only used when that file really
+        // exists (allow-listed manual/auto sets + generic-name filter); a
+        // 200 byte-identical to the shared placeholder (default.jpg /
+        // placeholder.jpg, 5707 bytes) is "no cover" and the chain moves on.
         // Bot-provided absolute URLs are ignored on purpose (hang/mixed),
         // a bot /api/public/cover/... path is converted to the proxy form
         // (Vercel never serves the bot prefix), and legacy category art
@@ -607,15 +618,15 @@
             }
             const keyGuess = hasManual ? `images/games/${key}.jpg?v=2` : '';
             const autoGuess = hasAuto ? `images/games/auto/${key}.jpg?v=2` : '';
-            const secondaryBase = fbOverride || 'images/games/default.jpg';
+            const secondaryBase = fbOverride || 'images/games/placeholder.jpg';
             const secondary = secondaryBase + (secondaryBase.indexOf('?') === -1 ? '?v=2' : '');
             // Ordered, deduped steps. `auto` may hold several '|'-joined
             // URLs - coverStep splits them back apart. Missing-file steps are
             // skipped up front (never emitted as <img src>), so no 404.
-            // The shared placeholder (default.jpg) is only ever the terminal
-            // secondary: it returns 200, so emitting it earlier would end the
-            // chain before /api/cover is even requested. Curated manual art
-            // stays first; the proxy always precedes auto/ captures.
+            // The shared placeholder is only ever the terminal secondary: it
+            // returns 200, so emitting it earlier would end the chain before
+            // /api/cover is even requested. Curated manual art stays first;
+            // the proxy always precedes auto/ captures.
             const steps = [];
             const pushStep = (u) => { if (u && steps.indexOf(u) === -1) steps.push(u); };
             if (fbOverride) {
@@ -638,8 +649,8 @@
             };
         }
         // Ordered chain (deduped): curated manual -> /api/cover proxy ->
-        // captured auto/ -> shared default -> robot fallback.
-        // The robot fallback terminates the chain in coverStep.
+        // captured auto/ -> shared placeholder (final fallback).
+        // The placeholder terminates the chain in coverStep.
         function coverChain(game) {
             const picked = pickCover(game);
             return [picked.primary, picked.auto, picked.secondary]
@@ -664,12 +675,22 @@
             }
         }
         // Self-clearing chain stepper: each error advances one URL, the end
-        // falls back to the robot art. Shared by cards and the modal.
+        // falls back to the shared placeholder. A 404 from /api/cover fires
+        // onerror like any failure, so the chain continues to auto/ then the
+        // placeholder instead of sticking. Shared by cards and the modal.
         function coverStep(img) {
             const next = (img.dataset.next || '').split('|').filter(Boolean);
             if (!next.length) {
                 img.onerror = null;
-                img.src = LOCAL_FALLBACK_COVER;
+                resetAutoArt(img);
+                img.dataset.coverMiss = '1';
+                const cur = String(img.src || '');
+                if (cur.indexOf('placeholder.jpg') === -1) {
+                    img.src = LOCAL_FALLBACK_COVER;
+                } else if (!cur) {
+                    img.src = LOCAL_FALLBACK_COVER;
+                }
+                coverQueueRetry();
                 return;
             }
             const url = next.shift();
@@ -678,9 +699,119 @@
             else resetAutoArt(img);
             img.src = url;
         }
+        function coverSettled(img) {
+            try {
+                const src = String(img.currentSrc || img.src || '');
+                const key = img.dataset.coverKey || '';
+                if (src.indexOf('placeholder.jpg') !== -1 || src.indexOf('default.jpg') !== -1) {
+                    if (key && !coverResolvedKeys.has(key)) {
+                        img.dataset.coverMiss = '1';
+                        coverQueueRetry();
+                    }
+                    return;
+                }
+                if (key) coverResolvedKeys.add(key);
+                img.removeAttribute('data-cover-miss');
+            } catch (e) {}
+        }
+        const COVER_RETRY_INTERVAL_MS = 60000;
+        const COVER_RETRY_MAX = 10;
+        const COVER_PLACEHOLDER_LEN = 5707;
+        const COVER_PLACEHOLDER_SHA256 = '46b261c800cc611b3b4ddd4e05226c1d2bb9bef51eb35529f604b6625278d423';
+        const coverResolvedKeys = new Set();
+        let coverRetryTicks = 0;
+        let coverRetryTimer = null;
+        function coverQueueRetry() {
+            if (coverRetryTimer || coverRetryTicks >= COVER_RETRY_MAX) return;
+            if (typeof setInterval === 'undefined') return;
+            coverRetryTimer = setInterval(coverRetryTick, COVER_RETRY_INTERVAL_MS);
+        }
+        async function coverIsPlaceholderBytes(buf) {
+            if (!buf || buf.byteLength !== COVER_PLACEHOLDER_LEN) return false;
+            try {
+                if (window.crypto && window.crypto.subtle && window.crypto.subtle.digest) {
+                    const digest = await window.crypto.subtle.digest('SHA-256', buf);
+                    const hex = Array.from(new Uint8Array(digest)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+                    return hex === COVER_PLACEHOLDER_SHA256;
+                }
+            } catch (e) {}
+            return true;
+        }
+        async function coverRetryTick() {
+            coverRetryTicks++;
+            if (coverRetryTicks > COVER_RETRY_MAX) {
+                if (coverRetryTimer) { clearInterval(coverRetryTimer); coverRetryTimer = null; }
+                return;
+            }
+            let pending = [];
+            try {
+                pending = Array.from(document.querySelectorAll('img[data-cover-miss="1"]'));
+            } catch (e) { pending = []; }
+            const byKey = new Map();
+            for (const img of pending) {
+                const key = img.dataset.coverKey || '';
+                if (!key || coverResolvedKeys.has(key)) {
+                    try { img.removeAttribute('data-cover-miss'); } catch (e) {}
+                    continue;
+                }
+                if (!byKey.has(key)) byKey.set(key, []);
+                byKey.get(key).push(img);
+            }
+            if (byKey.size === 0) {
+                if (coverRetryTicks >= COVER_RETRY_MAX && coverRetryTimer) { clearInterval(coverRetryTimer); coverRetryTimer = null; }
+                return;
+            }
+            for (const entry of byKey) {
+                const key = entry[0];
+                const imgs = entry[1];
+                if (coverResolvedKeys.has(key)) continue;
+                const url = proxyFor(key) + '&r=' + coverRetryTicks;
+                let buf = null;
+                let contentType = 'image/jpeg';
+                try {
+                    const res = await fetch(url, { cache: 'no-store' });
+                    if (!res.ok) continue;
+                    contentType = res.headers.get('content-type') || 'image/jpeg';
+                    buf = await res.arrayBuffer();
+                    if (await coverIsPlaceholderBytes(buf)) continue;
+                    if (!buf || buf.byteLength === 0) continue;
+                } catch (e) {
+                    continue;
+                }
+                let objectUrl = null;
+                try {
+                    const blob = new Blob([buf], { type: contentType });
+                    objectUrl = URL.createObjectURL(blob);
+                    await new Promise(function (resolve, reject) {
+                        const probe = new Image();
+                        probe.onload = resolve;
+                        probe.onerror = reject;
+                        probe.src = objectUrl;
+                    });
+                } catch (e) {
+                    if (objectUrl) { try { URL.revokeObjectURL(objectUrl); } catch (ignored) {} }
+                    continue;
+                }
+                coverResolvedKeys.add(key);
+                for (const img of imgs) {
+                    try {
+                        if (!img.isConnected) continue;
+                        img.onerror = null;
+                        img.onload = null;
+                        resetAutoArt(img);
+                        img.removeAttribute('data-cover-miss');
+                        img.removeAttribute('data-next');
+                        img.src = objectUrl;
+                    } catch (e) {}
+                }
+            }
+            if (coverRetryTicks >= COVER_RETRY_MAX && coverRetryTimer) { clearInterval(coverRetryTimer); coverRetryTimer = null; }
+        }
         function coverImgHtml(game, alt) {
             const chain = coverChain(game);
-            return `<img src="${chain[0]}" alt="${alt}" width="350" height="175" loading="lazy" decoding="async" data-next="${chain.slice(1).join('|')}" onerror="coverStep(this)">`;
+            const g = game || {};
+            const key = slugOf(g.game_key || g.name || g.game_name || '') || 'game';
+            return `<img src="${chain[0]}" alt="${alt}" width="350" height="175" loading="lazy" decoding="async" data-cover-key="${key}" data-next="${chain.slice(1).join('|')}" onerror="coverStep(this)" onload="coverSettled(this)">`;
         }
         function getGameImageUrl(game) {
             return pickCover(typeof game === 'string' ? { name: game } : game).primary;
@@ -1007,7 +1138,10 @@
             if (coverEl) {
                 const chain = coverChain(game);
                 resetAutoArt(coverEl);
+                coverEl.dataset.coverKey = slugOf(game.game_key || game.name || '') || 'game';
+                try { coverEl.removeAttribute('data-cover-miss'); } catch (e) {}
                 coverEl.onerror = function () { coverStep(coverEl); };
+                coverEl.onload = function () { coverSettled(coverEl); };
                 coverEl.dataset.next = chain.slice(1).join('|');
                 coverEl.src = coverUrl || chain[0];
                 if ((coverUrl || chain[0]).indexOf('/auto/') !== -1) {
@@ -1929,7 +2063,10 @@
             if (coverEl) {
                 const chain = coverChain(g);
                 resetAutoArt(coverEl);
+                coverEl.dataset.coverKey = slugOf(g.game_key || g.name || g.game_name || '') || 'game';
+                try { coverEl.removeAttribute('data-cover-miss'); } catch (e) {}
                 coverEl.onerror = function () { coverStep(coverEl); };
+                coverEl.onload = function () { coverSettled(coverEl); };
                 coverEl.dataset.next = chain.slice(1).join('|');
                 coverEl.src = coverUrl || chain[0];
                 if ((coverUrl || chain[0]).indexOf('/auto/') !== -1) {
