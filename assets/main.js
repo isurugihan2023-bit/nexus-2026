@@ -404,7 +404,7 @@
         // continues; a 200 byte-identical to the shared placeholder
         // (default.jpg/placeholder.jpg, 5707 bytes) is also "no cover".
         // Never a blank box, never stuck on a cached miss.
-        const LOCAL_FALLBACK_COVER = 'images/games/placeholder.jpg';
+        const LOCAL_FALLBACK_COVER = 'images/games/placeholder.jpg?v=6';
         const CATEGORY_ART = [
             [/fivem|roleplay|gta|ceylon/i, 'images/games/cat-fivem.svg'],
             [/tactical|fps|shooter|cod|call of duty|overwatch/i, 'images/games/cat-tactical-fps.svg'],
@@ -618,8 +618,8 @@
             }
             const keyGuess = hasManual ? `images/games/${key}.jpg?v=2` : '';
             const autoGuess = hasAuto ? `images/games/auto/${key}.jpg?v=2` : '';
-            const secondaryBase = fbOverride || 'images/games/placeholder.jpg';
-            const secondary = secondaryBase + (secondaryBase.indexOf('?') === -1 ? '?v=2' : '');
+            const secondaryBase = fbOverride || 'images/games/placeholder.jpg?v=6';
+            const secondary = secondaryBase + (secondaryBase.indexOf('?') === -1 ? '?v=6' : '');
             // Ordered, deduped steps. `auto` may hold several '|'-joined
             // URLs - coverStep splits them back apart. Missing-file steps are
             // skipped up front (never emitted as <img src>), so no 404.
