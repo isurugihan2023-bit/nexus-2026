@@ -159,11 +159,11 @@
             overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
         }
 
-        /* Center: N optically centred ~2vh above true centre (nothing sits under it) */
+        /* Center: N optically centred ~1vh above true centre (no text group below it) */
         #nx-loader .nx-center {
             position: absolute; inset: 0;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 0 20px; transform: translateY(-2vh);
+            text-align: center; padding: 0 20px; transform: translateY(-1vh);
         }
 
         /* Logo box: ONE dimension only (height), width derived from the source ratio.
@@ -184,25 +184,6 @@
         #nx-loader .nx-rise { overflow: hidden; transform: translateY(101%); transition: transform 250ms ease-out; }
         #nx-loader .nx-lime { transform: translateY(-101%); transition: transform 250ms ease-out; }
 
-        /* Tagline under the logo: fixed-height wrapper, texts absolutely centred
-           so swaps never move the logo (no layout shift). Cross-fade only. */
-        #nx-loader .nx-tag {
-            position: relative; margin-top: 15px; height: 13px; width: 100%;
-            font-size: 9px; font-weight: 600; line-height: 13px;
-            letter-spacing: .38em; padding-left: .38em; /* optically centre tracked text */
-            text-transform: uppercase; text-align: center; white-space: nowrap;
-            color: rgba(255,255,255,.55); pointer-events: none;
-        }
-        #nx-loader .nx-tag span {
-            position: absolute; inset: 0;
-            opacity: 1; transform: translateY(0);
-            transition: opacity 260ms ease-out, transform 260ms ease-out;
-        }
-        #nx-loader .nx-tag span.nx-tag-out { opacity: 0; transform: translateY(-4px); transition: opacity 180ms ease-out, transform 180ms ease-out; }
-        #nx-loader .nx-tag span.nx-tag-in { opacity: 0; transform: translateY(4px); transition: none; }
-        #nx-loader .nx-tag span.nx-tag-ready { color: #BDF200; opacity: 1; }
-        #nx-loader.nx-out .nx-tag { opacity: 0; transition: opacity .2s ease; }
-
         /* Entrance: ghost N fades in 500ms, scale .96 -> 1, no bounce */
         @keyframes nxIn {
             0% { opacity: 0; transform: scale(.96); }
@@ -220,13 +201,9 @@
         #nx-loader.nx-leave { transform: translateY(-100%); }
         #nx-loader.nx-leave .nx-rise, #nx-loader.nx-leave .nx-lime { will-change: auto; }
 
-        /* Phones: N height 44px, width derived; tagline 8px */
+        /* Phones: N height 44px, width derived */
         @media (max-width: 600px) {
             #nx-loader .nx-logo { height: 44px; }
-            #nx-loader .nx-tag { margin-top: 12px; font-size: 8px; height: 12px; line-height: 12px; }
-        }
-        @media (max-width: 360px) {
-            #nx-loader .nx-tag { font-size: 8px; letter-spacing: .3em; padding-left: .3em; }
         }
 
         /* Short landscape heights: N height 38px */
@@ -243,7 +220,6 @@
             #nx-loader .nx-logo { animation: none; }
             #nx-loader.nx-done .nx-logo { animation: none; }
             #nx-loader .nx-rise, #nx-loader .nx-lime { transition: none; }
-            #nx-loader .nx-tag span { transition: none; }
         }
     </style>
     <noscript><style>#nx-loader{display:none}</style></noscript>
@@ -2315,7 +2291,6 @@
                     <img class="nx-lime" id="nx-loader-fill" src="images/nexus-n-solid.png" alt="" width="278" height="453" decoding="async" fetchpriority="high">
                 </div>
             </div>
-            <div class="nx-tag" aria-hidden="true"><span>WAKING THE BOT</span></div>
         </div>
         <img id="nx-loader-img" src="images/nexus-n-solid.png" alt="" aria-hidden="true" width="278" height="453" decoding="async" fetchpriority="high" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
     </div>
@@ -2346,68 +2321,13 @@
             var img = document.getElementById('nx-loader-img');
 
             /* Low-power fallback: tiny cores / tiny RAM / reduced motion get stepped
-               fill updates (250ms), plain-opacity tag swaps and the short fade exit.
+               fill updates (250ms) and the short fade exit.
                Guarded feature-detects; never throws when properties are missing. */
             var nxLow = false;
             try { nxLow = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
             try { if (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2) nxLow = true; } catch (e) { }
             try { if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2) nxLow = true; } catch (e) { }
             var NX_TICK = nxLow ? 250 : 100;
-
-            /* Tagline stages: edit the four strings here. Driven by the REAL progress
-               value only (no fake progress): 0→"WAKING THE BOT", 25→"SYNCING THE SQUAD",
-               50→"LOADING THE COMMUNITY", 100→"WELCOME, NINJA" (real window load,
-               shown during the hold before exit). */
-            var NX_TAG = ['WAKING THE BOT', 'SYNCING THE SQUAD', 'LOADING THE COMMUNITY', 'WELCOME, NINJA'];
-            var tagWrap = loader.querySelector('.nx-tag');
-            var tagShown = 0, tagOp = 0, tagAt = performance.now();
-            var rmTag = nxLow;
-            function tagApply(i) {
-                tagShown = i; tagOp = 0; tagAt = performance.now();
-                if (!tagWrap) return;
-                var el = tagWrap.querySelector('span');
-                if (!el) return;
-                if (rmTag) { /* reduced motion: instant swap, no fade/transform */
-                    el.textContent = NX_TAG[i];
-                    el.className = i === 3 ? 'nx-tag-ready' : '';
-                    return;
-                }
-                el.classList.add('nx-tag-out'); /* 180ms fade out, up 4px */
-                (function (op) {
-                    setTimeout(function () {
-                        if (op !== tagOp || window.__nxLoaderEnded) return; /* stale: a newer stage won */
-                        el.textContent = NX_TAG[i];
-                        el.className = 'nx-tag-in' + (i === 3 ? ' nx-tag-ready' : '');
-                        void el.offsetWidth; /* reflow so the fade-in transition runs */
-                        el.classList.remove('nx-tag-in');
-                    }, 180);
-                })(tagOp);
-            }
-            function tagShow(i) {
-                /* First and final stages always show; intermediates show only if their
-                   progress range was really reached AND they get 450ms without delaying
-                   the load by more than ~400ms total — otherwise they are skipped. */
-                if (i <= tagShown || window.__nxLoaderEnded) return;
-                if (rmTag) { tagApply(i); return; }
-                tagOp++;
-                if (i === 3) { tagApply(3); return; } /* final stage never waits */
-                var wait = 450 - (performance.now() - tagAt); /* min 450ms dwell, no flicker */
-                if (wait <= 0) { tagApply(i); return; }
-                (function (op, want) {
-                    setTimeout(function () {
-                        if (op !== tagOp || window.__nxLoaderEnded) return; /* superseded: skip */
-                        tagApply(want);
-                    }, Math.min(wait, 400));
-                })(tagOp, i);
-            }
-            function tagStage() {
-                /* Map the real progress target to a stage: 25 / 50 / 100 thresholds. */
-                var s = tagShown;
-                if (target >= 100) s = 3;
-                else if (target >= 50) s = 2;
-                else if (target >= 25) s = 1;
-                if (s > tagShown) tagShow(s);
-            }
 
             /* Scroll lock while the overlay is up: remember the exact previous inline
                overflow value and put it back on teardown. No focus trap is created. */
@@ -2440,12 +2360,11 @@
                 if (rise) rise.style.transform = 'translateY(' + off + '%)';
                 if (lime) lime.style.transform = 'translateY(' + neg + '%)';
             }
-            function bump(n) { if (n > target) target = n; tagStage(); } /* never backwards */
+            function bump(n) { if (n > target) target = n; } /* never backwards */
             paint();
 
-            /* Finish gate: real load fired + bar at 100 + overlay visible for ≥700ms.
-               The final tagline ("WELCOME, NINJA") is applied at 100% and always gets
-               ≥450ms on screen: the 700ms minimum gate covers it on normal loads. */
+            /* Finish gate: real load fired + bar at 100 + overlay visible for ≥700ms
+               (minimum total display time so the fill is visible). */
             var loaded = false, decided = false;
             function attemptFinish() {
                 if (decided || window.__nxLoaderEnded || !loaded || target < 100) return;
@@ -2511,7 +2430,7 @@
             Promise.all([settledFor(img, null), settledFor(null, topoUrl)])
                 .then(function () { bump(85); attemptFinish(); });
 
-            /* Milestone: 100% on window load → tag "WELCOME, NINJA", then finish (fill snaps to 100, hold, scale cue, slide up, remove) */
+            /* Milestone: 100% on window load → then finish (fill snaps to 100, hold, scale cue, slide up, remove) */
             function bump100() { if (loaded) return; loaded = true; bump(100); attemptFinish(); }
             if (document.readyState === 'complete') bump100();
             else window.addEventListener('load', bump100, { once: true });
