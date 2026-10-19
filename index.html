@@ -37,6 +37,8 @@
     </script>
     <link rel="preload" as="image" href="assets/bg-topo-mobile.webp?v=1" type="image/webp" media="(max-width: 767px)">
     <link rel="preload" as="image" href="assets/bg-topo.webp?v=2" type="image/webp" media="(min-width: 768px)">
+    <link rel="preload" as="image" href="images/nexus-n-ghost.png">
+    <link rel="preload" as="image" href="images/nexus-n-solid.png">
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.ico">
@@ -50,6 +52,201 @@
     <noscript>
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     </noscript>
+
+    <!-- ── Ninja Nexus loader: session skip + 4s failsafe (inline, must run before first paint) ── -->
+    <script>
+        (function () {
+            var skip = false;
+            try {
+                skip = sessionStorage.getItem('nx-loader-shown') === '1';
+                sessionStorage.setItem('nx-loader-shown', '1');
+            } catch (e) { skip = false; } /* storage can fail: show the loader normally */
+            if (skip) document.documentElement.classList.add('nx-skip'); /* hides #nx-loader pre-paint */
+            window.__nxLoaderEnded = false;
+            window.__nxLoaderDeadline = Date.now() + 4000; /* hard finish-line */
+            window.__nxLoaderFinish = function () { /* single teardown path: main script + failsafe */
+                if (window.__nxLoaderEnded) return;
+                window.__nxLoaderEnded = true;
+                var restore = function () {
+                    try { if (typeof window.__nxLoaderUnlock === 'function') window.__nxLoaderUnlock(); } catch (e) { }
+                    try { var c = document.getElementById('nx-loader-css'); if (c) c.remove(); } catch (e) { }
+                };
+                var loader = document.getElementById('nx-loader');
+                if (!loader) { restore(); return; }
+                try {
+                    var rise0 = loader.querySelector('.nx-rise');
+                    var lime0 = loader.querySelector('.nx-lime');
+                    var ba = loader.querySelector('.nx-bar');
+                    if (rise0) rise0.style.transform = 'translateY(0%)'; /* the N is fully lime */
+                    if (lime0) lime0.style.transform = 'translateY(0%)';
+                    if (ba) ba.setAttribute('aria-valuenow', '100');
+                } catch (e) { }
+                /* Completion choreography: 150ms hold → 300ms done-scale cue
+                   → 700ms single upward slide
+                   → node removed on transitionend (+ ~1s safety) */
+                var rm = false;
+                try { rm = !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
+                var onSlideEnd = function (e) {
+                    try { if (e && e.target === loader && e.propertyName === 'transform') teardown(); } catch (e2) { }
+                };
+                var teardown = function () {
+                    if (window.__nxLoaderGone) return;
+                    window.__nxLoaderGone = true;
+                    try { loader.removeEventListener('transitionend', onSlideEnd); } catch (e) { }
+                    try { loader.remove(); } catch (e) { }
+                    restore();
+                };
+                try { loader.addEventListener('transitionend', onSlideEnd); } catch (e) { }
+                setTimeout(teardown, rm ? 400 : 1800); /* ~1s safety cushion over the 700ms slide */
+                setTimeout(function () {
+                    if (window.__nxLoaderGone) return;
+                    if (rm) { /* reduced motion: no scale cue, no slide — one 150ms opacity fade */
+                        try { loader.classList.add('nx-out'); } catch (e) { }
+                        setTimeout(teardown, 250); /* 150ms fade + small buffer */
+                    } else {
+                        var lowExit = false;
+                        try { lowExit = (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2); } catch (e) { }
+                        try { lowExit = lowExit || (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2); } catch (e) { }
+                        if (lowExit) { /* low-power: short fade exit instead of the full-screen slide */
+                            try { loader.classList.add('nx-out'); } catch (e) { }
+                            setTimeout(teardown, 250);
+                            return;
+                        }
+                        try { loader.classList.add('nx-done'); } catch (e) { }
+                        setTimeout(function () {
+                            if (window.__nxLoaderGone) return;
+                            try { loader.classList.add('nx-leave'); } catch (e) { } /* slide up 700ms */
+                        }, 300);
+                    }
+                }, 150);
+            };
+            /* Polling failsafe: the loader markup can genuinely arrive late on very slow
+               connections (it sits ~100KB into the document), so instead of a one-shot
+               4s timer that may fire before the element exists, mark the deadline and
+               force-finish as soon as the loader is in the DOM and the deadline passed. */
+            var guardIv = setInterval(function () {
+                if (window.__nxLoaderEnded) { clearInterval(guardIv); return; }
+                if (Date.now() > window.__nxLoaderDeadline + 30000) { clearInterval(guardIv); return; } /* nothing to guard */
+                var el = document.getElementById('nx-loader');
+                if (el && Date.now() >= window.__nxLoaderDeadline) {
+                    clearInterval(guardIv);
+                    try { window.__nxLoaderFinish(); }
+                    catch (e) { try { el.remove(); } catch (e2) { } }
+                }
+            }, 250);
+        })();
+    </script>
+
+    <!-- ── Ninja Nexus loader: critical CSS (inline, before the main stylesheet) ── -->
+    <style id="nx-loader-css">
+        /* Minimal premium loader: flat base + static vignette, N fill.
+           Only opacity/transform are ever animated. */
+        #nx-loader {
+            position: fixed; inset: 0; z-index: 2147483647; /* above navbar (999) and modals (9999) */
+            background-color: #0a0a0a; /* flat very dark base */
+            background-image: radial-gradient(ellipse 80% 70% at 50% 42%, rgba(255,255,255,.045) 0%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+            background-repeat: no-repeat;
+            font-family: var(--font, 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif);
+            color: var(--text, #FFFFFF);
+            transition: transform .7s cubic-bezier(.76, 0, .24, 1);
+        }
+        html.nx-skip #nx-loader { display: none !important; } /* repeat view this session */
+        #nx-loader.nx-out, #nx-loader.nx-leave { pointer-events: none; }
+
+        /* Visually-hidden "Loading" text + progressbar for screen readers */
+        #nx-loader .nx-sr, #nx-loader .nx-bar {
+            position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
+
+        /* Center: N optically centred ~2vh above true centre (nothing sits under it) */
+        #nx-loader .nx-center {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 0 20px; transform: translateY(-2vh);
+        }
+
+        /* Logo box: ONE dimension only (height), width derived from the source ratio.
+           Tight N is 278x453 -> aspect-ratio 278 / 453. Never width+height together. */
+        #nx-loader .nx-logo {
+            position: relative; height: 52px; width: auto; aspect-ratio: 278 / 453;
+            animation: nxIn .5s ease-out both;
+        }
+        /* Ghost + fill images share the exact box (no stretch, no mask on moving layers) */
+        #nx-loader .nx-ghost, #nx-loader .nx-rise, #nx-loader .nx-lime {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            pointer-events: none;
+        }
+        #nx-loader .nx-ghost { opacity: 1; } /* ghost PNG is pre-rendered at ~12% alpha */
+        /* Fill = clipped reveal: outer wrapper hides overflow and slides up with
+           translateY; the lime image inside counter-slides the same amount, so the
+           N appears to rise from the bottom. Only transforms change per frame. */
+        #nx-loader .nx-rise { overflow: hidden; transform: translateY(101%); transition: transform 250ms ease-out; }
+        #nx-loader .nx-lime { transform: translateY(-101%); transition: transform 250ms ease-out; }
+
+        /* Tagline under the logo: fixed-height wrapper, texts absolutely centred
+           so swaps never move the logo (no layout shift). Cross-fade only. */
+        #nx-loader .nx-tag {
+            position: relative; margin-top: 15px; height: 13px; width: 100%;
+            font-size: 9px; font-weight: 600; line-height: 13px;
+            letter-spacing: .38em; padding-left: .38em; /* optically centre tracked text */
+            text-transform: uppercase; text-align: center; white-space: nowrap;
+            color: rgba(255,255,255,.55); pointer-events: none;
+        }
+        #nx-loader .nx-tag span {
+            position: absolute; inset: 0;
+            opacity: 1; transform: translateY(0);
+            transition: opacity 260ms ease-out, transform 260ms ease-out;
+        }
+        #nx-loader .nx-tag span.nx-tag-out { opacity: 0; transform: translateY(-4px); transition: opacity 180ms ease-out, transform 180ms ease-out; }
+        #nx-loader .nx-tag span.nx-tag-in { opacity: 0; transform: translateY(4px); transition: none; }
+        #nx-loader .nx-tag span.nx-tag-ready { color: #BDF200; opacity: 1; }
+        #nx-loader.nx-out .nx-tag { opacity: 0; transition: opacity .2s ease; }
+
+        /* Entrance: ghost N fades in 500ms, scale .96 -> 1, no bounce */
+        @keyframes nxIn {
+            0% { opacity: 0; transform: scale(.96); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        /* Completion cue: gentle 1 -> 1.04 -> 1 over 300ms (transform only) */
+        @keyframes nxDone {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        #nx-loader.nx-done .nx-logo { animation: nxDone .3s ease-out; }
+
+        /* Exit: overlay slides up 700ms (transform only); drop layer hints on the way out */
+        #nx-loader.nx-leave { transform: translateY(-100%); }
+        #nx-loader.nx-leave .nx-rise, #nx-loader.nx-leave .nx-lime { will-change: auto; }
+
+        /* Phones: N height 44px, width derived; tagline 8px */
+        @media (max-width: 600px) {
+            #nx-loader .nx-logo { height: 44px; }
+            #nx-loader .nx-tag { margin-top: 12px; font-size: 8px; height: 12px; line-height: 12px; }
+        }
+        @media (max-width: 360px) {
+            #nx-loader .nx-tag { font-size: 8px; letter-spacing: .3em; padding-left: .3em; }
+        }
+
+        /* Short landscape heights: N height 38px */
+        @media (max-height: 499px) {
+            #nx-loader .nx-logo { height: 38px; }
+            #nx-loader .nx-center { transform: none; }
+        }
+
+        /* Reduced motion: no fill smoothing, no done-scale, no slide; 150ms opacity fade */
+        @media (prefers-reduced-motion: reduce) {
+            #nx-loader { opacity: 1; transition: opacity .15s ease; }
+            #nx-loader.nx-out { opacity: 0 !important; }
+            #nx-loader.nx-leave { transform: none !important; }
+            #nx-loader .nx-logo { animation: none; }
+            #nx-loader.nx-done .nx-logo { animation: none; }
+            #nx-loader .nx-rise, #nx-loader .nx-lime { transition: none; }
+            #nx-loader .nx-tag span { transition: none; }
+        }
+    </style>
+    <noscript><style>#nx-loader{display:none}</style></noscript>
 
     <style>
         /* ── Reset ─────────────────────────────────────── */
@@ -2106,6 +2303,220 @@
     </style>
 </head>
 <body>
+
+    <!-- ── LOADER (index.html only) ─────────────────────── -->
+    <div id="nx-loader" role="status" aria-label="Loading Ninja Nexus">
+        <span class="nx-sr">Loading</span>
+        <div class="nx-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading progress"></div>
+        <div class="nx-center">
+            <div class="nx-logo" aria-hidden="true">
+                <img class="nx-ghost" src="images/nexus-n-ghost.png" alt="" width="278" height="453" decoding="async">
+                <div class="nx-rise">
+                    <img class="nx-lime" id="nx-loader-fill" src="images/nexus-n-solid.png" alt="" width="278" height="453" decoding="async" fetchpriority="high">
+                </div>
+            </div>
+            <div class="nx-tag" aria-hidden="true"><span>WAKING THE BOT</span></div>
+        </div>
+        <img id="nx-loader-img" src="images/nexus-n-solid.png" alt="" aria-hidden="true" width="278" height="453" decoding="async" fetchpriority="high" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+    </div>
+    <script>
+        /* ── Ninja Nexus loader progress driver (index only; hero untouched) ──
+           Real milestones: 15 script start → 40 DOMContentLoaded → 65 fonts.ready (2s cap)
+           → 85 logo + hero topographic background decoded → 100 window "load".
+           The fill creeps smoothly toward the next milestone and never goes backwards;
+           100% is only ever set by the real load event (or the head script's 4s failsafe). */
+        (function () {
+            var root = document.documentElement;
+            if (root.classList.contains('nx-skip')) { /* repeat view this session: strip it, run nothing */
+                try { var l0 = document.getElementById('nx-loader'); if (l0) l0.remove(); } catch (e) { }
+                try { var c0 = document.getElementById('nx-loader-css'); if (c0) c0.remove(); } catch (e) { }
+                return;
+            }
+            if (window.__nxLoaderEnded) { /* head failsafe already consumed itself: clean up, run nothing */
+                try { var e0 = document.getElementById('nx-loader'); if (e0) e0.remove(); } catch (e) { }
+                try { var c1 = document.getElementById('nx-loader-css'); if (c1) c1.remove(); } catch (e) { }
+                return;
+            }
+
+            var loader = document.getElementById('nx-loader');
+            if (!loader) return;
+            var rise = loader.querySelector('.nx-rise');
+            var lime = loader.querySelector('.nx-lime');
+            var bar = loader.querySelector('.nx-bar');
+            var img = document.getElementById('nx-loader-img');
+
+            /* Low-power fallback: tiny cores / tiny RAM / reduced motion get stepped
+               fill updates (250ms), plain-opacity tag swaps and the short fade exit.
+               Guarded feature-detects; never throws when properties are missing. */
+            var nxLow = false;
+            try { nxLow = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
+            try { if (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2) nxLow = true; } catch (e) { }
+            try { if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2) nxLow = true; } catch (e) { }
+            var NX_TICK = nxLow ? 250 : 100;
+
+            /* Tagline stages: edit the four strings here. Driven by the REAL progress
+               value only (no fake progress): 0→"WAKING THE BOT", 25→"SYNCING THE SQUAD",
+               50→"LOADING THE COMMUNITY", 100→"WELCOME, NINJA" (real window load,
+               shown during the hold before exit). */
+            var NX_TAG = ['WAKING THE BOT', 'SYNCING THE SQUAD', 'LOADING THE COMMUNITY', 'WELCOME, NINJA'];
+            var tagWrap = loader.querySelector('.nx-tag');
+            var tagShown = 0, tagOp = 0, tagAt = performance.now();
+            var rmTag = nxLow;
+            function tagApply(i) {
+                tagShown = i; tagOp = 0; tagAt = performance.now();
+                if (!tagWrap) return;
+                var el = tagWrap.querySelector('span');
+                if (!el) return;
+                if (rmTag) { /* reduced motion: instant swap, no fade/transform */
+                    el.textContent = NX_TAG[i];
+                    el.className = i === 3 ? 'nx-tag-ready' : '';
+                    return;
+                }
+                el.classList.add('nx-tag-out'); /* 180ms fade out, up 4px */
+                (function (op) {
+                    setTimeout(function () {
+                        if (op !== tagOp || window.__nxLoaderEnded) return; /* stale: a newer stage won */
+                        el.textContent = NX_TAG[i];
+                        el.className = 'nx-tag-in' + (i === 3 ? ' nx-tag-ready' : '');
+                        void el.offsetWidth; /* reflow so the fade-in transition runs */
+                        el.classList.remove('nx-tag-in');
+                    }, 180);
+                })(tagOp);
+            }
+            function tagShow(i) {
+                /* First and final stages always show; intermediates show only if their
+                   progress range was really reached AND they get 450ms without delaying
+                   the load by more than ~400ms total — otherwise they are skipped. */
+                if (i <= tagShown || window.__nxLoaderEnded) return;
+                if (rmTag) { tagApply(i); return; }
+                tagOp++;
+                if (i === 3) { tagApply(3); return; } /* final stage never waits */
+                var wait = 450 - (performance.now() - tagAt); /* min 450ms dwell, no flicker */
+                if (wait <= 0) { tagApply(i); return; }
+                (function (op, want) {
+                    setTimeout(function () {
+                        if (op !== tagOp || window.__nxLoaderEnded) return; /* superseded: skip */
+                        tagApply(want);
+                    }, Math.min(wait, 400));
+                })(tagOp, i);
+            }
+            function tagStage() {
+                /* Map the real progress target to a stage: 25 / 50 / 100 thresholds. */
+                var s = tagShown;
+                if (target >= 100) s = 3;
+                else if (target >= 50) s = 2;
+                else if (target >= 25) s = 1;
+                if (s > tagShown) tagShow(s);
+            }
+
+            /* Scroll lock while the overlay is up: remember the exact previous inline
+               overflow value and put it back on teardown. No focus trap is created. */
+            var prevHtml = '', prevBody = '';
+            try {
+                prevHtml = root.style.overflow || '';
+                prevBody = document.body.style.overflow || '';
+                root.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            } catch (e) { }
+            window.__nxLoaderUnlock = function () {
+                try {
+                    if ((root.style.overflow || '') === 'hidden') root.style.overflow = prevHtml;
+                } catch (e) { }
+                try {
+                    if ((document.body.style.overflow || '') === 'hidden') document.body.style.overflow = prevBody;
+                } catch (e) { }
+            };
+
+            /* ── progress: 15 at script start, eased creep toward the next milestone ── */
+            var t0 = performance.now();
+            var current = 15, target = 15;
+            function paint() {
+                var shown = Math.min(Math.round(current), target >= 100 ? 100 : 99);
+                if (bar) bar.setAttribute('aria-valuenow', String(shown));
+                /* Mask-free reveal: wrapper and lime counter-slide the same amount.
+                   Only transforms change; the 250ms CSS transition smooths the ≤100ms ticks. */
+                var off = ((1 - Math.min(current, 100) / 100) * 100).toFixed(2);
+                var neg = (0 - (1 - Math.min(current, 100) / 100) * 100).toFixed(2);
+                if (rise) rise.style.transform = 'translateY(' + off + '%)';
+                if (lime) lime.style.transform = 'translateY(' + neg + '%)';
+            }
+            function bump(n) { if (n > target) target = n; tagStage(); } /* never backwards */
+            paint();
+
+            /* Finish gate: real load fired + bar at 100 + overlay visible for ≥700ms.
+               The final tagline ("WELCOME, NINJA") is applied at 100% and always gets
+               ≥450ms on screen: the 700ms minimum gate covers it on normal loads. */
+            var loaded = false, decided = false;
+            function attemptFinish() {
+                if (decided || window.__nxLoaderEnded || !loaded || target < 100) return;
+                var rest = 700 - (performance.now() - t0);
+                if (rest > 0) { setTimeout(attemptFinish, rest); return; }
+                decided = true;
+                clearInterval(tick);
+                try { window.__nxLoaderFinish(); }
+                catch (e) { /* head teardown missing: minimal inline teardown so nothing is trapped */
+                    window.__nxLoaderEnded = true;
+                    try { if (loader) loader.remove(); } catch (e2) { }
+                    try { if (window.__nxLoaderUnlock) window.__nxLoaderUnlock(); } catch (e2) { }
+                }
+            }
+
+            /* Creep tick: at most one paint per ~100ms (250ms stepped on low-power),
+               ease-out toward `target`. No per-frame rAF writes. */
+            var tick = setInterval(function () {
+                if (decided || window.__nxLoaderEnded) { clearInterval(tick); return; }
+                var dist = target - current;
+                if (dist > 0.01) {
+                    current = Math.min(target, current + Math.max(dist * 0.18, 0.25));
+                    paint();
+                }
+            }, NX_TICK);
+
+            /* Milestone: 40% on DOMContentLoaded */
+            function bump40() { bump(40); attemptFinish(); }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bump40, { once: true });
+            else bump40();
+
+            /* Milestone: 65% on document.fonts.ready (2s cap) */
+            var fontsSet = false;
+            function bump65() { if (fontsSet) return; fontsSet = true; bump(65); attemptFinish(); }
+            try {
+                if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+                    document.fonts.ready.then(bump65, bump65);
+                }
+            } catch (e) { }
+            setTimeout(bump65, 2000);
+
+            /* Milestone: 85% when the loader logo AND the hero topo background are decoded.
+               No new network requests beyond the loader's own transparent mark: the topo
+               URL matches the <link rel="preload"> already in <head>. */
+            function settledFor(node, url) {
+                return new Promise(function (resolve) {
+                    var done = false;
+                    function fin() { if (!done) { done = true; resolve(); } }
+                    setTimeout(fin, 2500); /* never let a slow image stall the flow */
+                    try {
+                        if (node) {
+                            if (typeof node.decode === 'function') node.decode().then(fin, fin);
+                            else if (node.complete) fin();
+                            else { node.addEventListener('load', fin, { once: true }); node.addEventListener('error', fin, { once: true }); }
+                        } else {
+                            var probe = new Image();
+                            probe.onload = fin; probe.onerror = fin; probe.src = url;
+                        }
+                    } catch (e) { fin(); }
+                });
+            }
+            var topoUrl = matchMedia('(max-width: 767px)').matches ? 'assets/bg-topo-mobile.webp?v=1' : 'assets/bg-topo.webp?v=2';
+            Promise.all([settledFor(img, null), settledFor(null, topoUrl)])
+                .then(function () { bump(85); attemptFinish(); });
+
+            /* Milestone: 100% on window load → tag "WELCOME, NINJA", then finish (fill snaps to 100, hold, scale cue, slide up, remove) */
+            function bump100() { if (loaded) return; loaded = true; bump(100); attemptFinish(); }
+            if (document.readyState === 'complete') bump100();
+            else window.addEventListener('load', bump100, { once: true });
+        })();
+    </script>
 
     <!-- ── NAVBAR ─────────────────────── -->
     <nav class="nav" id="navbar">
