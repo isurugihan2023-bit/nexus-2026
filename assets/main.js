@@ -337,53 +337,247 @@
 
         /* ── Live stats from Discord & Bot API ── */
         let currentNinjaNexusMembers = null;
+        let currentNinjaNexusOnline = null;
+        let dpCycleTimer = null;
+        let dpCycleIndex = 0;
         const dpTexts = document.querySelectorAll('.dp-dynamic-text');
         const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
+
+        function cycleDpActivity() {
+            const actEl = document.getElementById('dp-activity-text');
+            if (!actEl) return;
+
+            const phrases = ['Watching Ninja Nexus'];
+            if (Number.isInteger(currentNinjaNexusOnline) && currentNinjaNexusOnline > 0) {
+                phrases.push(`${fmt(currentNinjaNexusOnline)} Online Members`);
+            }
+            if (Number.isFinite(currentNinjaNexusMembers) && currentNinjaNexusMembers > 0) {
+                phrases.push(`${fmt(currentNinjaNexusMembers)} Total Members`);
+            }
+
+            if (phrases.length <= 1) {
+                actEl.textContent = 'Watching Ninja Nexus';
+                return;
+            }
+
+            dpCycleIndex = (dpCycleIndex + 1) % phrases.length;
+            const target = phrases[dpCycleIndex];
+
+            actEl.style.opacity = '0';
+            setTimeout(() => {
+                actEl.textContent = target;
+                actEl.style.opacity = '1';
+            }, 250);
+        }
+
+        function ensureDpCycler() {
+            if (!dpCycleTimer) {
+                dpCycleTimer = setInterval(cycleDpActivity, 4000);
+            }
+        }
+
+        /* ── Non-game categorization filter ── */
+        const NON_GAME_CATEGORIES = new Set([
+            'application', 'utility', 'development', 'other', 'app'
+        ]);
+        const NON_GAME_SUBSTRINGS = ['bluestacks', 'wallpaper engine', 'visual studio', 'vscode'];
+
+        function isGameItem(item) {
+            if (!item) return false;
+            const cat = (item.category || '').toLowerCase().trim();
+            if (NON_GAME_CATEGORIES.has(cat)) return false;
+            const name = (item.name || item.game_name || item.game_key || '').toLowerCase().trim();
+            for (let i = 0; i < NON_GAME_SUBSTRINGS.length; i++) {
+                if (name.includes(NON_GAME_SUBSTRINGS[i])) return false;
+            }
+            return true;
+        }
+
+        function countUniqueGamePlayers(games) {
+            if (!Array.isArray(games)) return 0;
+            const uniquePlayers = new Set();
+            let countWithoutPlayerLists = 0;
+            let hasPlayerList = false;
+
+            games.forEach(g => {
+                if (!isGameItem(g)) return;
+                const details = g.player_details || (Array.isArray(g.players) ? g.players : null);
+                if (Array.isArray(details) && details.length > 0) {
+                    hasPlayerList = true;
+                    details.forEach(p => {
+                        const name = (typeof p === 'string' ? p : (p.name || '')).toLowerCase().trim();
+                        if (name) uniquePlayers.add(name);
+                    });
+                } else {
+                    countWithoutPlayerLists += (g.player_count || g.count || 1);
+                }
+            });
+
+            return hasPlayerList ? (uniquePlayers.size + countWithoutPlayerLists) : countWithoutPlayerLists;
+        }
+
+        /* ── Count-up animation with ease-out cubic & prefers-reduced-motion ── */
+        const _statPrevValues = new Map(); // el.id -> last numeric value
+        const _reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        function animateCountUp(el, targetValue, {
+            duration = null,
+            suffix = '',
+            formatter = null,
+            announceContainer = null
+        } = {}) {
+            if (!el) return;
+            const id = el.id || '';
+            const hasPrev = id && _statPrevValues.has(id);
+            const prev = hasPrev ? _statPrevValues.get(id) : null;
+            const from = (prev !== null) ? prev : 0;
+            const isFirst = !hasPrev;
+            const animDuration = (duration !== null) ? duration : (isFirst ? 1200 : 400);
+
+            if (id) _statPrevValues.set(id, targetValue);
+
+            const formatVal = (v) => {
+                if (formatter) return formatter(v);
+                return Math.round(v).toLocaleString() + suffix;
+            };
+
+            const finalFormatted = formatVal(targetValue);
+
+            if (_reducedMotionQuery.matches || from === targetValue) {
+                el.textContent = finalFormatted;
+                return;
+            }
+
+            if (announceContainer) {
+                announceContainer.setAttribute('aria-busy', 'true');
+            }
+
+            const startTime = performance.now();
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(1, elapsed / animDuration);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentVal = from + (targetValue - from) * easeOut;
+
+                if (progress < 1) {
+                    el.textContent = formatVal(currentVal);
+                    requestAnimationFrame(step);
+                } else {
+                    el.textContent = finalFormatted;
+                    if (announceContainer) {
+                        announceContainer.removeAttribute('aria-busy');
+                    }
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        /* ── Hero state: Playing Now & Hours This Week ── */
+        let _lastKnownPlayingNow = null;
+        let _lastKnownHoursWeek = null;
+
+        function updatePlayingNow(count) {
+            const chipsContainer = document.querySelector('.hero-chips');
+            const hero = document.getElementById('hero-playing');
+            const about = document.getElementById('about-playing-stat');
+
+            if (Number.isInteger(count) && count >= 0) {
+                _lastKnownPlayingNow = count;
+                if (hero) {
+                    hero.classList.remove('stat-loading');
+                    animateCountUp(hero, count, { announceContainer: chipsContainer });
+                }
+                if (about) {
+                    animateCountUp(about, count);
+                }
+            } else {
+                if (_lastKnownPlayingNow === null) {
+                    if (hero) {
+                        hero.textContent = '—';
+                        hero.classList.remove('stat-loading');
+                    }
+                    if (about) about.textContent = '—';
+                }
+            }
+        }
+
+        function updateHoursWeek(hours) {
+            const chipsContainer = document.querySelector('.hero-chips');
+            const hero = document.getElementById('hero-hours');
+
+            if (Number.isFinite(hours) && hours >= 0) {
+                _lastKnownHoursWeek = hours;
+                if (hero) {
+                    hero.classList.remove('stat-loading');
+                    animateCountUp(hero, hours, {
+                        suffix: 'h',
+                        formatter: v => Math.round(v).toLocaleString() + 'h',
+                        announceContainer: chipsContainer
+                    });
+                }
+            } else {
+                if (_lastKnownHoursWeek === null) {
+                    if (hero) {
+                        hero.textContent = '—';
+                        hero.classList.remove('stat-loading');
+                    }
+                }
+            }
+        }
 
         function updateMemberDisplays(count) {
             if (!Number.isFinite(count) || count <= 0) return;
             currentNinjaNexusMembers = count;
+            const chipsContainer = document.querySelector('.hero-chips');
             const hm = document.getElementById('hero-members');
             const am = document.getElementById('about-users');
             const uc = document.getElementById('user-count-stat');
             if (hm) {
-                hm.textContent = fmt(count);
                 hm.classList.remove('stat-loading');
+                animateCountUp(hm, count, { announceContainer: chipsContainer });
             }
-            if (am) am.textContent = fmt(count);
+            if (am) {
+                animateCountUp(am, count);
+            }
             if (uc) {
-                uc.textContent = fmt(count);
                 uc.classList.remove('stat-loading');
+                animateCountUp(uc, count);
             }
+            ensureDpCycler();
         }
 
         function updateOnlineDisplays(count) {
+            const chipsContainer = document.querySelector('.hero-chips');
             const hero = document.getElementById('hero-online');
             const onlineDisplays = [
                 document.getElementById('online-now-stat'),
                 document.getElementById('about-online-stat')
             ].filter(Boolean);
             if (!Number.isInteger(count) || count < 0) {
-                if (hero) {
-                    hero.textContent = '–';
+                currentNinjaNexusOnline = null;
+                if (hero && !_statPrevValues.has('hero-online')) {
+                    hero.textContent = '—';
                     hero.classList.remove('stat-loading');
                 }
                 onlineDisplays.forEach(el => {
-                    el.textContent = '–';
-                    el.classList.remove('stat-loading');
+                    if (!_statPrevValues.has(el.id)) {
+                        el.textContent = '—';
+                        el.classList.remove('stat-loading');
+                    }
                 });
                 return;
             }
-            const formattedCount = fmt(count);
+            currentNinjaNexusOnline = count;
             if (hero) {
-                hero.textContent = formattedCount;
                 hero.classList.remove('stat-loading');
+                animateCountUp(hero, count, { announceContainer: chipsContainer });
             }
             onlineDisplays.forEach(el => {
-                el.textContent = formattedCount;
                 el.classList.remove('stat-loading');
+                animateCountUp(el, count);
             });
-            dpTexts.forEach(el => { el.textContent = `${fmt(count)} ONLINE`; });
+            dpTexts.forEach(el => { el.textContent = `${count.toLocaleString()} ONLINE`; });
+            ensureDpCycler();
         }
 
         function updateServerStatStrip(count) {
@@ -959,6 +1153,7 @@
                 if (playingEl) {
                     playingEl.textContent = '0';
                 }
+                updatePlayingNow(0);
                 if (lastGamesDigest === 'EMPTY' && grid.querySelector('.empty-lounge-state')) {
                     return;
                 }
@@ -1004,6 +1199,10 @@
             if (playingEl) {
                 playingEl.textContent = totalPlayersCount;
             }
+
+            // Update Hero & About "Playing Now" (unique members with an active game session, excluding non-games)
+            const uniqueGamePlayers = countUniqueGamePlayers(games);
+            updatePlayingNow(uniqueGamePlayers);
 
             let maxPlayers = 0;
             games.forEach(g => {
@@ -1727,21 +1926,10 @@
             const members = Number(data.ninja_nexus_members ?? data.total_users
                 ?? data.total_members ?? data.member_count);
             const servers = Number(data.total_servers ?? data.server_count);
-            const ping = Number(data.ping);
-            if (![members, servers, ping]
+            // ping and uptime are no longer required UI fields
+            if (![members, servers]
                 .every(value => Number.isFinite(value) && value > 0)) return false;
-            const hasUptime = data.uptime_seconds !== null && data.uptime_seconds !== undefined
-                && Number.isFinite(Number(data.uptime_seconds)) && Number(data.uptime_seconds) >= 0;
-            if (!hasUptime) return true;
-            const uptime = Number(data.uptime_seconds);
-            const startedAt = Number(data.started_at);
-            const serverTime = Number(data.server_time);
-            if (Number.isFinite(startedAt) && startedAt > 0
-                    && Number.isFinite(serverTime) && serverTime > 0) {
-                return Math.abs((serverTime - startedAt) - uptime) <= 5;
-            }
-            return !(Number.isFinite(startedAt) && startedAt > 0)
-                && !(Number.isFinite(serverTime) && serverTime > 0);
+            return true;
         }
 
         function normalizeHeroStats(data, savedAt = Date.now()) {
@@ -1769,6 +1957,8 @@
                     ? Number(data.online_count) : null,
                 online_members: Number.isInteger(data.online_members) && data.online_members >= 0
                     ? data.online_members : null,
+                playing_now: Number.isInteger(data.playing_now) && data.playing_now >= 0 ? data.playing_now : null,
+                hours_week: Number.isFinite(data.hours_week) && data.hours_week >= 0 ? data.hours_week : null,
                 saved_at: savedAt
             };
         }
@@ -1818,12 +2008,10 @@
                 seconds = Math.max(0, Math.floor((serverNow - heroStatsAnchor.startedAtMs) / 1000));
             }
             const formatted = formatHeroUptime(seconds);
-            const about = document.getElementById('about-uptime');
             if (hero) {
                 hero.textContent = formatted;
                 hero.classList.remove('stat-loading');
             }
-            if (about) about.textContent = `Bot uptime: ${formatted}`;
         }
 
         function paintHeroStats(snapshot, { cached = false } = {}) {
@@ -1840,15 +2028,14 @@
             updateOnlineDisplays(snapshot.online_members);
             updateServerStatStrip(snapshot.total_servers);
 
-            const hp = document.getElementById('hero-ping');
-            const ap = document.getElementById('about-ping');
-            if (hp) {
-                hp.textContent = Number.isFinite(snapshot.ping) ? `${snapshot.ping} ms` : '–';
-                hp.classList.remove('stat-loading');
-            }
-            if (ap) ap.textContent = `${snapshot.ping}ms`;
             updateLoungeStats(snapshot.total_users ?? snapshot.ninja_nexus_members,
                 snapshot.online_count, undefined);
+            if (Number.isInteger(snapshot.playing_now)) {
+                updatePlayingNow(snapshot.playing_now);
+            }
+            if (Number.isFinite(snapshot.hours_week)) {
+                updateHoursWeek(snapshot.hours_week);
+            }
             paintHeroStatsUptime();
             setHeroStatsStatus(`Last updated ${heroStatsAgeText(snapshot.saved_at)}`);
         }
@@ -1882,13 +2069,31 @@
         }
 
         function showHeroStatsUnavailable() {
-            ['hero-online', 'hero-members', 'hero-uptime', 'hero-ping', 'online-now-stat', 'about-online-stat', 'user-count-stat']
+            ['hero-online', 'hero-members', 'online-now-stat', 'about-online-stat', 'user-count-stat']
                 .forEach(id => {
                     const element = document.getElementById(id);
                     if (!element) return;
-                    element.textContent = '–';
-                    element.classList.remove('stat-loading');
+                    if (!_statPrevValues.has(id)) {
+                        element.textContent = '—';
+                        element.classList.remove('stat-loading');
+                    }
                 });
+            if (_lastKnownPlayingNow === null) {
+                const el = document.getElementById('hero-playing');
+                if (el) {
+                    el.textContent = '—';
+                    el.classList.remove('stat-loading');
+                }
+                const aboutPlaying = document.getElementById('about-playing-stat');
+                if (aboutPlaying) aboutPlaying.textContent = '—';
+            }
+            if (_lastKnownHoursWeek === null) {
+                const el = document.getElementById('hero-hours');
+                if (el) {
+                    el.textContent = '—';
+                    el.classList.remove('stat-loading');
+                }
+            }
         }
 
         async function fetchPublicStats() {
@@ -1988,6 +2193,9 @@
         function startHeroLoop() {
             if (heroInterval) clearInterval(heroInterval);
             fetchPublicStats();
+            // Seed Playing Now and Hours This Week so hero chips populate on initial page load
+            fetchLiveGames();
+            fetchMostPlayedStats();
             heroInterval = setInterval(() => {
                 if (!document.hidden && !heroStatsFailed) fetchPublicStats();
             }, HERO_STATS_REFRESH_INTERVAL_MS);
@@ -2259,6 +2467,15 @@
                 }
                 if (gen !== mostPlayedGen) return;
                 mostPlayedLastGood = { games, at: Date.now() };
+
+                // Calculate Hours This Week across games (excluding non-games)
+                const totalHoursWeek = games.reduce((acc, g) => {
+                    if (!isGameItem(g)) return acc;
+                    const h = Number(g.total_hours);
+                    return acc + (Number.isFinite(h) && h > 0 ? h : 0);
+                }, 0);
+                updateHoursWeek(Math.round(totalHoursWeek));
+
                 if (games.length > 0) renderMostPlayedGames(container, games);
                 else renderMostPlayedEmpty(container);
                 if (payload.stale === true) {

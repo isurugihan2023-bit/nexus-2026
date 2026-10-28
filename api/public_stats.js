@@ -42,6 +42,10 @@ function normalizedStats(data, { fallback = false, observedAtMs = Date.now() } =
             online_count: Number(data.online_count ?? data.online_members) || 0,
             total_servers: servers,
             ping,
+            playing_now: Number.isInteger(data?.playing_now) && data.playing_now >= 0
+                ? data.playing_now : null,
+            hours_week: Number.isFinite(data?.hours_week) && data.hours_week >= 0
+                ? data.hours_week : null,
             stale: false
         };
     }
@@ -56,6 +60,10 @@ function normalizedStats(data, { fallback = false, observedAtMs = Date.now() } =
             ? data.online_members : null,
         total_servers: servers,
         ping,
+        playing_now: Number.isInteger(data?.playing_now) && data.playing_now >= 0
+            ? data.playing_now : null,
+        hours_week: Number.isFinite(data?.hours_week) && data.hours_week >= 0
+            ? data.hours_week : null,
         stale: false
     };
 }
