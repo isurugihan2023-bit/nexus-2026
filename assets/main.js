@@ -378,14 +378,16 @@
 
         /* ── Non-game categorization filter ── */
         const NON_GAME_CATEGORIES = new Set([
-            'application', 'utility', 'development', 'other', 'app'
+            'application', 'utility', 'development', 'other', 'app', 'spotify', 'custom status', 'status', 'music'
         ]);
-        const NON_GAME_SUBSTRINGS = ['bluestacks', 'wallpaper engine', 'visual studio', 'vscode'];
+        const NON_GAME_SUBSTRINGS = ['bluestacks', 'wallpaper engine', 'visual studio', 'vscode', 'spotify', 'custom status'];
 
         function isGameItem(item) {
             if (!item) return false;
-            const cat = (item.category || '').toLowerCase().trim();
+            const cat = (item.category || item.type || '').toLowerCase().trim();
             if (NON_GAME_CATEGORIES.has(cat)) return false;
+            const type = (item.type || '').toLowerCase().trim();
+            if (NON_GAME_CATEGORIES.has(type)) return false;
             const name = (item.name || item.game_name || item.game_key || '').toLowerCase().trim();
             for (let i = 0; i < NON_GAME_SUBSTRINGS.length; i++) {
                 if (name.includes(NON_GAME_SUBSTRINGS[i])) return false;
@@ -1094,7 +1096,7 @@
         function normalizeLiveGames(gamesList) {
             if (!Array.isArray(gamesList)) return [];
             return gamesList
-                .filter((g) => g && (g.name || g.game_key))
+                .filter((g) => g && (g.name || g.game_key) && isGameItem(g))
                 .map((g) => {
                     const name = g.name || g.game_key;
                     const players = Array.isArray(g.players)
@@ -1163,8 +1165,24 @@
             }
 
             const games = normalizeLiveGames(gamesList);
-            if (games.length === 0 && Array.isArray(gamesList) && gamesList.length > 0) {
-                return; // payload with no usable game rows: keep current cards
+            if (games.length === 0) {
+                window.currentLiveGamesState = [];
+                grid.classList.remove('single-game');
+                const totalPlayersEl = document.getElementById('lounge-total-players');
+                if (totalPlayersEl) {
+                    totalPlayersEl.textContent = '0 Players In-Game';
+                }
+                const playingEl = document.getElementById('lounge-stat-playing');
+                if (playingEl) {
+                    playingEl.textContent = '0';
+                }
+                updatePlayingNow(0);
+                if (lastGamesDigest === 'EMPTY' && grid.querySelector('.empty-lounge-state')) {
+                    return;
+                }
+                lastGamesDigest = 'EMPTY';
+                grid.innerHTML = renderEmptyLoungeState();
+                return;
             }
             window.currentLiveGamesState = games;
 
@@ -1945,20 +1963,23 @@
                 : null;
             return {
                 ninja_nexus_members: Number(data.ninja_nexus_members ?? data.total_users
-                    ?? data.total_members ?? data.member_count),
+                    ?? data.total_members ?? data.member_count ?? data.members),
                 total_users: Number(data.total_users ?? data.ninja_nexus_members
-                    ?? data.total_members ?? data.member_count),
+                    ?? data.total_members ?? data.member_count ?? data.members),
                 total_servers: Number(data.total_servers ?? data.server_count),
                 ping: Number(data.ping),
                 started_at: startedAt,
                 server_time: serverTime,
                 uptime_seconds: uptimeSeconds,
                 online_count: Number.isFinite(Number(data.online_count))
-                    ? Number(data.online_count) : null,
-                online_members: Number.isInteger(data.online_members) && data.online_members >= 0
-                    ? data.online_members : null,
+                    ? Number(data.online_count) : (Number.isFinite(Number(data.online)) ? Number(data.online) : null),
+                online_members: Number.isInteger(data.online_members ?? data.online) && (data.online_members ?? data.online) >= 0
+                    ? (data.online_members ?? data.online) : null,
                 playing_now: Number.isInteger(data.playing_now) && data.playing_now >= 0 ? data.playing_now : null,
-                hours_week: Number.isFinite(data.hours_week) && data.hours_week >= 0 ? data.hours_week : null,
+                hours_week: Number.isFinite(data.hours_week ?? data.hours_played) && (data.hours_week ?? data.hours_played) >= 0
+                    ? (data.hours_week ?? data.hours_played) : null,
+                hours_played: Number.isFinite(data.hours_played ?? data.hours_week) && (data.hours_played ?? data.hours_week) >= 0
+                    ? (data.hours_played ?? data.hours_week) : null,
                 saved_at: savedAt
             };
         }
@@ -2033,8 +2054,8 @@
             if (Number.isInteger(snapshot.playing_now)) {
                 updatePlayingNow(snapshot.playing_now);
             }
-            if (Number.isFinite(snapshot.hours_week)) {
-                updateHoursWeek(snapshot.hours_week);
+            if (Number.isFinite(snapshot.hours_week ?? snapshot.hours_played)) {
+                updateHoursWeek(snapshot.hours_week ?? snapshot.hours_played);
             }
             paintHeroStatsUptime();
             setHeroStatsStatus(`Last updated ${heroStatsAgeText(snapshot.saved_at)}`);
@@ -2190,14 +2211,23 @@
         // Back-compat names used by the WS fallback client below.
         function startStatsPolling() { startLiveLoop(); }
         function stopStatsPolling() { stopLiveLoop(); }
+        let mostPlayedInterval = null;
         function startHeroLoop() {
             if (heroInterval) clearInterval(heroInterval);
+            if (mostPlayedInterval) clearInterval(mostPlayedInterval);
             fetchPublicStats();
-            // Seed Playing Now and Hours This Week so hero chips populate on initial page load
+            // Seed Playing Now and Hours Played so hero chips populate on initial page load
             fetchLiveGames();
             fetchMostPlayedStats();
             heroInterval = setInterval(() => {
-                if (!document.hidden && !heroStatsFailed) fetchPublicStats();
+                if (!document.hidden && !heroStatsFailed) {
+                    fetchPublicStats();
+                    fetchLiveGames();
+                }
+            }, HERO_STATS_REFRESH_INTERVAL_MS);
+            // Hours Played comes from most-played data; refresh on the same 30s cadence
+            mostPlayedInterval = setInterval(() => {
+                if (!document.hidden) fetchMostPlayedStats();
             }, HERO_STATS_REFRESH_INTERVAL_MS);
         }
 
@@ -2215,11 +2245,12 @@
             } else {
                 liveSocketClient.resume();
                 startLiveLoop();
+                fetchMostPlayedStats();
                 if (heroStatsFailed) scheduleHeroStatsRetry();
                 else fetchPublicStats();
             }
         });
-        window.addEventListener('focus', () => { startLiveLoop(); });
+        window.addEventListener('focus', () => { startLiveLoop(); fetchMostPlayedStats(); });
 
         // Start network work after the initial page load so it cannot delay first paint.
         window.addEventListener('load', () => {
@@ -2420,9 +2451,12 @@
         let mostPlayedController = null;
         let mostPlayedRetryTimer = null;
         let mostPlayedRetryDelay = 2000;
+        let mostPlayedInFlight = false;
         async function fetchMostPlayedStats(manualRetry = false) {
             const container = document.getElementById('lounge-most-played-container');
             if (!container) return;
+            if (mostPlayedInFlight || (!manualRetry && document.hidden)) return;
+            mostPlayedInFlight = true;
             const gen = ++mostPlayedGen;
             if (mostPlayedRetryTimer) {
                 clearTimeout(mostPlayedRetryTimer);
@@ -2451,6 +2485,7 @@
             try {
                 const response = await fetch(API_BASE + '/api/public/most-played?range=7d', {
                     signal: controller.signal,
+                    cache: 'no-store',
                     headers: { Accept: 'application/json' }
                 });
                 if (!response.ok) throw new Error(`Most-played request failed (${response.status})`);
@@ -2492,6 +2527,7 @@
             } finally {
                 clearTimeout(timeout);
                 if (gen === mostPlayedGen) mostPlayedController = null;
+                mostPlayedInFlight = false;
             }
         }
 
