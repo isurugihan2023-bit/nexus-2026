@@ -716,9 +716,7 @@
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
             box-sizing: border-box;
             width: 230px;
-            min-width: 230px;
-            max-width: 230px;
-            overflow: hidden;
+            max-width: calc(100vw - 32px);
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
 
@@ -799,6 +797,22 @@
             display: block;
             margin-top: 2px;
             transition: opacity 0.25s ease;
+        }
+
+        /* "Connecting to server…" state of the hero bot pill */
+        .dp-activity.dp-connecting {
+            animation: dpConnectPulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes dpConnectPulse {
+            0%, 100% { opacity: 0.45; }
+            50% { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .dp-activity.dp-connecting {
+                animation: none;
+            }
         }
 
         /* Floating stat chips */
@@ -990,94 +1004,7 @@
             transform: translateY(-2px);
         }
 
-        /* Games ticker: scrolls left, edges fade out */
-        .hero-games {
-            width: 100%;
-            max-width: 440px;
-            margin: 14px auto 0;
-            overflow: hidden;
-            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%, #000 78%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0, #000 22%, #000 78%, transparent 100%);
-        }
-
-        .hero-games--lounge {
-            /* Same width as the Most Played card grid: 4 x 220px + 3 x 14px gaps */
-            width: min(100%, 922px);
-            max-width: none;
-            margin: 56px auto 0;
-            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
-        }
-
-        .hero-games-track {
-            display: flex;
-            width: max-content;
-            animation: heroGamesScroll 24s linear infinite;
-        }
-
-        .hero-games:hover .hero-games-track {
-            animation-play-state: paused;
-        }
-
-        .hero-games-list {
-            display: flex;
-            flex-shrink: 0;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .hero-games-list li {
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            font-size: 0.74rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            color: var(--sub);
-        }
-
-        .hero-games-list li::after {
-            content: "\00B7";
-            margin: 0 14px;
-            color: var(--p500);
-            font-weight: 800;
-        }
-
-        @keyframes heroGamesScroll {
-            to {
-                transform: translateX(-33.3333%);
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .hero-games {
-                -webkit-mask-image: none;
-                mask-image: none;
-            }
-
-            .hero-games-track {
-                animation: none;
-                width: auto;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
-            .hero-games-list[aria-hidden="true"] {
-                display: none;
-            }
-
-            .hero-games-list {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .hero-games-list li:last-child::after {
-                display: none;
-            }
-        }
-
-        .hero-copyright {
+.hero-copyright {
             font-size: 0.82rem;
             color: var(--muted);
             font-weight: 500;
@@ -1579,6 +1506,27 @@
             opacity: 1;
         }
 
+        /* Copy button: show an icon instead of the "Copy" text (turns into a check when copied) */
+        .cmd-copy:not([data-nx-copy]) {
+            font-size: 0;
+            line-height: 0;
+        }
+
+        .cmd-copy:not([data-nx-copy])::before {
+            content: "";
+            display: block;
+            width: 15px;
+            height: 15px;
+            background-color: currentColor;
+            -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='13' height='13' rx='2'/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg>") center / contain no-repeat;
+            mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='13' height='13' rx='2'/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg>") center / contain no-repeat;
+        }
+
+        .cmd-copy.copied:not([data-nx-copy])::before {
+            -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center / contain no-repeat;
+            mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center / contain no-repeat;
+        }
+
         .cmd-sr-only {
             position: absolute;
             width: 1px;
@@ -1643,6 +1591,28 @@
 
         body.stats-tab-active #home-cta .cta-box {
             padding: 60px 30px;
+        }
+
+        /* Stats tab: keep the numbers + CTA together and centre them on the screen
+           (free space is split equally above and below the pair; 70px = fixed nav height) */
+        body.stats-tab-active {
+            padding-top: 70px;
+        }
+
+        body.stats-tab-active #stats {
+            flex: 0 0 auto;
+            margin-top: auto;
+            padding-top: 0;
+            padding-bottom: 72px;
+            border-top: none;
+            border-bottom: none;
+        }
+
+        body.stats-tab-active #home-cta {
+            flex: 0 0 auto;
+            margin-bottom: auto;
+            padding-top: 0;
+            padding-bottom: 24px;
         }
 
         .cta-box::before {
@@ -1880,9 +1850,7 @@
                 border-radius: 40px;
                 margin-bottom: 24px;
                 width: 206px;
-                min-width: 206px;
-                max-width: 206px;
-                overflow: hidden;
+                max-width: calc(100vw - 32px);
                 box-sizing: border-box;
                 transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
             }
@@ -4187,7 +4155,7 @@
                         <button class="lounge-tab-btn active" data-lounge-tab="live">Live Sessions</button>
                         <button class="lounge-tab-btn" data-lounge-tab="most-played">Most Played<span class="tab-extra">
                                 This Week</span></button>
-                        <button class="lounge-tab-btn" data-lounge-tab="listening">Listening</button>
+                        <button class="lounge-tab-btn" data-lounge-tab="listening" hidden style="display: none;">Listening</button>
                     </div>
                     <div class="lounge-updated" id="lounge-updated" role="status" aria-hidden="true" hidden></div>
                 </div>
@@ -4212,14 +4180,6 @@
                 <!-- Sub-container for Spotify Listening -->
                 <div id="lounge-spotify-container" style="display: none;"></div>
 
-                <!-- Games we play (scrolling ticker) -->
-                <div class="hero-games hero-games--lounge" role="group" aria-label="Games we play: Valorant, FiveM, Dota 2, Valheim, Black Myth: Wukong, PUBG, Ceylon Roleplay">
-                    <div class="hero-games-track">
-                        <ul class="hero-games-list"><li>Valorant</li><li>FiveM</li><li>Dota 2</li><li>Valheim</li><li>Black Myth: Wukong</li><li>PUBG</li><li>Ceylon Roleplay</li></ul>
-                        <ul class="hero-games-list" aria-hidden="true"><li>Valorant</li><li>FiveM</li><li>Dota 2</li><li>Valheim</li><li>Black Myth: Wukong</li><li>PUBG</li><li>Ceylon Roleplay</li></ul>
-                        <ul class="hero-games-list" aria-hidden="true"><li>Valorant</li><li>FiveM</li><li>Dota 2</li><li>Valheim</li><li>Black Myth: Wukong</li><li>PUBG</li><li>Ceylon Roleplay</li></ul>
-                    </div>
-                </div>
 
             </div>
         </section>
@@ -5134,6 +5094,178 @@
             setTimeout(function () {
                 if (!completed) done();
             }, 3000);
+        })();
+    </script>
+    <!-- Hero bot pill: "Connecting server…" first, then rotates the live statuses + a day counter -->
+    <script>
+        (function () {
+            var el = document.getElementById('dp-activity-text');
+            if (!el) return;
+
+            // ⚠ Set this to the real launch date of the community: [year, month, day]
+            var LAUNCH = [2026, 3, 1];
+            var CONNECT = 'Connecting to server…';
+            var ROTATE_MS = 5000, FADE_MS = 250, FALLBACK_MS = 12000;
+            var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            var pool = {}, order = [], shown = '', idx = 0, started = false, hovered = false, timer = null;
+            var desired = null;   // opacity we want (null = let the CSS pulse run)
+
+            // This script owns the pill's opacity: any fade/blink another script applies is cancelled
+            function applyOp() {
+                if (desired === null) el.style.removeProperty('opacity');
+                else el.style.setProperty('opacity', desired, 'important');
+            }
+
+            function dayText() {
+                var n = new Date();
+                var today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+                var start = Date.UTC(LAUNCH[0], LAUNCH[1] - 1, LAUNCH[2]);
+                var d = Math.floor((today - start) / 86400000) + 1;
+                return d >= 1 ? 'Day ' + d + ' of Nexus' : null;
+            }
+
+            function items() {
+                var a = order.map(function (k) { return pool[k]; });
+                var d = dayText();
+                if (d) a.push(d);
+                return a;
+            }
+
+            function swap(t) {
+                shown = t;
+                el.textContent = t;
+                el.classList.toggle('dp-connecting', t === CONNECT);
+                desired = (t === CONNECT) ? null : '1';
+                applyOp();
+            }
+
+            function show(t) {
+                if (t === shown) return;
+                if (reduce) { swap(t); return; }
+                el.classList.remove('dp-connecting');
+                desired = '0';
+                applyOp();
+                setTimeout(function () { swap(t); }, FADE_MS);
+            }
+
+            function addToPool(t) {
+                var key = t.toLowerCase().replace(/\d+/g, '#');          // "53 Members" and "54 Members" share a slot
+                if (!(key in pool)) order.push(key);
+                pool[key] = t;
+            }
+
+            function tick() {
+                if (document.hidden || hovered) return;
+                var a = items();
+                if (a.length < 2) { if (a.length) show(a[0]); return; }
+                idx = (idx + 1) % a.length;
+                show(a[idx]);
+            }
+
+            function start() {
+                if (started) return;
+                started = true;
+                var a = items();
+                idx = 0;
+                if (a.length) show(a[0]);
+                if (!reduce) timer = setInterval(tick, ROTATE_MS);
+            }
+
+            // Begin in the "connecting" state
+            swap(CONNECT);
+
+            // main.js writes the live status into this element; collect it instead of showing it directly
+            new MutationObserver(function () {
+                var t = el.textContent.trim();
+                if (t === shown) return;
+                if (t && t !== CONNECT) addToPool(t);
+                el.textContent = shown;                       // keep what we are currently showing
+                start();
+            }).observe(el, { childList: true, characterData: true, subtree: true });
+
+            // Cancel opacity changes made by other scripts (they caused a double blink on the same text)
+            new MutationObserver(function () {
+                var cur = el.style.getPropertyValue('opacity');
+                if (desired === null) { if (cur) el.style.removeProperty('opacity'); return; }
+                if (cur !== desired || el.style.getPropertyPriority('opacity') !== 'important') applyOp();
+            }).observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+            // If nothing arrives, do not stay on "connecting" forever
+            setTimeout(function () {
+                if (!started) { addToPool('Watching Ninja Nexus'); start(); }
+            }, FALLBACK_MS);
+
+            var pill = el.closest('.discord-presence');
+            if (pill) {
+                pill.addEventListener('mouseenter', function () { hovered = true; });
+                pill.addEventListener('mouseleave', function () { hovered = false; });
+                pill.addEventListener('focusin', function () { hovered = true; });
+                pill.addEventListener('focusout', function () { hovered = false; });
+            }
+        })();
+    </script>
+    <!-- Commands: click-to-copy button on every command card (skips cards that already have one) -->
+    <script>
+        (function () {
+            var ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+                'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+                '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+
+            function copyText(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text);
+                }
+                return new Promise(function (resolve, reject) {
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.setAttribute('readonly', '');
+                    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { document.execCommand('copy') ? resolve() : reject(); } catch (e) { reject(e); }
+                    document.body.removeChild(ta);
+                });
+            }
+
+            function enhance() {
+                var cards = document.querySelectorAll('.cmd-card');
+                for (var i = 0; i < cards.length; i++) {
+                    var card = cards[i];
+                    if (card.querySelector('.cmd-copy')) continue;
+                    var nameEl = card.querySelector('.cmd-card-name');
+                    if (!nameEl) continue;
+                    var cmd = nameEl.textContent.trim();
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'cmd-copy';
+                    btn.setAttribute('data-nx-copy', cmd);
+                    btn.setAttribute('aria-label', 'Copy command ' + cmd);
+                    btn.title = 'Copy';
+                    btn.innerHTML = ICON + '<span class="cmd-sr-only" role="status"></span>';
+                    card.appendChild(btn);
+                }
+            }
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('.cmd-copy[data-nx-copy]') : null;
+                if (!btn) return;
+                var status = btn.querySelector('.cmd-sr-only');
+                copyText(btn.getAttribute('data-nx-copy')).then(function () {
+                    btn.classList.add('copied');
+                    if (status) status.textContent = 'Copied';
+                    setTimeout(function () {
+                        btn.classList.remove('copied');
+                        if (status) status.textContent = '';
+                    }, 1400);
+                }).catch(function () {
+                    if (status) status.textContent = 'Copy failed';
+                });
+            });
+
+            // Run after main.js (deferred) has had its chance to add its own buttons
+            window.addEventListener('load', function () { setTimeout(enhance, 0); });
         })();
     </script>
 </body>
