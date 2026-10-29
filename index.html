@@ -69,6 +69,8 @@
                     document.documentElement.classList.add('nointro');
                 } else {
                     document.documentElement.classList.add('intro-active');
+                    // Failsafe: start the intro even if the logo-ready check below never fires
+                    setTimeout(function () { document.documentElement.classList.add('intro-ready'); }, 1500);
                 }
             } catch (e) { }
         })();
@@ -76,7 +78,15 @@
 
     <!-- ── Logo Intro Overlay Styles (ConvertNexus style) ── -->
     <style id="intro-styles">
-        /* Intro overlay: fixed full-screen above all content */
+        /* Reserve the scrollbar space so removing the intro scroll-lock never shifts the page sideways */
+        html {
+            scrollbar-gutter: stable;
+        }
+
+        /* Timeline (starts only once the logo image is decoded -> html.intro-ready)
+           0.00s  logo eases in
+           1.55s  logo lifts away, page starts cross-fading in
+           1.60s  black overlay fades out (0.75s)  -> done at ~2.35s */
         #intro {
             position: fixed;
             inset: 0;
@@ -85,34 +95,68 @@
             place-items: center;
             background: #000000;
             cursor: pointer;
-            animation: inOut 0.7s ease 1.9s forwards;
             pointer-events: auto;
             user-select: none;
             -webkit-user-select: none;
+            will-change: opacity;
+            animation: inOut 0.75s cubic-bezier(0.65, 0, 0.35, 1) 1.6s forwards;
+            animation-play-state: paused;
         }
 
         .in-box {
+            position: relative;
             display: grid;
             place-items: center;
         }
 
-        /* Logo reveal: blur(10px) -> blur(0), scale(0.9) -> scale(1) (matching ConvertNexus) */
         .in-logo {
+            position: relative;
             height: 52px;
             width: auto;
             display: block;
             object-fit: contain;
             opacity: 0;
-            filter: blur(10px);
-            transform: scale(0.9);
-            animation: inLogo 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s forwards;
+            filter: blur(6px);
+            transform: translate3d(0, 6px, 0) scale(0.94);
+            backface-visibility: hidden;
+            will-change: transform, opacity, filter;
+            animation:
+                inLogo 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards,
+                inLogoOut 0.6s cubic-bezier(0.4, 0, 1, 1) 1.55s forwards;
+            animation-play-state: paused;
+        }
+
+        /* Start every intro animation together, only after the logo is ready */
+        html.intro-ready #intro,
+        html.intro-ready #intro .in-logo {
+            animation-play-state: running;
         }
 
         @keyframes inLogo {
+            from {
+                opacity: 0;
+                filter: blur(6px);
+                transform: translate3d(0, 6px, 0) scale(0.94);
+            }
+
             to {
                 opacity: 1;
                 filter: blur(0);
-                transform: scale(1);
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes inLogoOut {
+            from {
+                opacity: 1;
+                filter: blur(0);
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                filter: blur(2px);
+                transform: translate3d(0, 0, 0) scale(1.04);
             }
         }
 
@@ -124,11 +168,36 @@
             }
         }
 
-        /* Page reveal synchronized with intro exit */
+        /* Click / key skip: a real fade instead of an instant cut */
+        #intro.intro-skip {
+            animation: inSkip 0.45s ease forwards !important;
+            animation-play-state: running !important;
+            pointer-events: none;
+        }
+
+        @keyframes inSkip {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        /* Page cross-fades in underneath the overlay as it leaves (opacity only, so fixed/sticky children keep working) */
         html:not(.nointro) body>.nav,
         html:not(.nointro) body>main,
         html:not(.nointro) body>#site-footer {
-            animation: wrapIn 0.8s ease 1.8s both;
+            animation: wrapIn 0.95s cubic-bezier(0.22, 1, 0.36, 1) 1.5s both;
+            animation-play-state: paused;
+        }
+
+        html.intro-ready:not(.nointro) body>.nav,
+        html.intro-ready:not(.nointro) body>main,
+        html.intro-ready:not(.nointro) body>#site-footer {
+            animation-play-state: running;
         }
 
         @keyframes wrapIn {
@@ -139,6 +208,14 @@
             to {
                 opacity: 1;
             }
+        }
+
+        /* Skipping: page is shown immediately while the overlay fades away */
+        html.intro-skipping body>.nav,
+        html.intro-skipping body>main,
+        html.intro-skipping body>#site-footer {
+            animation: none !important;
+            opacity: 1 !important;
         }
 
         /* Skip state: already shown this session */
@@ -4016,6 +4093,20 @@
             <img class="in-logo" src="images/intro-logo.png" alt="" width="31" height="52" decoding="async">
         </div>
     </div>
+    <script>
+        // Start the intro only once the logo is decoded, so it never pops in half-way through the animation
+        (function () {
+            var root = document.documentElement;
+            var img = document.querySelector('#intro .in-logo');
+            var fired = false;
+            function go() { if (fired) return; fired = true; root.classList.add('intro-ready'); }
+            function decode() { if (img.decode) { img.decode().then(go, go); } else { go(); } }
+            if (!img) { go(); return; }
+            if (img.complete && img.naturalWidth) { decode(); }
+            else { img.addEventListener('load', decode); img.addEventListener('error', go); }
+            setTimeout(go, 800); // never wait longer than this for the image
+        })();
+    </script>
 
     <!-- ── NAVBAR ─────────────────────── -->
     <nav class="nav" id="navbar">
@@ -5010,6 +5101,7 @@
             var intro = document.getElementById('intro');
             if (!intro) return;
 
+            var root = document.documentElement;
             var SESSION_KEY = 'nb_intro_seen';
             var testForce = /[?&](intro|replay)=1\b/i.test(location.search);
             var seen = false;
@@ -5028,72 +5120,66 @@
                 }
             };
 
-            // If already shown this session (and not forced for testing) or prefers-reduced-motion:
+            // Already shown this session (and not forced for testing) or prefers-reduced-motion
             if ((seen || reduced) && !testForce) {
-                document.documentElement.classList.remove('intro-active');
+                root.classList.remove('intro-active');
                 document.body.classList.remove('intro-active');
-                document.documentElement.classList.add('nointro');
+                root.classList.add('nointro');
                 document.body.classList.add('nointro');
                 intro.remove();
                 return;
             }
 
-            // Mark session as seen
             try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) { }
 
-            // Ensure scroll lock is active
-            document.documentElement.classList.add('intro-active');
+            // Ensure scroll lock is active while the intro plays
+            root.classList.add('intro-active');
             document.body.classList.add('intro-active');
 
-            var completed = false;
-            function done() {
-                if (completed) return;
-                completed = true;
-                document.removeEventListener('keydown', onKeyDown);
-                intro.removeEventListener('click', done);
+            var finished = false, skipping = false, safety = null;
 
-                // Smooth exit
-                intro.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s';
-                intro.style.opacity = '0';
-                intro.style.pointerEvents = 'none';
-
-                document.documentElement.classList.add('nointro');
-                document.body.classList.add('nointro');
-                document.documentElement.classList.remove('intro-active');
+            function unlock() {
+                root.classList.remove('intro-active');
                 document.body.classList.remove('intro-active');
+            }
 
-                setTimeout(function () {
-                    try { intro.remove(); } catch (e) { }
-                }, 400);
+            function cleanup() {
+                if (finished) return;
+                finished = true;
+                clearTimeout(safety);
+                document.removeEventListener('keydown', onKeyDown);
+                intro.removeEventListener('click', skip);
+                root.classList.remove('intro-skipping');
+                root.classList.add('nointro');
+                document.body.classList.add('nointro');
+                unlock();
+                try { intro.remove(); } catch (e) { }
+            }
+
+            // Click / key: fade the overlay out smoothly, THEN mark the intro as finished
+            function skip() {
+                if (finished || skipping) return;
+                skipping = true;
+                root.classList.add('intro-skipping');
+                intro.classList.add('intro-skip');
+                unlock();
+                setTimeout(cleanup, 480);
             }
 
             function onKeyDown(e) {
-                if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-                    done();
-                }
+                if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') skip();
             }
 
-            // Allow user to click or press keys to skip immediately
-            intro.addEventListener('click', done);
+            intro.addEventListener('click', skip);
             document.addEventListener('keydown', onKeyDown);
 
-            // Natural completion matching CSS animation duration (2.0s display + 0.65s transition = 2.65s)
-            setTimeout(function () {
-                if (completed) return;
-                completed = true;
-                document.removeEventListener('keydown', onKeyDown);
-                intro.removeEventListener('click', done);
-                document.documentElement.classList.add('nointro');
-                document.body.classList.add('nointro');
-                document.documentElement.classList.remove('intro-active');
-                document.body.classList.remove('intro-active');
-                try { intro.remove(); } catch (e) { }
-            }, 2700);
+            // Finish exactly when the CSS exit animation ends (no guessed timeouts)
+            intro.addEventListener('animationend', function (e) {
+                if (e.target === intro && e.animationName === 'inOut') cleanup();
+            });
 
-            // Safety timeout: never block page longer than 3 seconds under any circumstance
-            setTimeout(function () {
-                if (!completed) done();
-            }, 3000);
+            // Safety net: never block the page longer than this under any circumstance
+            safety = setTimeout(function () { if (!finished) skip(); }, 4000);
         })();
     </script>
     <!-- Hero bot pill: "Connecting server…" first, then rotates the live statuses + a day counter -->
