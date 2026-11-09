@@ -1096,7 +1096,7 @@
         function normalizeLiveGames(gamesList) {
             if (!Array.isArray(gamesList)) return [];
             return gamesList
-                .filter((g) => g && (g.name || g.game_key) && isGameItem(g))
+                .filter((g) => g && (g.name || g.game_key))
                 .map((g) => {
                     const name = g.name || g.game_key;
                     const players = Array.isArray(g.players)
