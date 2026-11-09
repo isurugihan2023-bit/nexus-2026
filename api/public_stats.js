@@ -1,9 +1,9 @@
 import { fetchUpstream, getUpstreamFailure } from './_nexus.js';
 
 const NON_GAME_CATEGORIES = new Set([
-    'application', 'utility', 'development', 'other', 'app', 'spotify', 'custom status', 'status', 'music'
+    'utility', 'development', 'other', 'developer tools', 'spotify', 'custom status', 'status', 'music'
 ]);
-const NON_GAME_SUBSTRINGS = ['bluestacks', 'wallpaper engine', 'visual studio', 'vscode', 'spotify', 'custom status'];
+const NON_GAME_SUBSTRINGS = ['bluestacks', 'wallpaper engine', 'visual studio', 'vscode', 'spotify', 'custom status', 'antigravity'];
 
 function isGameItem(item) {
     if (!item) return false;
