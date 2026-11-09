@@ -114,6 +114,12 @@
             const wantHash = '#' + targetId;
             if (window.location.hash !== wantHash) history.pushState(null, '', wantHash);
 
+            const navEl = document.getElementById('navbar');
+            if (navEl) {
+                navEl.classList.remove('nav-hidden');
+                navEl.classList.remove('scrolled');
+            }
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
